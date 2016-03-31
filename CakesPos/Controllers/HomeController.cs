@@ -8,10 +8,19 @@ namespace CakesPos.Controllers
 {
     public class HomeController : Controller
     {
-        //
-        // GET: /Home/
+
 
         public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult Order()
+        {
+            return View();
+        }
+
+        public ActionResult OrderHistory()
         {
             return View();
         }

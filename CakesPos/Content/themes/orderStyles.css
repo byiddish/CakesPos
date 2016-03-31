@@ -1,0 +1,31 @@
+﻿#parent {
+    border: 1px solid red;
+    width: 100%;
+    float: left;
+    margin-top: 100px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+#leftdiv {
+    float: left;
+    border: 1px solid blue;
+    min-width: 300px;
+    width: 35%;
+    height: 800px;
+    margin-right: 5px;
+    overflow: scroll;
+}
+
+#rightdiv {
+    float: left;
+    border: 1px solid green;
+    min-width: 300px;
+    width: 60%;
+    height: 800px;
+}
+
+#total{
+    text-align:right;
+}
+
