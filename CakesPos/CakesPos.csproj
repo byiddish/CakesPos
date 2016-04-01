@@ -204,6 +204,15 @@
     <Content Include="Content\bootstrap.min.css.map" />
     <Content Include="Content\bootstrap.css.map" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="images\Candy-Cake.jpg" />
+    <Content Include="images\Caramel-Loaf.jpg" />
+    <Content Include="images\chestnut-log.jpg" />
+    <Content Include="images\Lemon-Bombe.jpg" />
+    <Content Include="images\Lemon-cake.jpg" />
+    <Content Include="images\Square-Meringue.jpg" />
+    <Content Include="images\Strawberry-Shortcake.jpg" />
+    <Content Include="images\The-14-Layer.jpg" />
+    <Content Include="images\Triangle.jpg" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />

@@ -9,7 +9,7 @@
 
 #leftdiv {
     float: left;
-    border: 1px solid blue;
+    /*border: 1px solid black;*/
     min-width: 300px;
     width: 35%;
     height: 800px;
@@ -17,6 +17,7 @@
 }
 
 #ordersDiv{
+    border: 1px solid black;
     overflow: scroll;
     height:573px;
 }
@@ -32,6 +33,7 @@
     min-width: 300px;
     width: 60%;
     height: 800px;
+    overflow: scroll;
 }
 
 .checkbox{
@@ -44,5 +46,15 @@
 
 #tax{
     text-align:right;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+    text-align:center;
+}
+
+img{
+    margin:5px;
 }
 
