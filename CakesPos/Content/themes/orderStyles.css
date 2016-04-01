@@ -14,7 +14,16 @@
     width: 35%;
     height: 800px;
     margin-right: 5px;
+}
+
+#ordersDiv{
     overflow: scroll;
+    height:573px;
+}
+
+#totalDiv{
+    margin-top:5px;
+    border: 1px solid black;
 }
 
 #rightdiv {
@@ -25,7 +34,15 @@
     height: 800px;
 }
 
+.checkbox{
+    width:20px;
+}
+
 #total{
+    text-align:right;
+}
+
+#tax{
     text-align:right;
 }
 
