@@ -7,7 +7,7 @@
         <div id="ordersDiv">
             <div id="customerInfoDiv">
                 <div id="customerInfoDivInner">
-                    <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#myModal">Select customer</button>
+                    <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
                     <h3>Suchi Waldman</h3>
                     <h4>613 W. Kennedy Blvd. <br />Lakewood NJ 08701</h4>
                     <h5>917-836-1907</h5>
@@ -109,6 +109,7 @@
                 <h3>Discount  <input class="input-sm" /></h3>
                 <h3>Total items: 10</h3>
                 <h1 id="total">Total: $583.00</h1>
+                <button class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#checkoutModal">Checkout >>></button>
             </div>
         </div>
     </div>
@@ -129,7 +130,7 @@
     </div>
 </div>
 
-<div id="myModal" class="modal fade" role="dialog">
+<div id="searchCustomerModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
         <!-- Modal content-->
@@ -139,7 +140,7 @@
                 <h4 class="modal-title">Select Customer</h4>
             </div>
             <div class="modal-body">
-                <label>Search  <input class="input" type="search"/></label>
+                <label>Search  <input class="input" type="search" /></label>
                 <br />
                 <table class="table table-bordered table-striped table-hover">
                     <tr>
@@ -150,6 +151,42 @@
                         <th>Contact</th>
                     </tr>
                 </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="checkoutModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Checkout</h4>
+            </div>
+            <div class="modal-body">
+                <div >
+                    <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" /></label>
+                </div>
+                <div>
+                    <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" /></label>
+                </div>
+                <div id="deliveryInfoDiv" style="display: none;">
+                    <label>First Name <input /></label>
+                    <label>Last Name <input /></label>
+                    <label>Address <input /></label>
+                    <label>City <input /></label>
+                    <label>State <input /></label>
+                    <label>Zip <input /></label>
+                </div>
+                <div>
+                    
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

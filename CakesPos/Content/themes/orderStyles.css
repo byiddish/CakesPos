@@ -8,22 +8,22 @@
 
 #leftdiv {
     float: left;
-    /*border: 1px solid black;*/
+    border: 1px solid black;
     min-width: 300px;
     width: 35%;
-    height: 800px;
+    height: 846px;
     margin-right: 5px;
+    margin-bottom:10px;
 }
 
 #ordersDiv {
-    border: 1px solid black;
     overflow: scroll;
     height: 603px;
 }
 
 #totalDiv {
     margin-top: 5px;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     height:192px;
 }
 
@@ -32,7 +32,7 @@
     border: 1px solid green;
     min-width: 300px;
     width: 60%;
-    height: 800px;
+    height: 846px;
     overflow: scroll;
 }
 
