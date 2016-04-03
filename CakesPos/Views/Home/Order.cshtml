@@ -6,9 +6,12 @@
     <div id="leftdiv">
         <div id="ordersDiv">
             <div id="customerInfoDiv">
-                <h3>Suchi Waldman</h3>
-                <h4>613 W. Kennedy Blvd. <br />Lakewood NJ 08701</h4>
-                <h5>917-836-1907</h5>
+                <div id="customerInfoDivInner">
+                    <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#myModal">Select customer</button>
+                    <h3>Suchi Waldman</h3>
+                    <h4>613 W. Kennedy Blvd. <br />Lakewood NJ 08701</h4>
+                    <h5>917-836-1907</h5>
+                </div>
             </div>
             <br />
             <br />
@@ -102,14 +105,15 @@
             </table>
         </div>
         <div id="totalDiv">
-            <h3>Discount  <input class="input-sm" /><h3>Total items: 10</h3></h3>
-            @*<h3>Total items: 10</h3>*@
-            <h2 id="tax">Tax: $12.36</h2>
-            <h1 id="total">Total: $583.00</h1>
+            <div id="totalDivInner">
+                <h3>Discount  <input class="input-sm" /></h3>
+                <h3>Total items: 10</h3>
+                <h1 id="total">Total: $583.00</h1>
+            </div>
         </div>
     </div>
     <div id="rightdiv">
-        <div>
+        <div id="rightdivInner">
             <btn class="btn btn-lg btn-success">Cakes</btn>
             <btn class="btn btn-lg btn-success">Minitures</btn>
         </div>
@@ -122,5 +126,35 @@
         <img src="~/images/Strawberry-Shortcake.jpg" />
         <img src="~/images/The-14-Layer.jpg" />
         <img src="~/images/Triangle.jpg" />
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select Customer</h4>
+            </div>
+            <div class="modal-body">
+                <label>Search  <input class="input" type="search"/></label>
+                <br />
+                <table class="table table-bordered table-striped table-hover">
+                    <tr>
+                        <th>Select</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
     </div>
 </div>

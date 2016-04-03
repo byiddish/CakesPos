@@ -15,15 +15,16 @@
     margin-right: 5px;
 }
 
-#ordersDiv{
+#ordersDiv {
     border: 1px solid black;
     overflow: scroll;
-    height:573px;
+    height: 603px;
 }
 
-#totalDiv{
-    margin-top:5px;
+#totalDiv {
+    margin-top: 5px;
     border: 1px solid black;
+    height:192px;
 }
 
 #rightdiv {
@@ -35,25 +36,40 @@
     overflow: scroll;
 }
 
-.checkbox{
-    width:20px;
+.checkbox {
+    width: 20px;
 }
 
-#total{
-    text-align:right;
+#total {
+    float: right;
 }
 
-#tax{
-    text-align:right;
+#tax {
+    float: right;
 }
 
 th {
     background-color: #4CAF50;
     color: white;
-    text-align:center;
+    text-align: center;
 }
 
-img{
-    margin:5px;
+img {
+    margin: 5px;
 }
 
+#selectBtn {
+    float: right;
+}
+
+#customerInfoDivInner {
+     margin:15px;
+}
+
+#totalDivInner {
+    margin:15px;
+}
+
+#rightdivInner{
+   margin:15px;
+}
