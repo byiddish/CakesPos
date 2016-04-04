@@ -25,5 +25,10 @@ namespace CakesPos.Controllers
             return View();
         }
 
+        public ActionResult Admin()
+        {
+            return View();
+        }
+
     }
 }
