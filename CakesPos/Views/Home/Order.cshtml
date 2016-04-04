@@ -109,7 +109,7 @@
                 <h3>Discount  <input class="input-sm" /></h3>
                 <h3>Total items: 10</h3>
                 <h1 id="total">Total: $583.00</h1>
-                <button class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#checkoutModal">Checkout >>></button>
+                <button class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#checkoutModal">Place Order</button>
             </div>
         </div>
     </div>
@@ -180,15 +180,18 @@
                     <label>First Name <input /></label>
                     <label>Last Name <input /></label>
                     <label>Address <input /></label>
-                    <label>City <input /></label>
-                    <label>State <input /></label>
-                    <label>Zip <input /></label>
+                    <label>Phone <input /></label>
+                    
                 </div>
                 <div>
-                    
+                    <textarea placeholder="Notes" id="notes" rows="10"></textarea>
+                    <label>Credit card<input /></label>
+                    <label>Exp.<input /></label>
+                    <label>Sercurity code<input /></label>
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-success" data-dismiss="modal">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
