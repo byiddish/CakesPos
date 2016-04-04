@@ -177,28 +177,73 @@
                 <div>
                     <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" /></label>
                 </div>
+                <br />
                 <div class="form-group" id="deliveryInfoDiv" style="display: none;">
-                    <label>First Name <input /></label>
-                    <label>Last Name <input /></label>
-                    <label>Address <input /></label>
-                    <label>Phone <input /></label>
-
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-control" name="address" id="address" placeholder="Address">
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" class="form-control" name="city" id="city" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" class="form-control" name="state" id="state" placeholder="State">
+                    </div>
+                    <div class="form-group">
+                        <label>Zip</label>
+                        <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <textarea placeholder="Notes" id="notes" rows="10"></textarea>
-                    <label>Credit card<input /></label>
-                    <label>Exp.<input /></label>
-                    <label>Sercurity code<input /></label>
+                    <label>Required Date</label>
+                    <input type="date" class="form-control" name="requiredDate" id="requiredDate">
                 </div>
+                <div class="form-group">
+                    <label>Credit Card</label>
+                    <input type="text" class="form-control" name="creditCard" id="creditCard" placeholder="Credit card">
+                </div>
+                <div class="form-group">
+                    <label>Expiration</label>
+                    <input type="text" class="form-control" name="expiration" id="expiration" placeholder="Expiration">
+                </div>
+                <div class="form-group">
+                    <label>Sercurity Code</label>
+                    <input type="text" class="form-control" name="sercurityCode" id="sercurityCode" placeholder="Sercurity Code">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
+                </div>
+
+                @*<div class="form-group">
+                        <textarea placeholder="Notes" id="notes" rows="10"></textarea>
+                        <label>Credit card<input /></label>
+                        <label>Exp.<input /></label>
+                        <label>Sercurity code<input /></label>
+                    </div>*@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" data-dismiss="modal">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
-
     </div>
 </div>
+
 
 <div id="newCustomerModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -210,16 +255,34 @@
                 <h4 class="modal-title">New Customer</h4>
             </div>
             <div class="modal-body">
-                <lable>First Name <input class="input" /></lable>
-                <lable>Last Name <input class="input" /></lable>
-                <br />
-                <lable>Address <input class="input" /></lable>
-                <lable>City <input class="input" /></lable>
-                <br />
-                <lable>State <input class="input" /></lable>
-                <lable>Zip <input class="input" /></lable>
-                <br />
-                <lable>Phone <input class="input" /></lable>
+                <div class="form-group">
+                    <label>First name</label>
+                    <input type="text" class="form-control" name="firstname" id="firstName" placeholder="First Name">
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" class="form-control" name="address" id="address" placeholder="Address">
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" class="form-control" name="city" id="city" placeholder="City">
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" class="form-control" name="state" id="state" placeholder="State">
+                </div>
+                <div class="form-group">
+                    <label>Zip</label>
+                    <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" data-dismiss="modal">Submit</button>
