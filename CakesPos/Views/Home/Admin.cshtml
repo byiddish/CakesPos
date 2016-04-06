@@ -1,7 +1,7 @@
 ﻿<div class="container" style="margin-top:100px">
     <div class="well">
         <h1>New Product</h1>
-        <form action ="/home/addNewProduct" method="POST">
+        <form action="/home/addNewProduct" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label>Category</label>
                 <input type="text" class="form-control" name="categoryId" id="categoryId" placeholder="Category">
@@ -23,7 +23,7 @@
                 <input type="file" name="image" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+        </form>
 </div>
 </div>
 

@@ -1,4 +1,7 @@
-﻿@section Styles{
+﻿@model CakesPos.OrdersViewModel
+
+
+@section Styles{
     <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
 }
 
@@ -116,18 +119,35 @@
     </div>
     <div id="rightdiv">
         <div id="rightdivInner">
-            <btn class="btn btn-lg btn-success">Cakes</btn>
-            <btn class="btn btn-lg btn-success">Minitures</btn>
+            @foreach (CakesPos.Data.Category category in Model.categories)
+            {
+                <btn class="btn btn-lg btn-success categorybtn" data-category="@category.CategoryName">@category.CategoryName</btn>
+            }
+
         </div>
-        <img src="~/images/Candy-Cake.jpg" />
-        <img src="~/images/Caramel-Loaf.jpg" />
-        <img src="~/images/chestnut-log.jpg" />
-        <img src="~/images/Lemon-Bombe.jpg" />
-        <img src="~/images/Lemon-cake.jpg" />
-        <img src="~/images/Square-Meringue.jpg" />
-        <img src="~/images/Strawberry-Shortcake.jpg" />
-        <img src="~/images/The-14-Layer.jpg" />
-        <img src="~/images/Triangle.jpg" />
+        <div id="cakesDiv">
+            @foreach (CakesPos.Data.Product product in Model.products)
+            {
+                //string i = product.Image.ToString();
+
+                <button class="btn productbtn"><img src="/Uploads/@product.Image.ToString()" /></button>
+                @*<button class="btn productbtn"><img src="/Uploads/cb9cc148-5ea4-4815-a000-29b776c50545.jpg" /></button>
+                <button class="btn productbtn"><img src="/Uploads/edddf96d-104a-4f77-875d-c67a787df8ca.jpg" /></button>*@
+
+            }
+        </div>
+
+        <div id="miniatures" hidden="hidden">
+            @*@foreach (CakesPos.Data.Product product in Model.products)
+            {*@
+                @*//string i = product.Image.ToString();*@
+            <h1>Awesome!!!!!!</h1>
+                @*<button class="btn productbtn"><img src="/Uploads/@product.Image.ToString()" /></button>*@
+                @*<button class="btn productbtn"><img src="/Uploads/cb9cc148-5ea4-4815-a000-29b776c50545.jpg" /></button>
+                <button class="btn productbtn"><img src="/Uploads/edddf96d-104a-4f77-875d-c67a787df8ca.jpg" /></button>*@
+
+            @*}*@
+        </div>
     </div>
 </div>
 

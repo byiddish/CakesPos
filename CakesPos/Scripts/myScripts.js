@@ -6,4 +6,12 @@
         })
 
     })
+
+    $(".categorybtn").on('click', function () {
+        var c = $(this).text();
+        $("#cakesDiv").hide();
+        $("#"+c).show();
+        //$("#productDiv").append('<h1>Toby is incredible!!!!!!</h1>');
+        //$("#productsDiv").show();
+    })
 })

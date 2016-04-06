@@ -99,5 +99,21 @@ namespace CakesPos.Data
                 context.SubmitChanges();
             }
         }
+
+        public IEnumerable<Product> GetAllProducts()
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+               return context.Products.ToList();
+            }
+        }
+
+        public IEnumerable<Category> GetAllCategories()
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                return context.Categories.ToList();
+            }
+        }
     }
 }

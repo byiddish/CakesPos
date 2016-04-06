@@ -18,7 +18,11 @@ namespace CakesPos.Controllers
 
         public ActionResult Order()
         {
-            return View();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrdersViewModel ovm = new OrdersViewModel();
+            ovm.categories = cpr.GetAllCategories();
+            ovm.products = cpr.GetAllProducts();
+            return View(ovm);
         }
 
         public ActionResult OrderHistory()
@@ -37,15 +41,21 @@ namespace CakesPos.Controllers
             cpr.AddCategory(categoryName);
             return RedirectToAction("Admin");
 
-          
+
         }
 
-        public ActionResult AddNewProduct(string productName, decimal price, int inStock, string image, int categoryId)
+        public ActionResult AddNewProduct(string productName, decimal price, int inStock, HttpPostedFileBase image, int categoryId)
         {
+            Guid g = Guid.NewGuid();
+
+            image.SaveAs(Server.MapPath("~/Uploads/" + g + ".jpg"));
+
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddProduct(productName, price, inStock, image, categoryId);
+            cpr.AddProduct(productName, price, inStock, g + ".jpg", categoryId);
             return RedirectToAction("Admin");
         }
+
+
 
     }
 }
