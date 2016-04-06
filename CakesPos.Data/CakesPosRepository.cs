@@ -115,5 +115,14 @@ namespace CakesPos.Data
                 return context.Categories.ToList();
             }
         }
+
+        public IEnumerable<Product> GetProductsByCategory(int categoryId)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                return context.Products.Where(p => p.CategoryId == categoryId).ToList();
+            }
+        }
     }
 }

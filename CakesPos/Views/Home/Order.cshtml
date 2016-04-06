@@ -121,20 +121,22 @@
         <div id="rightdivInner">
             @foreach (CakesPos.Data.Category category in Model.categories)
             {
-                <btn class="btn btn-lg btn-success categorybtn" data-category="@category.CategoryName">@category.CategoryName</btn>
+                <btn class="btn btn-lg btn-success categorybtn" data-category=@category.Id>@category.CategoryName</btn>
             }
 
         </div>
         <div id="cakesDiv">
-            @foreach (CakesPos.Data.Product product in Model.products)
-            {
-                //string i = product.Image.ToString();
+            <div id="productsInnerDiv">
+                @foreach (CakesPos.Data.Product product in Model.products)
+                {
+                    //string i = product.Image.ToString();
 
-                <button class="btn productbtn"><img src="/Uploads/@product.Image.ToString()" /></button>
-                @*<button class="btn productbtn"><img src="/Uploads/cb9cc148-5ea4-4815-a000-29b776c50545.jpg" /></button>
+                    <button class="btn productbtn"><img src="/Uploads/@product.Image.ToString()" /></button>
+                    @*<button class="btn productbtn"><img src="/Uploads/cb9cc148-5ea4-4815-a000-29b776c50545.jpg" /></button>
                 <button class="btn productbtn"><img src="/Uploads/edddf96d-104a-4f77-875d-c67a787df8ca.jpg" /></button>*@
 
-            }
+                }
+            </div>
         </div>
 
         <div id="miniatures" hidden="hidden">

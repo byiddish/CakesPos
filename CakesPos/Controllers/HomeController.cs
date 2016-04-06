@@ -44,6 +44,7 @@ namespace CakesPos.Controllers
 
         }
 
+
         public ActionResult AddNewProduct(string productName, decimal price, int inStock, HttpPostedFileBase image, int categoryId)
         {
             Guid g = Guid.NewGuid();
@@ -55,7 +56,13 @@ namespace CakesPos.Controllers
             return RedirectToAction("Admin");
         }
 
-
+        [HttpPost]
+        public ActionResult GetProductsByCategory(int categoryId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<Product> products= cpr.GetProductsByCategory(categoryId);
+            return Json(products);
+        }
 
     }
 }
