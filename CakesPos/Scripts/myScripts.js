@@ -19,7 +19,7 @@
         })
     })
 
-    $(".productbtn").on('click', function () {
+    $("#productsInnerDiv").on('click', '.productbtn', function () {
         var p = $(this);
         var id = p.data("id");
         var productName = p.data("content");
