@@ -23,7 +23,6 @@
 
 #totalDiv {
     margin-top: 5px;
-    /*border: 1px solid black;*/
     height:192px;
 }
 
@@ -79,6 +78,9 @@ th {
    margin:15px;
 }
 
-/*#notes{
-    width:500px;
-}*/
+
+img{
+    height:165.99px;
+    width:220px;
+}
+

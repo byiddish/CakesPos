@@ -21,14 +21,20 @@
             <br />
             <label><input type="checkbox" style="width:50px;" />Cateter</label>
             <br />
-            <table class="table table-bordered table-hover table-striped">
+            <table class="table table-bordered table-hover table-striped" id="orderTable">
                 <tr>
                     <th>X</th>
                     <th>Product</th>
                     <th>Quantity</th>
                     <th>Price</th>
                 </tr>
-                <tr>
+                @*<tr>
+                    <td><button class="btn btn-danger">X</button></td>
+                    <td>Caramel Log</td>
+                    <td><input class="input input-sm" type="number" value="3" /></td>
+                    <td>65</td>
+                </tr>*@
+                @*<tr>
                     <td><button class="btn btn-danger">X</button></td>
                     <td>Caramel Log</td>
                     <td><input class="input input-sm" type="number" value="3" /></td>
@@ -99,13 +105,7 @@
                     <td>Caramel Log</td>
                     <td><input class="input input-sm" type="number" value="3" /></td>
                     <td>65</td>
-                </tr>
-                <tr>
-                    <td><button class="btn btn-danger">X</button></td>
-                    <td>Caramel Log</td>
-                    <td><input class="input input-sm" type="number" value="3" /></td>
-                    <td>65</td>
-                </tr>
+                </tr>*@
             </table>
         </div>
         <div id="totalDiv">
@@ -129,26 +129,9 @@
             <div id="productsInnerDiv">
                 @foreach (CakesPos.Data.Product product in Model.products)
                 {
-                    //string i = product.Image.ToString();
-
-                    <button class="btn productbtn"><img src="/Uploads/@product.Image.ToString()" /></button>
-                    @*<button class="btn productbtn"><img src="/Uploads/cb9cc148-5ea4-4815-a000-29b776c50545.jpg" /></button>
-                <button class="btn productbtn"><img src="/Uploads/edddf96d-104a-4f77-875d-c67a787df8ca.jpg" /></button>*@
-
+                    <button class="btn productbtn" data-id=@product.Id @*data-productname=@product.ProductName.ToString()*@ data-content=@product.ProductName.ToString() data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /></button>
                 }
             </div>
-        </div>
-
-        <div id="miniatures" hidden="hidden">
-            @*@foreach (CakesPos.Data.Product product in Model.products)
-            {*@
-                @*//string i = product.Image.ToString();*@
-            <h1>Awesome!!!!!!</h1>
-                @*<button class="btn productbtn"><img src="/Uploads/@product.Image.ToString()" /></button>*@
-                @*<button class="btn productbtn"><img src="/Uploads/cb9cc148-5ea4-4815-a000-29b776c50545.jpg" /></button>
-                <button class="btn productbtn"><img src="/Uploads/edddf96d-104a-4f77-875d-c67a787df8ca.jpg" /></button>*@
-
-            @*}*@
         </div>
     </div>
 </div>
@@ -250,13 +233,6 @@
                     <label>Notes</label>
                     <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
                 </div>
-
-                @*<div class="form-group">
-                        <textarea placeholder="Notes" id="notes" rows="10"></textarea>
-                        <label>Credit card<input /></label>
-                        <label>Exp.<input /></label>
-                        <label>Sercurity code<input /></label>
-                    </div>*@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" data-dismiss="modal">Submit</button>
