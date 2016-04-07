@@ -24,14 +24,13 @@
         var id = p.data("id");
         var productName = p.data("content");
         var inStock = p.data("inStock");
-        var price = p.data("price");
-        var row = "<tr><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm"' + " type=" + '"number"' + " value=" + '"1"' + " /></td><td>" + price + "</td></tr>";
+        var price = p.data("price").toFixed(2);
+        var row = "<tr><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm"' + " type=" + '"number"' + " value=" + '"1"' + " /></td><td>$" + price + "</td></tr>";
         $("#orderTable").append(row);
     })
 
-    $(".delete").on('click', function () {
-        alert("does work!");
-        var i = $(this).parentNode.parentNode.rowIndex;
-        document.getElementById("#orderTable").deleteRow(i);
+    $("#orderTable").on('click', '.delete', function () {
+        var i = $(this).closest('tr').index();
+        $("tr").eq(i).remove();
     })
 })
