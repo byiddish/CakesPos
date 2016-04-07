@@ -12,8 +12,9 @@
         $.post("/home/GetProductsByCategory", { categoryId: c }, function (products) {
             $(".productbtn").remove();
             products.forEach(function (product) {
-                $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + "><img src=" + "/Uploads/" + product.Image + "></button>");
-
+                var productName = product.ProductName.toString();
+                //$("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + "><img src=" + "/Uploads/" + product.Image + "></button>");
+                $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + "data-id=" + product.Id + " data-content=" + '"'+productName+'"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + "><img src=" + "/Uploads/" + product.Image + "></button>")
             });
         })
     })
@@ -29,7 +30,8 @@
     })
 
     $(".delete").on('click', function () {
-        var r = $(this);
-        r.parent().parent().remove();
+        alert("does work!");
+        var i = $(this).parentNode.parentNode.rowIndex;
+        document.getElementById("#orderTable").deleteRow(i);
     })
 })

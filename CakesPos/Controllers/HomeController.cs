@@ -21,7 +21,7 @@ namespace CakesPos.Controllers
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             OrdersViewModel ovm = new OrdersViewModel();
             ovm.categories = cpr.GetAllCategories();
-            ovm.products = cpr.GetAllProducts();
+            ovm.products = cpr.GetProductsByCategory(1);
             return View(ovm);
         }
 
