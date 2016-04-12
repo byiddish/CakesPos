@@ -60,9 +60,44 @@ namespace CakesPos.Controllers
         public ActionResult GetProductsByCategory(int categoryId)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<Product> products= cpr.GetProductsByCategory(categoryId);
+            IEnumerable<Product> products = cpr.GetProductsByCategory(categoryId);
             return Json(products);
         }
+
+        [HttpPost]
+        public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, bool caterer)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, caterer);
+            return RedirectToAction("Admin");
+        }
+
+        [HttpPost]
+        public ActionResult Search (string search)
+        {
+            if (search == null)
+            {
+                CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+                IEnumerable<Customer> customers = cpr.GetAllCustomers();
+                return Json(customers, JsonRequestBehavior.AllowGet);
+                //return Json(customers);
+            }
+            else
+            {
+                CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+                IEnumerable<Customer> customers = cpr.SearchCustomers(search);
+                return Json(customers, JsonRequestBehavior.AllowGet);
+                 //return Json(customers);
+            }
+        }
+
+        //[HttpPost]
+        //public ActionResult SearchCustomers()
+        //{
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    IEnumerable<Customer> customers = cpr.GetAllCustomers();
+        //    return Json(customers);
+        //}
 
     }
 }

@@ -43,7 +43,7 @@ namespace CakesPos.Data
             }
         }
 
-        public void AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone)
+        public void AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, bool caterer)
         {
             Customer c = new Customer();
             c.FirstName = firstName;
@@ -53,6 +53,7 @@ namespace CakesPos.Data
             c.State = state;
             c.Zip = zip;
             c.Phone = phone;
+            c.Caterer = caterer;
 
             using (var context = new CakesPosDataContext(_connectionString))
             {
@@ -93,7 +94,7 @@ namespace CakesPos.Data
             od.Quantity = quantity;
             od.Discount = discount;
 
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.OrderDetails.InsertOnSubmit(od);
                 context.SubmitChanges();
@@ -102,9 +103,9 @@ namespace CakesPos.Data
 
         public IEnumerable<Product> GetAllProducts()
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
-               return context.Products.ToList();
+                return context.Products.ToList();
             }
         }
 
@@ -118,10 +119,27 @@ namespace CakesPos.Data
 
         public IEnumerable<Product> GetProductsByCategory(int categoryId)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 return context.Products.Where(p => p.CategoryId == categoryId).ToList();
+            }
+        }
+
+        public IEnumerable<Customer> GetAllCustomers()
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                return context.Customers.ToList();
+            }
+        }
+
+        public IEnumerable<Customer> SearchCustomers(string search)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search)).ToList();
             }
         }
     }

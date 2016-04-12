@@ -29,8 +29,8 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            itemCount++;
             var quantity = $(this).find('input.q').val();
+            itemCount += (parseInt(quantity));
             var price = $(this).data('price')
             if (quantity === undefined) {
                 quantity === 0;
@@ -60,8 +60,9 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            itemCount++;
+            //itemCount++;
             var quantity = $(this).find('input.q').val();
+            itemCount += (parseInt(quantity));
             var price = $(this).data('price')
             if (quantity === undefined) {
                 quantity === 0;
@@ -89,8 +90,9 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            itemCount++;
+            //itemCount++;
             var quantity = $(this).find('input.q').val();
+            itemCount += (parseInt(quantity));
             if (quantity === "")
             { quantity = 1; }
             var price = $(this).data('price')
@@ -121,8 +123,9 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            itemCount++;
+            //itemCount++;
             var quantity = $(this).find('input.q').val();
+            itemCount += (parseInt(quantity));
             var price = $(this).data('price')
             if (quantity === undefined) {
                 quantity === 0;
@@ -144,6 +147,22 @@
                 $('#total').text("Total: $" + (total - getDiscount()));
             }
         }
+    });
+
+    $('#searchInput').on('input', function () {
+        //$('#searchTable').remove('.customers');
+        $('.customers').remove();
+        var s = $('#searchInput').val().toString();
+        $.post("/home/Search", { search: s }, function (customers) {
+            if (customers == null) {
+                $('#message').append("<h1>" + "Sorry no matches:(" + "</h1>");
+            }
+            else {
+                customers.forEach(function (customer) {
+                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.FirstName + "</td><td>" + customer.LastName + "</td><td>" + customer.Address + "</td><td>" + customer.Phone + "</td><td>" + customer.Caterer + "</td><td><button class=" + '"' + "btn btn-info" + '"' + ">" + "Select" + "</button></td></tr>");
+                })
+            }
+        })
     });
 
     function getDiscount() {

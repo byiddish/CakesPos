@@ -8,12 +8,6 @@
         <elementListCompartment Id="9ab2dcff-6b98-467c-a4a6-90f0b3abae35" absoluteBounds="0.51499999999999968, 4.71, 1.9700000000000002, 0.63399251302083326" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <classShape Id="c71cb15b-351b-42a3-9368-b8c55f5b1b68" absoluteBounds="7.625, 0.5, 2, 2.3478011067708335">
-      <DataClassMoniker Name="/CakesPosDataContext/Customer" />
-      <nestedChildShapes>
-        <elementListCompartment Id="c7eb4718-49f4-4423-b58f-2f00c0c43526" absoluteBounds="7.64, 0.96, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
-      </nestedChildShapes>
-    </classShape>
     <classShape Id="bed12da7-fa27-4cf2-a25f-ec355348c87c" absoluteBounds="5.625, 3.875, 2, 1.9631982421875">
       <DataClassMoniker Name="/CakesPosDataContext/OrderDetail" />
       <nestedChildShapes>
@@ -46,17 +40,23 @@
         <elementListCompartment Id="edeb617d-f024-42c8-a003-47fd3f7c9166" absoluteBounds="3.265, 0.96, 1.9700000000000002, 3.1339111328125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(4.25 : 4.1939111328125); (4.25 : 4.90187675520833); (5.625 : 4.90187675520833)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(4.25 : 4.1939111328125); (4.25 : 4.90187675520833); (5.625 : 4.90187675520833)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Order/Order_OrderDetail" />
       <nodes>
         <classShapeMoniker Id="f588994f-424f-42d2-baa2-12f23ae04843" />
         <classShapeMoniker Id="bed12da7-fa27-4cf2-a25f-ec355348c87c" />
       </nodes>
     </associationConnector>
-    <associationConnector edgePoints="[(7.625 : 1.67390055338542); (5.25 : 1.67390055338542)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <classShape Id="4e61f135-a6d8-4f50-bc7d-fbe129cc2724" absoluteBounds="6.375, 0.625, 2, 2.5401025390625">
+      <DataClassMoniker Name="/CakesPosDataContext/Customer" />
+      <nestedChildShapes>
+        <elementListCompartment Id="02d45a8d-c938-4c4d-930a-7dc8f9525b75" absoluteBounds="6.39, 1.085, 1.9700000000000002, 1.9801025390625" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(6.375 : 1.89505126953125); (5.25 : 1.89505126953125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
       <AssociationMoniker Name="/CakesPosDataContext/Customer/Customer_Order" />
       <nodes>
-        <classShapeMoniker Id="c71cb15b-351b-42a3-9368-b8c55f5b1b68" />
+        <classShapeMoniker Id="4e61f135-a6d8-4f50-bc7d-fbe129cc2724" />
         <classShapeMoniker Id="f588994f-424f-42d2-baa2-12f23ae04843" />
       </nodes>
     </associationConnector>
