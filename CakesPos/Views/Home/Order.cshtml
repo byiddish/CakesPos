@@ -12,14 +12,14 @@
                 <div id="customerInfoDivInner">
                     <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
                     <button class="btn btn-lg btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
-                    <h3>Suchi Waldman</h3>
-                    <h4>613 W. Kennedy Blvd. <br />Lakewood NJ 08701</h4>
-                    <h5>917-836-1907</h5>
+                    <input type="hidden" id="customerId" name="customerId"/>
+                    <h3 id="customerHeader"></h3>
+                    <h4 id="customerAddress"></h4>
+                    <h5 id="customerPhone"></h5>
                 </div>
             </div>
             <br />
             <br />
-            <label><input type="checkbox" style="width:50px;" />Cateter</label>
             <br />
             <table class="table table-bordered table-hover table-striped" id="orderTable">
                 <tr>
@@ -28,85 +28,13 @@
                     <th>Quantity</th>
                     <th>Price</th>
                 </tr>
-                @*<tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-danger">X</button></td>
-                        <td>Caramel Log</td>
-                        <td><input class="input input-sm" type="number" value="3" /></td>
-                        <td>65</td>
-                    </tr>*@
             </table>
         </div>
         <div id="totalDiv">
             <div id="totalDivInner">
                 <h3>Discount  <input class="input-sm discount" /> <button id="refresh" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button></h3>
                 <h3 id="totalItems">Total items: 0</h3>
-                <h1 id="total">Total: $0.00 @*${{quantity | json}}*@</h1>
+                <h1 id="total">Total: $0.00</h1>
                 <button class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#checkoutModal">Place Order</button>
             </div>
         </div>
@@ -141,7 +69,7 @@
                 <h4 class="modal-title">Select Customer</h4>
             </div>
             <div class="modal-body">
-                <label>Search  <input class="input" type="text" id="searchInput" /> @*<button class="btn btn-primary" id="searchBtn">Search</button>*@</label>
+                <label>Search  <input class="input" type="text" id="searchInput" /></label>
                 <br />
                 <table class="table table-bordered table-striped table-hover" id="searchTable">
                     <tr>
@@ -285,7 +213,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="newCustomerSubmit">Submit</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>

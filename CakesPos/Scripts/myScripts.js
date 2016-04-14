@@ -19,13 +19,23 @@
     })
 
     $("#productsInnerDiv").on('click', '.productbtn', function () {
+        var exists = false;
         var p = $(this);
         var id = p.data("id");
         var productName = p.data("content");
         var inStock = p.data("inStock");
         var price = p.data("price");
-        var row = "<tr data-price=" + price + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
-        $("#orderTable").append(row);
+        var row = "<tr data-price=" + price + " data-id=" + id + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
+        $('#orderTable').find('tr').not(':first').each(function () {
+            if ($(this).data('id') == id) {
+                var quantity = $(this).find('input.q').val();
+                $(this).find('input.q').val(parseInt(quantity) + 1);
+                exists = true;
+            }
+        })
+        if (!exists) {
+            $("#orderTable").append(row);
+        }
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
@@ -60,7 +70,6 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            //itemCount++;
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             var price = $(this).data('price')
@@ -90,7 +99,6 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            //itemCount++;
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             if (quantity === "")
@@ -123,7 +131,6 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
-            //itemCount++;
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             var price = $(this).data('price')
@@ -150,19 +157,38 @@
     });
 
     $('#searchInput').on('input', function () {
-        //$('#searchTable').remove('.customers');
         $('.customers').remove();
         var s = $('#searchInput').val().toString();
         $.post("/home/Search", { search: s }, function (customers) {
-            if (customers == null) {
-                $('#message').append("<h1>" + "Sorry no matches:(" + "</h1>");
+            if (s === "") {
+                $('.customers').remove();
             }
             else {
                 customers.forEach(function (customer) {
-                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.FirstName + "</td><td>" + customer.LastName + "</td><td>" + customer.Address + "</td><td>" + customer.Phone + "</td><td>" + customer.Caterer + "</td><td><button class=" + '"' + "btn btn-info" + '"' + ">" + "Select" + "</button></td></tr>");
+                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.FirstName + "</td><td>" + customer.LastName + "</td><td>" + customer.Address + "</td><td>" + customer.Phone + "</td><td>" + customer.Caterer + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " >" + "Select" + "</button></td></tr>");
                 })
             }
         })
+    });
+
+    $('#searchCustomerModal').on('click', '.select', function () {
+        var fistName = $(this).data('first');
+        var lastName = $(this).data('last');
+        var address = $(this).data('add');
+        var phone = $(this).data('phone');
+        var customerId = $(this).data('id');
+        $('#customerHeader').text("");
+        $('#customerAddress').text("");
+        $('#customerPhone').text("");
+        $('#customerId').val("");
+
+        $('#customerHeader').append(fistName + " " + lastName);
+        $('#customerAddress').append(address);
+        $('#customerPhone').append(phone);
+        $('#customerId').val(customerId);
+        $('#searchCustomerModal').modal('toggle');
+        $('.customers').remove();
+        $('#searchInput').val("");
     });
 
     function getDiscount() {

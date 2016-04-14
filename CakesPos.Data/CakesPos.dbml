@@ -7,18 +7,6 @@
       <Association Name="Category_Product" Member="Product" ThisKey="Id" OtherKey="Id" Type="Product" Cardinality="One" />
     </Type>
   </Table>
-  <Table Name="dbo.OrderDetails" Member="OrderDetails">
-    <Type Name="OrderDetail">
-      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="OrderId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="ProductId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="UnitPrice" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
-      <Column Name="Quantity" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="Discount" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
-      <Association Name="Product_OrderDetail" Member="Product" ThisKey="ProductId" OtherKey="Id" Type="Product" IsForeignKey="true" />
-      <Association Name="Order_OrderDetail" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
-    </Type>
-  </Table>
   <Table Name="dbo.Products" Member="Products">
     <Type Name="Product">
       <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -29,6 +17,44 @@
       <Column Name="CategoryId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Association Name="Product_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="ProductId" Type="OrderDetail" />
       <Association Name="Category_Product" Member="Category" ThisKey="Id" OtherKey="Id" Type="Category" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Customers" Member="Customers">
+    <Type Name="Customer">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="FirstName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="LastName" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Address" Type="System.String" DbType="VarChar(100)" CanBeNull="true" />
+      <Column Name="City" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="State" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Zip" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Phone" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Caterer" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Customer_Payment" Member="Payments" ThisKey="Id" OtherKey="CustomerId" Type="Payment" />
+      <Association Name="Customer_Order" Member="Orders" ThisKey="Id" OtherKey="CustomerId" Type="Order" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Payments" Member="Payments">
+    <Type Name="Payment">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="OrderId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Payment" Member="Payment1" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="PaymentMethod" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Paid" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Customer_Payment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
+      <Association Name="Order_Payment" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.OrderDetails" Member="OrderDetails">
+    <Type Name="OrderDetail">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="OrderId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="ProductId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="UnitPrice" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Quantity" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Product_OrderDetail" Member="Product" ThisKey="ProductId" OtherKey="Id" Type="Product" IsForeignKey="true" />
+      <Association Name="Order_OrderDetail" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Orders" Member="Orders">
@@ -47,23 +73,11 @@
       <Column Name="Notes" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
       <Column Name="CreditCard" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="Expiration" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="SercurityCode" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="SecurityCode" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Discount" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Association Name="Order_Payment" Member="Payments" ThisKey="Id" OtherKey="OrderId" Type="Payment" />
       <Association Name="Order_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="OrderId" Type="OrderDetail" />
       <Association Name="Customer_Order" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Customers" Member="Customers">
-    <Type Name="Customer">
-      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="FirstName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
-      <Column Name="LastName" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="Address" Type="System.String" DbType="VarChar(100)" CanBeNull="true" />
-      <Column Name="City" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="State" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="Zip" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
-      <Column Name="Phone" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
-      <Column Name="Caterer" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
-      <Association Name="Customer_Order" Member="Orders" ThisKey="Id" OtherKey="CustomerId" Type="Order" />
     </Type>
   </Table>
 </Database>

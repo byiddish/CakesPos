@@ -62,7 +62,7 @@ namespace CakesPos.Data
             }
         }
 
-        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string sercurityCode)
+        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, bool paid, string paymentMethod, decimal discount)
         {
             Order o = new Order();
             o.CustomerId = customerId;
@@ -76,23 +76,33 @@ namespace CakesPos.Data
             o.DeliveryZip = deliveryZip;
             o.CreditCard = creditCard;
             o.Expiration = expiration;
-            o.SercurityCode = sercurityCode;
+            o.SecurityCode = securityCode;
+            o.Discount = discount;
+
+            Payment p = new Payment();
+            p.CustomerId = customerId;
+            p.Paid = paid;
+            p.PaymentMethod = paymentMethod;
 
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.Orders.InsertOnSubmit(o);
                 context.SubmitChanges();
+
+                p.OrderId = o.Id;
+
+                context.Payments.InsertOnSubmit(p);
+                context.SubmitChanges();
             }
         }
 
-        public void AddOrderDetails(int orderId, int productId, decimal unitPrice, int quantity, decimal discount)
+        public void AddOrderDetails(int orderId, int productId, decimal unitPrice, int quantity)
         {
             OrderDetail od = new OrderDetail();
             od.OrderId = orderId;
             od.ProductId = productId;
             od.UnitPrice = unitPrice;
             od.Quantity = quantity;
-            od.Discount = discount;
 
             using (var context = new CakesPosDataContext(_connectionString))
             {
@@ -139,7 +149,7 @@ namespace CakesPos.Data
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
-                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search)).ToList();
+                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search)).ToList();
             }
         }
     }

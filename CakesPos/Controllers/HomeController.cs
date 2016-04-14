@@ -75,29 +75,24 @@ namespace CakesPos.Controllers
         [HttpPost]
         public ActionResult Search (string search)
         {
-            if (search == null)
-            {
-                CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-                IEnumerable<Customer> customers = cpr.GetAllCustomers();
-                return Json(customers, JsonRequestBehavior.AllowGet);
-                //return Json(customers);
-            }
-            else
-            {
                 CakesPosRepository cpr = new CakesPosRepository(_connectionString);
                 IEnumerable<Customer> customers = cpr.SearchCustomers(search);
                 return Json(customers, JsonRequestBehavior.AllowGet);
-                 //return Json(customers);
-            }
         }
 
-        //[HttpPost]
-        //public ActionResult SearchCustomers()
-        //{
-        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-        //    IEnumerable<Customer> customers = cpr.GetAllCustomers();
-        //    return Json(customers);
-        //}
+        [HttpPost]
+        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, bool paid, string paymentMethod, decimal discount)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.AddOrder(customerId, orderDate, requiredDate, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paid, paymentMethod, discount);
+        }
 
+        [HttpPost]
+        public ActionResult AddOrderDetails(int orderId, int productId, decimal unitPrice, int quantity)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.AddOrderDetails(orderId, productId, unitPrice, quantity);
+            return RedirectToAction("Order");
+        }
     }
 }
