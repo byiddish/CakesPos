@@ -12,7 +12,7 @@
                 <div id="customerInfoDivInner">
                     <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
                     <button class="btn btn-lg btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
-                    <input type="hidden" id="customerId" name="customerId"/>
+                    <input type="hidden" id="customerId" name="customerId" />
                     <h3 id="customerHeader"></h3>
                     <h4 id="customerAddress"></h4>
                     <h5 id="customerPhone"></h5>
@@ -95,75 +95,92 @@
     <div class="modal-dialog">
 
         <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Checkout</h4>
+        @*<form action="/Home/AddOrder" method="POST">*@
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Checkout</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="customerIdCheckout" name="customerId"/>
+                    <div class="well">
+                        <label>Delivery options</label>
+                        <div>
+                            <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
+                        </div>
+                        <div>
+                            <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
+                        </div>
+                    </div>
+                    <div class="well">
+                        <label>Payment options</label>
+                        <div>
+                            <label>Cash <input type="radio" id="cash" name="paymentMethod" value="Cash" /></label>
+                        </div>
+                        <div>
+                            <label>Credit Card <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /></label>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="form-group" id="deliveryInfoDiv" style="display: none;">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" class="form-control" name="address" id="address" placeholder="Address">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-control" name="city" id="city" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" class="form-control" name="state" id="state" placeholder="State">
+                        </div>
+                        <div class="form-group">
+                            <label>Zip</label>
+                            <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Required Date</label>
+                        <input type="date" class="form-control" name="requiredDate" id="requiredDate">
+                    </div>
+                    <div class="form-group" id="creditCardInfoDiv" style="display: none;">
+                        <div class="form-group">
+                            <label>Credit Card</label>
+                            <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
+                        </div>
+                        <div class="form-group">
+                            <label>Expiration</label>
+                            <input type="text" class="form-control" name="expiration" id="expiration" placeholder="Expiration">
+                        </div>
+                        <div class="form-group">
+                            <label>Security Code</label>
+                            <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="Security Code">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="orderSubmitBtn" type="submit" data-dismiss="modal">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <div>
-                    <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" /></label>
-                </div>
-                <div>
-                    <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" /></label>
-                </div>
-                <br />
-                <div class="form-group" id="deliveryInfoDiv" style="display: none;">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" class="form-control" name="address" id="address" placeholder="Address">
-                    </div>
-                    <div class="form-group">
-                        <label>City</label>
-                        <input type="text" class="form-control" name="city" id="city" placeholder="City">
-                    </div>
-                    <div class="form-group">
-                        <label>State</label>
-                        <input type="text" class="form-control" name="state" id="state" placeholder="State">
-                    </div>
-                    <div class="form-group">
-                        <label>Zip</label>
-                        <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Required Date</label>
-                    <input type="date" class="form-control" name="requiredDate" id="requiredDate">
-                </div>
-                <div class="form-group">
-                    <label>Credit Card</label>
-                    <input type="text" class="form-control" name="creditCard" id="creditCard" placeholder="Credit card">
-                </div>
-                <div class="form-group">
-                    <label>Expiration</label>
-                    <input type="text" class="form-control" name="expiration" id="expiration" placeholder="Expiration">
-                </div>
-                <div class="form-group">
-                    <label>Sercurity Code</label>
-                    <input type="text" class="form-control" name="sercurityCode" id="sercurityCode" placeholder="Sercurity Code">
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" data-dismiss="modal">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
+        @*</form>*@
     </div>
 </div>
 

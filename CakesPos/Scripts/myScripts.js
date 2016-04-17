@@ -1,4 +1,7 @@
 ﻿$(function () {
+    var deliveryMethod = "";
+    var paymentMethod = "";
+
     $("#delivery").on('click', function () {
         $("#deliveryInfoDiv").show();
         $("#pickup").on('click', function () {
@@ -6,6 +9,70 @@
         })
 
     })
+
+    $("#creditCard").on('click', function () {
+        $("#creditCardInfoDiv").show();
+        $("#cash").on('click', function () {
+            $("#creditCardInfoDiv").hide();
+        })
+
+    })
+
+    $('#pickup').on('click', function () {
+        deliveryMethod = "Pickup";
+    })
+
+    $('#delivery').on('click', function () {
+        deliveryMethod = "Delivery";
+    })
+
+    $('#cash').on('click', function () {
+        paymentMethod = "Cash";
+    })
+
+    $('#creditCard').on('click', function () {
+        paymentMethod = "Credit Card";
+    })
+
+    $("#orderSubmitBtn").on('click', function () {
+        var discount = parseFloat($('.discount').val());
+        //var deliveryMethod = "";
+        //if ($('#pickup').cli) {
+        //    deliveryMethod = $('#pickup').val();
+        //}
+        //else if ($('#delivery').selected) {
+        //    deliveryMethod = $('#delivery').val();
+        //}
+        //var paymentMethod = "";
+        //if ($('#cash').selected) {
+        //    paymentMethod = $('#cash').val();
+        //}
+        //else if ($('#creditCard').selected) {
+        //    paymentMethod = $('#creditCard').val();
+        //}
+        discount = discount || 0;
+        $.post("/home/AddOrder", {
+            customerId: $('#customerIdCheckout').val(),
+            requiredDate: $('#requiredDate').val(),
+            deliveryOpt: deliveryMethod,
+            deliveryFirstName: $('#deliveryFirstName').val(),
+            deliveryLastName: $('#deliveryLastName').val(),
+            deliveryAddress: $('#deliveryAddress').val(),
+            deliveryCity: $('#deliveryCity').val(),
+            deliveryState: $('#deliveryState').val(),
+            deliveryZip: $('#deliveryZip').val(),
+            phone: $('#phone').val(),
+            creditCard: $('#creditCardNumber').val(),
+            expiration: $('#expiration').val(),
+            securityCode: $('#securityCode').val(),
+            //paid: $('#paid').val(),
+            paymentMethod: paymentMethod,
+            discount: discount
+        },
+            function () {
+                alert("worked?!");
+            })
+    });
 
     $(".categorybtn").on('click', function () {
         var c = $(this).data("category");
@@ -181,6 +248,7 @@
         $('#customerAddress').text("");
         $('#customerPhone').text("");
         $('#customerId').val("");
+        $('#customerIdCheckout').val("");
 
         $('#customerHeader').append(fistName + " " + lastName);
         $('#customerAddress').append(address);
@@ -189,6 +257,7 @@
         $('#searchCustomerModal').modal('toggle');
         $('.customers').remove();
         $('#searchInput').val("");
+        $('#customerIdCheckout').val(customerId);
     });
 
     function getDiscount() {

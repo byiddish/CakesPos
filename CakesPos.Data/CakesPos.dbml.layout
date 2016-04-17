@@ -14,7 +14,7 @@
         <elementListCompartment Id="257bdf56-6b33-44ce-8a55-f7bf6ed0f033" absoluteBounds="0.51499999999999968, 0.96, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(1.5 : 4.25); (1.5 : 2.4631982421875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(1.5 : 4.25); (1.5 : 2.4631982421875)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Category/Category_Product" />
       <nodes>
         <classShapeMoniker Id="cdcba779-13b3-419f-a234-ccbbe6c8747f" />
@@ -27,13 +27,13 @@
         <elementListCompartment Id="02d45a8d-c938-4c4d-930a-7dc8f9525b75" absoluteBounds="6.39, 1.085, 1.9700000000000002, 1.9801025390625" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <classShape Id="c24ec38b-c897-478b-a982-bd22d2da2e0e" absoluteBounds="3, 4.75, 2, 1.9631982421875">
+    <classShape Id="c24ec38b-c897-478b-a982-bd22d2da2e0e" absoluteBounds="3.375, 5, 2, 1.9631982421875">
       <DataClassMoniker Name="/CakesPosDataContext/Payment" />
       <nestedChildShapes>
-        <elementListCompartment Id="51a83504-bc85-4ef4-941f-0cf1de744a6f" absoluteBounds="3.015, 5.21, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="51a83504-bc85-4ef4-941f-0cf1de744a6f" absoluteBounds="3.39, 5.46, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(6.84375 : 3.1651025390625); (6.84375 : 6.52329752604167); (5 : 6.52329752604167)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(6.84375 : 3.1651025390625); (6.84375 : 6.64829752604167); (5.375 : 6.64829752604167)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Customer/Customer_Payment" />
       <nodes>
         <classShapeMoniker Id="4e61f135-a6d8-4f50-bc7d-fbe129cc2724" />
@@ -46,38 +46,38 @@
         <elementListCompartment Id="a7256ff4-8a39-4eb4-8526-cc56d09c8162" absoluteBounds="7.39, 4.96, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(2.5 : 1.48159912109375); (2.875 : 1.48159912109375); (2.875 : 4.5); (3.97916666666667 : 4.5 : JumpStart); (4.14583333333333 : 4.5 : JumpEnd); (6.76041666666667 : 4.5 : JumpStart); (6.92708333333333 : 4.5 : JumpEnd); (7.125 : 4.5); (7.125 : 4.25); (8.375 : 4.25); (8.375 : 4.5)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(2.5 : 1.48159912109375); (3.3125 : 1.48159912109375); (3.3125 : 4.8333154296875); (7.3125 : 4.8333154296875); (7.3125 : 4.4375); (8.375 : 4.4375); (8.375 : 4.5)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Product/Product_OrderDetail" />
       <nodes>
         <classShapeMoniker Id="476c33c6-90ca-4fd1-8a2a-920abe227b4b" />
         <classShapeMoniker Id="47bca076-e8c5-43ba-8140-caabf2cd9837" />
       </nodes>
     </associationConnector>
-    <classShape Id="3b03bea2-04e0-48f9-b7fe-44b7cf3ba26c" absoluteBounds="3.125, 0.5, 2, 3.8862125651041666">
+    <classShape Id="d98f483d-0ba5-40aa-b55e-ff9a961fb3dd" absoluteBounds="3.375, 0.5, 2, 4.2708154296875">
       <DataClassMoniker Name="/CakesPosDataContext/Order" />
       <nestedChildShapes>
-        <elementListCompartment Id="fe40f45c-8d24-4d76-8e29-bae2cb0f095d" absoluteBounds="3.14, 0.96, 1.9700000000000002, 3.3262125651041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="4e39a57a-0285-4d3a-8e4f-b2df39112f3e" absoluteBounds="3.39, 0.96, 1.9700000000000002, 3.7108154296875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(4.0625 : 4.38621256510417); (4.0625 : 4.75)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(4.375 : 4.7708154296875); (4.375 : 5)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Order/Order_Payment" />
       <nodes>
-        <classShapeMoniker Id="3b03bea2-04e0-48f9-b7fe-44b7cf3ba26c" />
+        <classShapeMoniker Id="d98f483d-0ba5-40aa-b55e-ff9a961fb3dd" />
         <classShapeMoniker Id="c24ec38b-c897-478b-a982-bd22d2da2e0e" />
       </nodes>
     </associationConnector>
-    <associationConnector edgePoints="[(5.125 : 3.73880126953125); (6.76041666666667 : 3.73880126953125 : JumpStart); (6.92708333333333 : 3.73880126953125 : JumpEnd); (8.90625 : 3.73880126953125); (8.90625 : 4.5)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(5.375 : 3.83255126953125); (8.90625 : 3.83255126953125); (8.90625 : 4.5)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Order/Order_OrderDetail" />
       <nodes>
-        <classShapeMoniker Id="3b03bea2-04e0-48f9-b7fe-44b7cf3ba26c" />
+        <classShapeMoniker Id="d98f483d-0ba5-40aa-b55e-ff9a961fb3dd" />
         <classShapeMoniker Id="47bca076-e8c5-43ba-8140-caabf2cd9837" />
       </nodes>
     </associationConnector>
-    <associationConnector edgePoints="[(6.375 : 1.89505126953125); (5.125 : 1.89505126953125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(6.375 : 1.89505126953125); (5.375 : 1.89505126953125)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/CakesPosDataContext/Customer/Customer_Order" />
       <nodes>
         <classShapeMoniker Id="4e61f135-a6d8-4f50-bc7d-fbe129cc2724" />
-        <classShapeMoniker Id="3b03bea2-04e0-48f9-b7fe-44b7cf3ba26c" />
+        <classShapeMoniker Id="d98f483d-0ba5-40aa-b55e-ff9a961fb3dd" />
       </nodes>
     </associationConnector>
   </nestedChildShapes>

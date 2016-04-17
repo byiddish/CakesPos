@@ -62,7 +62,7 @@ namespace CakesPos.Data
             }
         }
 
-        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, bool paid, string paymentMethod, decimal discount)
+        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount)
         {
             Order o = new Order();
             o.CustomerId = customerId;
@@ -78,10 +78,12 @@ namespace CakesPos.Data
             o.Expiration = expiration;
             o.SecurityCode = securityCode;
             o.Discount = discount;
+            o.DeliveryOption = deliveryOpt;
+            o.PaymentMethod = paymentMethod;
 
             Payment p = new Payment();
             p.CustomerId = customerId;
-            p.Paid = paid;
+            p.Paid = false;
             p.PaymentMethod = paymentMethod;
 
             using (var context = new CakesPosDataContext(_connectionString))

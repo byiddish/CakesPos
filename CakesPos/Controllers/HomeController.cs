@@ -73,18 +73,20 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult Search (string search)
+        public ActionResult Search(string search)
         {
-                CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-                IEnumerable<Customer> customers = cpr.SearchCustomers(search);
-                return Json(customers, JsonRequestBehavior.AllowGet);
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<Customer> customers = cpr.SearchCustomers(search);
+            return Json(customers, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, bool paid, string paymentMethod, decimal discount)
+        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount)
         {
+            DateTime dateTime = DateTime.Now;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddOrder(customerId, orderDate, requiredDate, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paid, paymentMethod, discount);
+            cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount);
+            return RedirectToAction("Admin");
         }
 
         [HttpPost]

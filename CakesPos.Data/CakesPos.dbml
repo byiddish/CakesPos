@@ -62,6 +62,7 @@
       <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
       <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="OrderDate" Type="System.DateTime" DbType="Date NOT NULL" CanBeNull="false" />
+      <Column Name="DeliveryOption" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="RequiredDate" Type="System.DateTime" DbType="Date" CanBeNull="true" />
       <Column Name="DeliveryFirstName" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="DeliveryLastName" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
@@ -75,6 +76,7 @@
       <Column Name="Expiration" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="SecurityCode" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="Discount" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Column Name="PaymentMethod" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Association Name="Order_Payment" Member="Payments" ThisKey="Id" OtherKey="OrderId" Type="Payment" />
       <Association Name="Order_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="OrderId" Type="OrderDetail" />
       <Association Name="Customer_Order" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
