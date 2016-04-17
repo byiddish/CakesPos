@@ -43,7 +43,7 @@ namespace CakesPos.Data
             }
         }
 
-        public void AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, bool caterer)
+        public void AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer)
         {
             Customer c = new Customer();
             c.FirstName = firstName;
@@ -53,6 +53,7 @@ namespace CakesPos.Data
             c.State = state;
             c.Zip = zip;
             c.Phone = phone;
+            c.Cell = cell;
             c.Caterer = caterer;
 
             using (var context = new CakesPosDataContext(_connectionString))
@@ -83,7 +84,6 @@ namespace CakesPos.Data
 
             Payment p = new Payment();
             p.CustomerId = customerId;
-            p.Paid = false;
             p.PaymentMethod = paymentMethod;
 
             using (var context = new CakesPosDataContext(_connectionString))
@@ -151,7 +151,7 @@ namespace CakesPos.Data
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
-                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search)).ToList();
+                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList();
             }
         }
     }

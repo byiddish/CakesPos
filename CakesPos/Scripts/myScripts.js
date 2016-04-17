@@ -232,7 +232,7 @@
             }
             else {
                 customers.forEach(function (customer) {
-                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.FirstName + "</td><td>" + customer.LastName + "</td><td>" + customer.Address + "</td><td>" + customer.Phone + "</td><td>" + customer.Caterer + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " >" + "Select" + "</button></td></tr>");
+                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.FirstName + "</td><td>" + customer.LastName + "</td><td>" + customer.Address + "</td><td>" + customer.Phone + "</td><td>" + customer.Caterer + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " data-caterer=" + '"' + customer.Caterer + '"' + " >" + "Select" + "</button></td></tr>");
                 })
             }
         })
@@ -244,11 +244,20 @@
         var address = $(this).data('add');
         var phone = $(this).data('phone');
         var customerId = $(this).data('id');
+        var caterer = $(this).data('caterer');
+        if (caterer) {
+            caterer = .20;
+        }
+        else {
+            caterer = "";
+        }
+
         $('#customerHeader').text("");
         $('#customerAddress').text("");
         $('#customerPhone').text("");
         $('#customerId').val("");
         $('#customerIdCheckout').val("");
+        $('#discountInput').val("");
 
         $('#customerHeader').append(fistName + " " + lastName);
         $('#customerAddress').append(address);
@@ -258,6 +267,7 @@
         $('.customers').remove();
         $('#searchInput').val("");
         $('#customerIdCheckout').val(customerId);
+        $('#discountInput').val(caterer);
     });
 
     function getDiscount() {

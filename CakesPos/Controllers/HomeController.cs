@@ -65,10 +65,10 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, bool caterer)
+        public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, caterer);
+            cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, cell, caterer);
             return RedirectToAction("Admin");
         }
 
