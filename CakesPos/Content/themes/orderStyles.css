@@ -84,3 +84,14 @@ img{
     width:220px;
 }
 
+#orderHistoryDiv{
+    margin-top:100px;
+    max-height:800px;
+    /*border: 1px solid black;*/
+    overflow: scroll;
+}
+
+.paymentBtn{
+    margin-left:4px;
+}
+

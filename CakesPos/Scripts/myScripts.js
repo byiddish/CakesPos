@@ -36,20 +36,7 @@
 
     $("#orderSubmitBtn").on('click', function () {
         var discount = parseFloat($('.discount').val());
-        //var deliveryMethod = "";
-        //if ($('#pickup').cli) {
-        //    deliveryMethod = $('#pickup').val();
-        //}
-        //else if ($('#delivery').selected) {
-        //    deliveryMethod = $('#delivery').val();
-        //}
-        //var paymentMethod = "";
-        //if ($('#cash').selected) {
-        //    paymentMethod = $('#cash').val();
-        //}
-        //else if ($('#creditCard').selected) {
-        //    paymentMethod = $('#creditCard').val();
-        //}
+
         discount = discount || 0;
         $.post("/home/AddOrder", {
             customerId: $('#customerIdCheckout').val(),
@@ -65,12 +52,23 @@
             creditCard: $('#creditCardNumber').val(),
             expiration: $('#expiration').val(),
             securityCode: $('#securityCode').val(),
-            //paid: $('#paid').val(),
             paymentMethod: paymentMethod,
-            discount: discount
+            discount: discount,
         },
-            function () {
-                alert("worked?!");
+            function (orderId) {
+                $('#orderTable').find('tr').not(':first').each(function () {
+                    var product = $(this);
+                    var productId = product.data('id');
+                    var price = product.data('price');
+                    var quantity = $(this).find('input.q').val();
+
+                    $.post("/home/AddOrderDetails", {
+                        orderId: orderId,
+                        productId: productId,
+                        unitPrice: price,
+                        quantity: quantity
+                    }, function () { });
+                })
             })
     });
 

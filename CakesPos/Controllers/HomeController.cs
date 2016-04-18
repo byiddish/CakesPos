@@ -27,7 +27,9 @@ namespace CakesPos.Controllers
 
         public ActionResult OrderHistory()
         {
-            return View();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetAllOrders();
+            return View(orders);
         }
 
         public ActionResult Admin()
@@ -85,8 +87,8 @@ namespace CakesPos.Controllers
         {
             DateTime dateTime = DateTime.Now;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount);
-            return RedirectToAction("Admin");
+            int orderId=cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount);
+            return Json(orderId);
         }
 
         [HttpPost]
@@ -94,7 +96,7 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             cpr.AddOrderDetails(orderId, productId, unitPrice, quantity);
-            return RedirectToAction("Order");
+            return null;
         }
     }
 }

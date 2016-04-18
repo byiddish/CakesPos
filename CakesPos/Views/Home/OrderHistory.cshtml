@@ -1,5 +1,42 @@
-﻿@{
-    ViewBag.Title = "OrderHistory";
+﻿@model IEnumerable<CakesPos.Data.OrderHistoryViewModel>
+
+
+@section Styles{
+    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
 }
 
-<h2>OrderHistory</h2>
+
+<div class="container well" id="orderHistoryDiv">
+    <table class="table table-bordered table-hover table-responsive table-striped">
+        <tr>
+            <th>Customer</th>
+            <th>Order Date</th>
+            <th>Requested Date</th>
+            <th>Delivery Option</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Paid</th>
+            <th>Action</th>
+        </tr>
+        @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
+        {
+            <tr>
+                <td>@o.lastName @o.firstName</td>
+                <td>@o.orderDate</td>
+                <td>@o.requiredDate</td>
+                <td>@o.deliveryOpt</td>
+                <td></td>
+                <td></td>
+                @if (o.paid)
+                {
+                    <td style="text-decoration-color:green">Paid</td>
+                }
+                else
+                {
+                    <td><span style="color:red">Not Paid</span></td>
+                }
+                <td><button class="btn btn-info">View Details</button><button class="btn btn-success paymentBtn">Payment</button></td>
+            </tr>
+        }
+    </table>
+</div>

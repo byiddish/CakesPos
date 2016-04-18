@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,8 +64,10 @@ namespace CakesPos.Data
             }
         }
 
-        public void AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount)
+        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount)
         {
+            int orderId = 0;
+
             Order o = new Order();
             o.CustomerId = customerId;
             o.OrderDate = orderDate;
@@ -81,21 +84,20 @@ namespace CakesPos.Data
             o.Discount = discount;
             o.DeliveryOption = deliveryOpt;
             o.PaymentMethod = paymentMethod;
-
-            Payment p = new Payment();
-            p.CustomerId = customerId;
-            p.PaymentMethod = paymentMethod;
+            o.Paid = false;
+            //Payment p = new Payment();
+            //p.CustomerId = customerId;
+            //p.PaymentMethod = paymentMethod;
 
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.Orders.InsertOnSubmit(o);
                 context.SubmitChanges();
 
-                p.OrderId = o.Id;
-
-                context.Payments.InsertOnSubmit(p);
-                context.SubmitChanges();
+                orderId = o.Id;
             }
+
+            return orderId;
         }
 
         public void AddOrderDetails(int orderId, int productId, decimal unitPrice, int quantity)
@@ -146,12 +148,50 @@ namespace CakesPos.Data
             }
         }
 
+        public IEnumerable<OrderHistoryViewModel> GetAllOrders()
+        {
+            List<OrderHistoryViewModel> orders=new List<OrderHistoryViewModel>();
+            using(var connection=new SqlConnection(_connectionString))
+            using(var cmd=connection.CreateCommand())
+            {
+                cmd.CommandText="SELECT * FROM Orders";
+                connection.Open();
+                SqlDataReader reader=cmd.ExecuteReader();
+                while(reader.Read())
+                {
+                    OrderHistoryViewModel oh=new OrderHistoryViewModel();
+                    oh.id=(int)reader["Id"];
+                    oh.customerId=(int)reader["CustomerId"];
+                    oh.orderDate=(DateTime)reader["OrderDate"];
+                    oh.requiredDate=(DateTime)reader["RequiredDate"];
+                    oh.paymentMethod=(string)reader["PaymentMethod"];
+                    oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
+                    oh.deliveryOpt=(string)reader["DeliveryOption"];
+                    Customer c=GetCustomerById(oh.customerId);
+                    oh.firstName=c.FirstName;
+                    oh.lastName=c.LastName;
+
+                    orders.Add(oh);
+                }
+
+                return orders;
+            }
+        }
+
         public IEnumerable<Customer> SearchCustomers(string search)
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList();
+            }
+        }
+
+        public Customer GetCustomerById(int id)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                return context.Customers.Where(c => c.Id == id).FirstOrDefault(); ;
             }
         }
     }
