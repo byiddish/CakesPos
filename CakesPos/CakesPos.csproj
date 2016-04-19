@@ -246,7 +246,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\OrderDetails.cshtml" />
     <Content Include="Views\Home\Order.cshtml" />
     <Content Include="Views\Home\OrderHistory.cshtml" />
     <Content Include="Views\Home\Admin.cshtml" />

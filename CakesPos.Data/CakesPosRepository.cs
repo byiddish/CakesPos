@@ -187,6 +187,40 @@ namespace CakesPos.Data
             }
         }
 
+        public IEnumerable<OrderHistoryViewModel> SearchOrders(string search)
+        {
+            List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"Select * from Customers
+                                    join Orders
+                                    on Orders.CustomerId=Customers.Id
+                                    Where Customers.FirstName LIKE '%' + @query + '%'  OR Customers.LastName LIKE '%' +  @query + '%' OR Customers.Phone LIKE '%' +  @query + '%' OR Customers.Cell LIKE '%' +  @query + '%'";
+                cmd.Parameters.AddWithValue("@query", search);
+                connection.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    OrderHistoryViewModel oh = new OrderHistoryViewModel();
+                    oh.id = (int)reader["Id"];
+                    oh.customerId = (int)reader["CustomerId"];
+                    oh.orderDate = (DateTime)reader["OrderDate"];
+                    oh.requiredDate = (DateTime)reader["RequiredDate"];
+                    oh.paymentMethod = (string)reader["PaymentMethod"];
+                    oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
+                    oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    Customer c = GetCustomerById(oh.customerId);
+                    oh.firstName = c.FirstName;
+                    oh.lastName = c.LastName;
+
+                    orders.Add(oh);
+                }
+
+                return orders;
+            }
+        }
+
         public Customer GetCustomerById(int id)
         {
             using (var context = new CakesPosDataContext(_connectionString))

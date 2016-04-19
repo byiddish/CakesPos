@@ -8,7 +8,6 @@ namespace CakesPos.Data
 {
     public class OrderHistoryViewModel
     {
-
         public int id { get; set; }
         public int customerId { get; set; }
         public string firstName { get; set; }

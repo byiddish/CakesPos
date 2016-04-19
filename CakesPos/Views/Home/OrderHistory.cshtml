@@ -7,7 +7,21 @@
 
 
 <div class="container well" id="orderHistoryDiv">
-    <table class="table table-bordered table-hover table-responsive table-striped">
+    <div class="form-group">
+        <label>Search<input class="form-control" id="searchInput"/></label>
+        <button class="btn btn-success" id="historySearchBtn">Search</button>
+        <label>From<input class="form-control" id="fromInput" type="date"/></label>
+        <label>To<input class="form-control" id="toInput" type="date" /></label>
+        <button class="btn btn-success"id="applybtn">Apply</button>
+        <label>Filter Date<select class="form-control">
+                <option value="">Today</option>
+                <option value="">Yesterday</option>
+                <option value="">Last 7 Days</option>
+                <option value="">Last 30 Days</option>
+            </select>
+        </label>
+    </div>
+    <table class="table table-bordered table-hover table-responsive table-striped" id="historyTable">
         <tr>
             <th>Customer</th>
             <th>Order Date</th>
@@ -20,7 +34,7 @@
         </tr>
         @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
         {
-            <tr>
+            <tr class="history">
                 <td>@o.lastName @o.firstName</td>
                 <td>@o.orderDate</td>
                 <td>@o.requiredDate</td>
@@ -35,8 +49,40 @@
                 {
                     <td><span style="color:red">Not Paid</span></td>
                 }
-                <td><button class="btn btn-info">View Details</button><button class="btn btn-success paymentBtn">Payment</button></td>
+                <td><button class="btn btn-info viewDetailsBtn" data-toggle="modal" data-target="#orderDetailsModal">View Details</button><button class="btn btn-success paymentBtn">Payment</button></td>
             </tr>
         }
     </table>
+</div>
+
+<div id="orderDetailsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select Customer</h4>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Unit Price</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </table>
+                <div class="orderDetailsTotalDiv">
+                    <h3>Subtotal: $600.00</h3>
+                    <h4>Discount: 10%</h4>
+                    <h1>Total: $500.00</h1>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
 </div>

@@ -278,4 +278,51 @@
         }
     }
 
+    $('#searchInput').on('input', function () {
+        $('.history').remove();
+        var s = $('#searchInput').val().toString();
+        $.post("/home/HistorySearch", { search: s }, function (ordersHistory) {
+            if (s === "") {
+                $('.history').remove();
+            }
+            else {
+                ordersHistory.forEach(function (ordersHistory) {
+                    var paidHtml = "<td></td>";
+                    var orderDate = ConvertJsonDate(ordersHistory.orderDate);
+                    var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
+                
+                    if (ordersHistory.paid) {
+                        paidHtml = "<td><span style="+'"color: green"'+">Paid</span></td>";
+                    }
+                    else {
+                        paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
+                    }
+
+                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + orderDate + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td></td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
+                })
+            }
+        })
+
+        $('#historyTable').on('click', '.viewDetailsBtn', function () {
+            $('#orderDetailsModal').modal('show');
+        })
+
+    });
+
+    function ConvertJsonDate(jsonDate) {
+        var jsonDate = jsonDate.toString();
+        var value = new Date
+                    (
+                         parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
+                    );
+        var date = value.getMonth() +
+                                 1 +
+                               "/" +
+                   value.getDate() +
+                               "/" +
+               value.getFullYear();
+        return date;
+    }
+
+
 })

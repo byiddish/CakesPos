@@ -83,6 +83,14 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
+        public ActionResult HistorySearch(string search)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<OrderHistoryViewModel> ordersHistory = cpr.SearchOrders(search);
+            return Json(ordersHistory, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
         public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount)
         {
             DateTime dateTime = DateTime.Now;
