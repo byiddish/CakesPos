@@ -13,7 +13,7 @@
     width: 35%;
     height: 846px;
     margin-right: 5px;
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
 
 #ordersDiv {
@@ -23,7 +23,7 @@
 
 #totalDiv {
     margin-top: 5px;
-    height:192px;
+    height: 192px;
 }
 
 #rightdiv {
@@ -61,37 +61,78 @@ th {
     float: right;
 }
 
-#addBtn{
-    float:right;
-    width:163.063px;
+#addBtn {
+    float: right;
+    width: 163.063px;
 }
 
 #customerInfoDivInner {
-     margin:15px;
+    margin: 15px;
 }
 
 #totalDivInner {
-    margin:15px;
+    margin: 15px;
 }
 
-#rightdivInner{
-   margin:15px;
+#rightdivInner {
+    margin: 15px;
 }
 
 
-img{
-    height:165.99px;
-    width:220px;
+img {
+    height: 165.99px;
+    width: 220px;
 }
 
-#orderHistoryDiv{
-    margin-top:100px;
-    max-height:800px;
+#orderHistoryDiv {
+    margin-top: 100px;
+    max-height: 800px;
     /*border: 1px solid black;*/
     overflow: scroll;
 }
 
-.paymentBtn{
-    margin-left:4px;
+.paymentBtn {
+    margin-left: 4px;
 }
 
+.xl-modal {
+    width: 90% !important;
+    max-width: 1200px !important;
+}
+
+/*.info-panel {
+    width: 35%;
+}*/
+
+/*#deliveryPanel{
+    float:right;
+}*/
+
+#orderHistory {
+    overflow: scroll;
+    height: 300px;
+    /*float:left;
+    width:65%;*/
+}
+
+/*#messagePanel{
+    float:right;
+}*/
+
+#infoDiv{
+     float:right;
+     width: 30%;
+}
+
+#orderedProductsHistory{
+    /*overflow: scroll;
+    height: 200px;*/
+    float:left;
+    width:65%;
+    height:586px;
+   /*border: 1px solid black;*/
+}
+
+#orderDetailsTotalDiv{
+    text-align:right;
+}

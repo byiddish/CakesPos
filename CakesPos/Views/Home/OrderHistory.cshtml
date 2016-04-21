@@ -8,16 +8,18 @@
 
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
-        <label>Search<input class="form-control" id="searchInput"/></label>
+        <label>Search<input class="form-control" id="searchInput" /></label>
         <button class="btn btn-success" id="historySearchBtn">Search</button>
-        <label>From<input class="form-control" id="fromInput" type="date"/></label>
+        <label>From<input class="form-control" id="fromInput" type="date" /></label>
         <label>To<input class="form-control" id="toInput" type="date" /></label>
-        <button class="btn btn-success"id="applybtn">Apply</button>
-        <label>Filter Date<select class="form-control">
+        <button class="btn btn-success" id="applybtn">Apply</button>
+        <label>
+            Filter Date<select class="form-control">
                 <option value="">Today</option>
                 <option value="">Yesterday</option>
                 <option value="">Last 7 Days</option>
                 <option value="">Last 30 Days</option>
+                <option value="">None</option>
             </select>
         </label>
     </div>
@@ -49,14 +51,17 @@
                 {
                     <td><span style="color:red">Not Paid</span></td>
                 }
-                <td><button class="btn btn-info viewDetailsBtn" data-toggle="modal" data-target="#orderDetailsModal">View Details</button><button class="btn btn-success paymentBtn">Payment</button></td>
+                <td>
+                    <button class="btn btn-info viewDetailsBtn" data-toggle="modal" data-target="#orderDetailsModal">View Details</button>
+                    <button class="btn btn-success paymentBtn">Payment</button>
+                </td>
             </tr>
         }
     </table>
 </div>
 
 <div id="orderDetailsModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog xl-modal">
 
         <!-- Modal content-->
         <div class="modal-content">
@@ -65,18 +70,108 @@
                 <h4 class="modal-title">Select Customer</h4>
             </div>
             <div class="modal-body">
-                <table>
-                    <tr>
-                        <th>Product</th>
-                        <th>Unit Price</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                    </tr>
-                </table>
-                <div class="orderDetailsTotalDiv">
-                    <h3>Subtotal: $600.00</h3>
-                    <h4>Discount: 10%</h4>
-                    <h1>Total: $500.00</h1>
+                <div class="container">
+                    <div id="orderedProductsHistory" class="panel panel-primary">
+                        <div class="panel-heading">
+                            Order History
+                        </div>
+                        <div class="panel-body">
+                            <div id="orderHistory">
+                                <table class="table table-condensed table-responsive table-striped table-hover">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Unit Price</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Caramel</td>
+                                        <td>65.00</td>
+                                        <td>2</td>
+                                        <td>130.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Caramel</td>
+                                        <td>65.00</td>
+                                        <td>2</td>
+                                        <td>130.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Caramel</td>
+                                        <td>65.00</td>
+                                        <td>2</td>
+                                        <td>130.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Caramel</td>
+                                        <td>65.00</td>
+                                        <td>2</td>
+                                        <td>130.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Caramel</td>
+                                        <td>65.00</td>
+                                        <td>2</td>
+                                        <td>130.00</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Caramel</td>
+                                        <td>65.00</td>
+                                        <td>2</td>
+                                        <td>130.00</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="orderDetailsTotalDiv">
+                                <h3>Subtotal: $600.00</h3>
+                                <h4>Discount: 10%</h4>
+                                <h1>Total: $500.00</h1>
+                                <br />
+                                <br />
+                                <button class="btn btn-success">Update Status</button>
+                                <button class="btn btn-warning">Edit</button>
+                                <button class="btn btn-danger">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="infoDiv">
+                        <div class="panel panel-info info-panel" id="customerPanel">
+                            <div class="panel-heading">
+                                Customer Info
+                            </div>
+                            <div class="panel-body">
+                                <h3>Moshe Greenbaum</h3>
+                                <h3>5203 47 St.<br />Brooklyn NY 11219</h3>
+                                <h3>917-689-8846</h3>
+                            </div>
+                        </div>
+                        <div class="panel panel-warning info-panel" id="deliveryPanel">
+                            <div class="panel-heading">
+                                Delivery Info
+                            </div>
+                            <div class="panel-body">
+                                <h4>Avi Schwartz</h4>
+                                <h4>1125 50 St.<br />Brooklyn NY 11219</h4>
+                                <h4>718-851-2536</h4>
+                            </div>
+                        </div>
+                        <div class="panel panel-default info-panel" id="messagePanel">
+                            <div class="panel-heading">
+                                Message
+                            </div>
+                            <div class="panel-body">
+                                <h5>Mazel tov bobby!!!</h5>
+                            </div>
+                        </div>
+                        <div class="panel panel-default info-panel" id="messagePanel">
+                            <div class="panel-heading">
+                                Notes
+                            </div>
+                            <div class="panel-body">
+                                <h5>Make sure its fresh!!!!!!!!!</h5>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
