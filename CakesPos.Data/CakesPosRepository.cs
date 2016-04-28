@@ -150,26 +150,26 @@ namespace CakesPos.Data
 
         public IEnumerable<OrderHistoryViewModel> GetAllOrders()
         {
-            List<OrderHistoryViewModel> orders=new List<OrderHistoryViewModel>();
-            using(var connection=new SqlConnection(_connectionString))
-            using(var cmd=connection.CreateCommand())
+            List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
             {
-                cmd.CommandText="SELECT * FROM Orders";
+                cmd.CommandText = "SELECT * FROM Orders";
                 connection.Open();
-                SqlDataReader reader=cmd.ExecuteReader();
-                while(reader.Read())
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
                 {
-                    OrderHistoryViewModel oh=new OrderHistoryViewModel();
-                    oh.id=(int)reader["Id"];
-                    oh.customerId=(int)reader["CustomerId"];
-                    oh.orderDate=(DateTime)reader["OrderDate"];
-                    oh.requiredDate=(DateTime)reader["RequiredDate"];
-                    oh.paymentMethod=(string)reader["PaymentMethod"];
+                    OrderHistoryViewModel oh = new OrderHistoryViewModel();
+                    oh.id = (int)reader["Id"];
+                    oh.customerId = (int)reader["CustomerId"];
+                    oh.orderDate = (DateTime)reader["OrderDate"];
+                    oh.requiredDate = (DateTime)reader["RequiredDate"];
+                    oh.paymentMethod = (string)reader["PaymentMethod"];
                     oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
-                    oh.deliveryOpt=(string)reader["DeliveryOption"];
-                    Customer c=GetCustomerById(oh.customerId);
-                    oh.firstName=c.FirstName;
-                    oh.lastName=c.LastName;
+                    oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    Customer c = GetCustomerById(oh.customerId);
+                    oh.firstName = c.FirstName;
+                    oh.lastName = c.LastName;
 
                     orders.Add(oh);
                 }
@@ -225,8 +225,44 @@ namespace CakesPos.Data
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
-                return context.Customers.Where(c => c.Id == id).FirstOrDefault(); ;
+                return context.Customers.Where(c => c.Id == id).FirstOrDefault();
             }
         }
+
+        public OrderDetailsViewModel GetOrderDetails(int customerId, int orderId)
+        {
+            List<OrderDetailsProductModel> products = new List<OrderDetailsProductModel>();
+            OrderDetailsViewModel odvm = new OrderDetailsViewModel();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                odvm.customer = context.Customers.Where(c => c.Id == customerId).FirstOrDefault();
+                odvm.order = context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
+                odvm.orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
+
+                foreach (OrderDetail od in odvm.orderDetails)
+                {
+                    OrderDetailsProductModel pm = new OrderDetailsProductModel();
+                    Product p = (GetProductById(od.ProductId));
+                    pm.productId = p.Id;
+                    pm.productName = p.ProductName;
+                    pm.quantity = od.Quantity;
+                    pm.unitPrice = p.Price;
+
+                    products.Add(pm);
+                }
+            }
+            odvm.orderedProducts = products;
+            return odvm;
+        }
+
+        public Product GetProductById(int productId)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                return context.Products.Where(p => p.Id == productId).FirstOrDefault();
+            }
+        }
+
     }
 }

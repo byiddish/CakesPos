@@ -290,9 +290,9 @@
                     var paidHtml = "<td></td>";
                     var orderDate = ConvertJsonDate(ordersHistory.orderDate);
                     var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
-                
+
                     if (ordersHistory.paid) {
-                        paidHtml = "<td><span style="+'"color: green"'+">Paid</span></td>";
+                        paidHtml = "<td><span style=" + '"color: green"' + ">Paid</span></td>";
                     }
                     else {
                         paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
@@ -308,6 +308,20 @@
         })
 
     });
+
+    $('.viewDetailsBtn').on('click', function () {
+        var ordersId = $(this).data('orderid');
+        var customersId = $(this).data('customerid');
+
+        $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
+            ordersHistory.orderedProducts.forEach(function (orderedProducts) {
+                alert("Works!!!!")
+                $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td></tr>")
+            })
+        })
+    })
+
+
 
     function ConvertJsonDate(jsonDate) {
         var jsonDate = jsonDate.toString();

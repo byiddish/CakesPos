@@ -8,15 +8,10 @@ namespace CakesPos.Data
 {
     public class OrderDetailsViewModel
     {
-        public int id { get; set; }
-        public int customerId { get; set; }
-        public string firstName { get; set; }
-        public string lastName { get; set; }
-        public DateTime orderDate { get; set; }
-        public DateTime requiredDate { get; set; }
-        public string deliveryOpt { get; set; }
-        public string paymentMethod { get; set; }
-        public bool paid { get; set; }
-        public decimal amount { get; set; }
+        public Customer customer { get; set; }
+        public IEnumerable<OrderDetail> orderDetails { get; set; }
+        public Order order { get; set; }
+        public IEnumerable<Payment> payments { get; set; }
+        public IEnumerable<OrderDetailsProductModel> orderedProducts { get; set; }
     }
 }

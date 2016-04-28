@@ -106,5 +106,14 @@ namespace CakesPos.Controllers
             cpr.AddOrderDetails(orderId, productId, unitPrice, quantity);
             return null;
         }
+
+        [HttpPost]
+        public ActionResult GetOrderHistory(int orderId, int customerId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrderDetailsViewModel orderHistory=cpr.GetOrderDetails(orderId, customerId);
+            return Json(orderHistory, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }
