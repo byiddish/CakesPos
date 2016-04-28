@@ -83,48 +83,12 @@
                                         <th>Quantity</th>
                                         <th>Price</th>
                                     </tr>
-                                    @*<tr>
-                                        <td>Caramel</td>
-                                        <td>65.00</td>
-                                        <td>2</td>
-                                        <td>130.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Caramel</td>
-                                        <td>65.00</td>
-                                        <td>2</td>
-                                        <td>130.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Caramel</td>
-                                        <td>65.00</td>
-                                        <td>2</td>
-                                        <td>130.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Caramel</td>
-                                        <td>65.00</td>
-                                        <td>2</td>
-                                        <td>130.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Caramel</td>
-                                        <td>65.00</td>
-                                        <td>2</td>
-                                        <td>130.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Caramel</td>
-                                        <td>65.00</td>
-                                        <td>2</td>
-                                        <td>130.00</td>
-                                    </tr>*@
                                 </table>
                             </div>
                             <div id="orderDetailsTotalDiv">
-                                <h3>Subtotal: $600.00</h3>
-                                <h4>Discount: 10%</h4>
-                                <h1>Total: $500.00</h1>
+                                <h3 id="odSubtotal">Subtotal: $0.00</h3>
+                                <h4 id="odDiscount">Discount: $0.00</h4>
+                                <h1 id="odTotal">Total: $0.00</h1>
                                 <br />
                                 <br />
                                 <button class="btn btn-success">Update Status</button>
@@ -138,20 +102,14 @@
                             <div class="panel-heading">
                                 Customer Info
                             </div>
-                            <div class="panel-body">
-                                <h3>Moshe Greenbaum</h3>
-                                <h3>5203 47 St.<br />Brooklyn NY 11219</h3>
-                                <h3>917-689-8846</h3>
+                            <div class="panel-body" id="odCustomerInfo">
                             </div>
                         </div>
-                        <div class="panel panel-warning info-panel" id="deliveryPanel">
+                        <div class="panel panel-warning info-panel" id="deliveryPanel" style="display: none;">
                             <div class="panel-heading">
                                 Delivery Info
                             </div>
-                            <div class="panel-body">
-                                <h4>Avi Schwartz</h4>
-                                <h4>1125 50 St.<br />Brooklyn NY 11219</h4>
-                                <h4>718-851-2536</h4>
+                            <div class="panel-body" id="odDeliveryInfo">
                             </div>
                         </div>
                         <div class="panel panel-default info-panel" id="messagePanel">
@@ -162,12 +120,11 @@
                                 <h5>Mazel tov bobby!!!</h5>
                             </div>
                         </div>
-                        <div class="panel panel-default info-panel" id="messagePanel">
+                        <div class="panel panel-default info-panel" id="notesPanel">
                             <div class="panel-heading">
                                 Notes
                             </div>
-                            <div class="panel-body">
-                                <h5>Make sure its fresh!!!!!!!!!</h5>
+                            <div class="panel-body" id="notesBody">
                             </div>
                         </div>
                     </div>

@@ -64,7 +64,7 @@ namespace CakesPos.Data
             }
         }
 
-        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount)
+        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes)
         {
             int orderId = 0;
 
@@ -78,6 +78,7 @@ namespace CakesPos.Data
             o.DeliveryCity = deliveryCity;
             o.DeliveryState = deliveryState;
             o.DeliveryZip = deliveryZip;
+            o.Phone = phone;
             o.CreditCard = creditCard;
             o.Expiration = expiration;
             o.SecurityCode = securityCode;
@@ -85,6 +86,7 @@ namespace CakesPos.Data
             o.DeliveryOption = deliveryOpt;
             o.PaymentMethod = paymentMethod;
             o.Paid = false;
+            o.Notes = notes;
             //Payment p = new Payment();
             //p.CustomerId = customerId;
             //p.PaymentMethod = paymentMethod;

@@ -48,12 +48,13 @@
             deliveryCity: $('#deliveryCity').val(),
             deliveryState: $('#deliveryState').val(),
             deliveryZip: $('#deliveryZip').val(),
-            phone: $('#phone').val(),
+            phone: $('#deliveryPhone').val(),
             creditCard: $('#creditCardNumber').val(),
             expiration: $('#expiration').val(),
             securityCode: $('#securityCode').val(),
             paymentMethod: paymentMethod,
             discount: discount,
+            notes: $('#notes').val()
         },
             function (orderId) {
                 $('#orderTable').find('tr').not(':first').each(function () {
@@ -312,12 +313,28 @@
     $('.viewDetailsBtn').on('click', function () {
         var ordersId = $(this).data('orderid');
         var customersId = $(this).data('customerid');
-
+        var subtotal = 0;
+        var total = 0;
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
+            if (ordersHistory.order.DeliveryOption === "Delivery") {
+                $('#deliveryPanel').show();
+                $('#odDeliveryInfo').html("<h3>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h3><h3>" + ordersHistory.order.DeliveryAddress + "</h3><h3>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h3><h3>" + ordersHistory.order.Phone + "</h3>");
+            }
+            var discount = ordersHistory.order.Discount;
+            $('#notesBody').html("<h5>" + ordersHistory.order.Notes + "</h5>");
+            $('#odCustomerInfo').html("<h3>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h3><h3>" + ordersHistory.customer.Address + "</h3><h3>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h3><h3>" + ordersHistory.customer.Phone + "</h3>");
             ordersHistory.orderedProducts.forEach(function (orderedProducts) {
-                alert("Works!!!!")
-                $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td></tr>")
+                $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + orderedProducts.quantity * orderedProducts.unitPrice + "</td></tr>")
+                subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
             })
+            $('#odDiscount').html("Discount: " + discount);
+            $('#odSubtotal').html("Subtotal: $" + subtotal);
+            if (discount >= 1) {
+                $('#odTotal').html("Total: $" + (subtotal - discount));
+            }
+            else {
+                $('#odTotal').html("Total: $" + (subtotal - discount));
+            }
         })
     })
 
