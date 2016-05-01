@@ -333,7 +333,7 @@
                 $('#odTotal').html("Total: $" + (subtotal - discount));
             }
             else {
-                $('#odTotal').html("Total: $" + (subtotal - discount));
+                $('#odTotal').html("Total: $" + (subtotal -(subtotal * discount)));
             }
         })
     })

@@ -5,10 +5,9 @@
     <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
 }
 
-
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
-        <label>Search<input class="form-control" id="searchInput" placeholder="Search"/></label>
+        <label>Search<input class="form-control" id="searchInput" placeholder="Search" /></label>
         <label>From<input class="form-control" id="fromInput" type="date" /></label>
         <label>To<input class="form-control" id="toInput" type="date" /></label>
         <label>
@@ -35,12 +34,25 @@
         </tr>
         @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
         {
+            CakesPos.Data.CakesPosRepository cpr = new CakesPos.Data.CakesPosRepository(@"Data Source=.\sqlexpress;Initial Catalog=CakesPos;Integrated Security=True");
+            decimal total = 0;
+            if (o.discount < 1)
+            {
+
+                decimal x = cpr.GetTotalByOrderId(o.id);
+                decimal discount = x * o.discount;
+                total = x - discount;
+            }
+            else
+            {
+                total = cpr.GetTotalByOrderId(o.id) - o.discount;
+            }
             <tr class="history">
                 <td>@o.lastName @o.firstName</td>
-                <td>@o.orderDate</td>
-                <td>@o.requiredDate</td>
+                <td>@o.orderDate.ToShortDateString()</td>
+                <td>@o.requiredDate.ToShortDateString()</td>
                 <td>@o.deliveryOpt</td>
-                <td></td>
+                <td>@total.ToString("C")</td>
                 <td></td>
                 @if (o.paid)
                 {

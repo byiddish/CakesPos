@@ -169,6 +169,7 @@ namespace CakesPos.Data
                     oh.paymentMethod = (string)reader["PaymentMethod"];
                     oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
                     oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    oh.discount = (decimal)reader["Discount"];
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
@@ -264,6 +265,21 @@ namespace CakesPos.Data
             {
                 return context.Products.Where(p => p.Id == productId).FirstOrDefault();
             }
+        }
+
+        public decimal GetTotalByOrderId(int orderId)
+        {
+            decimal total = 0;
+            using (var context=new CakesPosDataContext(_connectionString))
+            {
+                IEnumerable<OrderDetail> orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
+                foreach (OrderDetail od in orderDetails)
+                {
+                    total += (od.UnitPrice * od.Quantity);
+                }
+            }
+
+            return total;
         }
 
     }
