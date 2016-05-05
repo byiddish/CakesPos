@@ -213,6 +213,7 @@ namespace CakesPos.Data
                     oh.paymentMethod = (string)reader["PaymentMethod"];
                     oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
                     oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    oh.discount = (decimal)reader["Discount"];
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
@@ -270,16 +271,52 @@ namespace CakesPos.Data
         public decimal GetTotalByOrderId(int orderId)
         {
             decimal total = 0;
-            using (var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
+                context.DeferredLoadingEnabled = false;
                 IEnumerable<OrderDetail> orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
                 foreach (OrderDetail od in orderDetails)
                 {
-                    total += (od.UnitPrice * od.Quantity);
+                    total += od.UnitPrice * od.Quantity;
                 }
             }
-
             return total;
+        }
+
+        public IEnumerable<InventoryViewModel> GetInventory(DateTime min, DateTime max)
+        {
+            List<OrderDetail> orderDetails = new List<OrderDetail>();
+            List<Order> orders = new List<Order>();
+            List<InventoryViewModel> ivm=new List<InventoryViewModel>();
+            List<Product> products = new List<Product>();
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                products = context.Products.ToList();
+                orders = context.Orders.Where(o => o.RequiredDate > min && o.RequiredDate < max).ToList();
+
+                foreach(Order o in orders)
+                {
+                    List<OrderDetail> oDetails = new List<OrderDetail>();
+                    oDetails = context.OrderDetails.Where(od => od.OrderId == o.Id).ToList();
+                    foreach(OrderDetail od in oDetails)
+                    {
+                        orderDetails.Add(od);
+                    }
+                }
+            }
+            foreach(OrderDetail od in orderDetails)
+            {
+                InventoryViewModel i = new InventoryViewModel();
+                i.requestedAmount = od.Quantity;
+                
+            }
+            foreach(Product p in products)
+            {
+                InventoryViewModel i = new InventoryViewModel();
+                i.product = p;
+                ivm.Add(i);
+            }
+            return ivm;
         }
 
     }

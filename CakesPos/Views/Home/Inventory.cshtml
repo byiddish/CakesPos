@@ -1,0 +1,50 @@
+﻿@model IEnumerable<CakesPos.Data.InventoryViewModel>
+
+
+@section Styles{
+    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+}
+
+
+<div class="container" id="inventoryContainer">
+    <div class="panel panel-default info-panel">
+        <div class="panel-heading">
+            Inventory
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-responsive table-hover table-striped">
+                <tr>
+                    <th>Product</th>
+                    <th>Stock</th>
+                    <th>
+                        Requested
+                        <div>
+                            <label>
+                                From
+                                <input type="date" class="form-control invDate" />
+                            </label>
+                            <label>
+                                To
+                                <input type="date" class="form-control invDate"/>
+                            </label>
+                        </div>
+                    </th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+                @foreach (CakesPos.Data.InventoryViewModel i in Model)
+                {
+                    var requested = 5;
+                    var total = i.product.InStock - requested;
+                    <tr>
+                        <td>@i.product.ProductName</td>
+                        <td>@i.product.InStock</td>
+                        <td>5</td>
+                        <td>@total</td>
+                        <td><button class="btn btn-info">Update Inventory</button></td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+</div>

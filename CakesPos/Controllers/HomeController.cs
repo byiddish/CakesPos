@@ -37,6 +37,12 @@ namespace CakesPos.Controllers
             return View();
         }
 
+        public ActionResult Inventory()
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return View(cpr.GetInventory());
+        }
+
         public ActionResult AddCategory(string categoryName)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
@@ -113,6 +119,14 @@ namespace CakesPos.Controllers
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             OrderDetailsViewModel orderHistory=cpr.GetOrderDetails(orderId, customerId);
             return Json(orderHistory, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetTotalByOrderId(int id)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            decimal total = cpr.GetTotalByOrderId(id);
+            return Json(total, JsonRequestBehavior.AllowGet);
         }
 
     }

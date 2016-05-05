@@ -291,6 +291,16 @@
                     var paidHtml = "<td></td>";
                     var orderDate = ConvertJsonDate(ordersHistory.orderDate);
                     var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
+                    var total = 0;
+                    $.post("/home/GetTotalByOrderId", { id: ordersHistory.id }, function (orderTotal) {
+                        if (ordersHistory.discount < 1) {
+                            var discount = orderTotal * ordersHistory.discount;
+                            total = orderTotal - ordersHistory.discount;
+                        }
+                        else {
+                            total = orderTotal - ordersHistory.discount;
+                        }
+                    });
 
                     if (ordersHistory.paid) {
                         paidHtml = "<td><span style=" + '"color: green"' + ">Paid</span></td>";
@@ -299,7 +309,7 @@
                         paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
                     }
 
-                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + orderDate + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td></td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
+                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + orderDate + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
                 })
             }
         })
@@ -333,7 +343,7 @@
                 $('#odTotal').html("Total: $" + (subtotal - discount));
             }
             else {
-                $('#odTotal').html("Total: $" + (subtotal -(subtotal * discount)));
+                $('#odTotal').html("Total: $" + (subtotal - (subtotal * discount)));
             }
         })
     })
