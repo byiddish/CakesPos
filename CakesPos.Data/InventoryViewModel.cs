@@ -9,5 +9,6 @@ namespace CakesPos.Data
     public class InventoryViewModel
     {
         public Product product { get; set; }
+        public int requestedAmount { get; set; }
     }
 }

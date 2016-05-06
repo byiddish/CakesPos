@@ -348,6 +348,10 @@
         })
     })
 
+    $('.inventoryBtn').on('click', function () {
+
+    })
+
 
 
     function ConvertJsonDate(jsonDate) {

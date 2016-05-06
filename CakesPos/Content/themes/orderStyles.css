@@ -119,32 +119,42 @@ img {
     float:right;
 }*/
 
-#infoDiv{
-     float:right;
-     width: 30%;
+#infoDiv {
+    float: right;
+    width: 30%;
 }
 
-#orderedProductsHistory{
+#orderedProductsHistory {
     /*overflow: scroll;
     height: 200px;*/
-    float:left;
-    width:65%;
-    height:586px;
-   /*border: 1px solid black;*/
+    float: left;
+    width: 65%;
+    height: 586px;
+    /*border: 1px solid black;*/
 }
 
-#orderDetailsTotalDiv{
-    text-align:right;
+#orderDetailsTotalDiv {
+    text-align: right;
 }
 
-.i{
-    width:50%;
+.i {
+    width: 50%;
 }
 
-#inventoryContainer{
-    margin-top:100px;
+#inventoryContainer {
+    margin-top: 100px;
 }
 
 /*.invDate{
     width:100px;
 }*/
+
+#invProductCell {
+    width: 255px;
+}
+
+.thInv{
+    background-color: saddlebrown;
+    color: white;
+    text-align: center;
+}

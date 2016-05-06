@@ -304,16 +304,18 @@ namespace CakesPos.Data
                     }
                 }
             }
-            foreach(OrderDetail od in orderDetails)
-            {
-                InventoryViewModel i = new InventoryViewModel();
-                i.requestedAmount = od.Quantity;
-                
-            }
+
             foreach(Product p in products)
             {
+                int quantity = 0;
                 InventoryViewModel i = new InventoryViewModel();
+                IEnumerable<OrderDetail> oDetail = orderDetails.FindAll(o => o.ProductId == p.Id).ToList();
+                foreach(OrderDetail od in oDetail)
+                {
+                    quantity += od.Quantity;
+                }
                 i.product = p;
+                i.requestedAmount = quantity;
                 ivm.Add(i);
             }
             return ivm;

@@ -39,8 +39,23 @@ namespace CakesPos.Controllers
 
         public ActionResult Inventory()
         {
+            DateTime min = DateTime.Now;
+            DateTime max = DateTime.Now.AddDays(7);
+            InventoryByCategoryModel ibcm = new InventoryByCategoryModel();
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            return View(cpr.GetInventory());
+            ibcm.inventory = cpr.GetInventory(min, max);
+            ibcm.categories = cpr.GetAllCategories();
+            return View(ibcm);
+        }
+
+        [HttpPost]
+        public ActionResult Inventory(DateTime min, DateTime max)
+        {
+            InventoryByCategoryModel ibcm = new InventoryByCategoryModel();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            ibcm.inventory = cpr.GetInventory(min, max);
+            ibcm.categories = cpr.GetAllCategories();
+            return View(ibcm);
         }
 
         public ActionResult AddCategory(string categoryName)
