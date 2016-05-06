@@ -348,11 +348,14 @@
         })
     })
 
-    $('.inventoryBtn').on('click', function () {
-
+    $('#inventoryBtn').on('click', function () {
+        var productId = $(this).data('productid')
+        var productName = $(this).data('productName')
+        $('#productNameInv').html(productName);
+        $('#quantityInv').val()
     })
 
-
+    $('[data-toggle="popover"]').popover();
 
     function ConvertJsonDate(jsonDate) {
         var jsonDate = jsonDate.toString();
