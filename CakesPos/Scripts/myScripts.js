@@ -355,7 +355,19 @@
         $('#quantityInv').val()
     })
 
-    $('[data-toggle="popover"]').popover();
+    //$('[data-toggle="popover"]').popover();
+
+    $('.add').on('click', function () {
+        var element=$(this)
+        var id=$(this).data('id')
+        var amount =  $(this).closest('tr').find('.invQuantityInput').val();
+        $.post("/Home/UpdateInventory", { id: id, amount: amount }, function () {
+            location.reload();
+            //var prevStock = parseInt(element.closest('tr').find('.inStock').html())
+            //var curStock = prevStock += amount;
+            //element.closest('tr').find('.inStock').html(curStock);
+        })
+    })
 
     function ConvertJsonDate(jsonDate) {
         var jsonDate = jsonDate.toString();

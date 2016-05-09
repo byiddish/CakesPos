@@ -321,5 +321,16 @@ namespace CakesPos.Data
             return ivm;
         }
 
+        public void UpdateInventory(int id, int amount)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                var product = (from p in context.Products
+                               where p.Id == id
+                               select p).First();
+                product.InStock += amount;
+                context.SubmitChanges();
+            }
+        }
     }
 }

@@ -144,5 +144,13 @@ namespace CakesPos.Controllers
             return Json(total, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult UpdateInventory(int id, int amount)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.UpdateInventory(id, amount);
+            return null;
+        }
+
     }
 }

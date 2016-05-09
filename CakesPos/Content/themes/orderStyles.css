@@ -161,5 +161,10 @@ img {
 
 .invQuantityInput{
     width:60px;
-    height:30px;
+    height:34px;
+    font-size:large;
+}
+
+#amountPay{
+    width:200px;
 }
