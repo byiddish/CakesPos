@@ -11,12 +11,13 @@
         <label>From<input class="form-control" id="fromInput" type="date" /></label>
         <label>To<input class="form-control" id="toInput" type="date" /></label>
         <label>
-            Filter Date<select class="form-control">
-                <option value="">Today</option>
-                <option value="">Yesterday</option>
-                <option value="">Last 7 Days</option>
-                <option value="">Last 30 Days</option>
-                <option value="">None</option>
+            Filter Date
+            <select class="form-control" id="filterDate">
+                <option value="0">Today</option>
+                <option value="1">Yesterday</option>
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="none">None</option>
             </select>
         </label>
         <button class="btn btn-success" id="applybtn">Apply</button>
@@ -29,7 +30,7 @@
             <th>Delivery Option</th>
             <th>Total</th>
             <th>Status</th>
-            <th>Paid</th>
+            <th>Balance</th>
             <th>Action</th>
         </tr>
         @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)

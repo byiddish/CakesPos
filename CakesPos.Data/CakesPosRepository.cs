@@ -150,7 +150,7 @@ namespace CakesPos.Data
             }
         }
 
-        public IEnumerable<OrderHistoryViewModel> GetAllOrders()
+        public IEnumerable<OrderHistoryViewModel> GetOrders()
         {
             List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
             using (var connection = new SqlConnection(_connectionString))
@@ -177,7 +177,7 @@ namespace CakesPos.Data
                     orders.Add(oh);
                 }
 
-                return orders;
+                return orders.OrderBy(o => o.lastName);
             }
         }
 
@@ -221,7 +221,7 @@ namespace CakesPos.Data
                     orders.Add(oh);
                 }
 
-                return orders;
+                return orders.OrderByDescending(o => o.requiredDate);
             }
         }
 

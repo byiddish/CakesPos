@@ -28,9 +28,34 @@ namespace CakesPos.Controllers
         public ActionResult OrderHistory()
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetAllOrders();
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today);
             return View(orders);
         }
+
+        [HttpPost]
+        public ActionResult OrderHistoryFilter(int x)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            DateTime today = DateTime.Today;
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(-x) && o.requiredDate < today.AddDays(1));
+            return Json(orders, JsonRequestBehavior.AllowGet);
+        }
+
+        //[HttpPost]
+        //public ActionResult OrderHistoryWeek()
+        //{
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate >= DateTime.Today.AddDays(-7));
+        //    return Json(orders, JsonRequestBehavior.AllowGet);
+        //}
+
+        //[HttpPost]
+        //public ActionResult OrderHistoryLast30Days()
+        //{
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate >= DateTime.Today.AddDays(-30));
+        //    return Json(orders, JsonRequestBehavior.AllowGet);
+        //}
 
         public ActionResult Admin()
         {
@@ -112,11 +137,11 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount,string notes)
+        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes)
         {
             DateTime dateTime = DateTime.Now;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            int orderId=cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes);
+            int orderId = cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes);
             return Json(orderId);
         }
 
@@ -132,7 +157,7 @@ namespace CakesPos.Controllers
         public ActionResult GetOrderHistory(int orderId, int customerId)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            OrderDetailsViewModel orderHistory=cpr.GetOrderDetails(orderId, customerId);
+            OrderDetailsViewModel orderHistory = cpr.GetOrderDetails(orderId, customerId);
             return Json(orderHistory, JsonRequestBehavior.AllowGet);
         }
 
