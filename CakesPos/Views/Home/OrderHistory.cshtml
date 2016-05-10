@@ -64,7 +64,7 @@
                     <td><span style="color:red">Not Paid</span></td>
                 }
                 <td>
-                    <button class="btn btn-info viewDetailsBtn" data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#orderDetailsModal">View Details</button>
+                    <button class="btn btn-info viewDetailsBtn" data-orderid=@o.id data-customerid=@o.customerId>View Details</button>
                     <button class="btn btn-success paymentBtn" data-toggle="modal" data-target="#paymentModal">Payment</button>
                 </td>
             </tr>
@@ -163,7 +163,7 @@
             <div class="modal-body" align="center">
                 <h3 id="customerNamePay"></h3>
                 <div class="form-group">
-                    <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00"/></h2>
+                    <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
                 </div>
                 <div class="form-group" align="center">
                     <button class="btn btn-success btn-lg">Process Payment</button>
