@@ -177,7 +177,7 @@ namespace CakesPos.Data
                     orders.Add(oh);
                 }
 
-                return orders.OrderBy(o => o.lastName);
+                return orders.OrderByDescending(o => o.requiredDate );
             }
         }
 
@@ -199,7 +199,7 @@ namespace CakesPos.Data
                 cmd.CommandText = @"Select * from Customers
                                     join Orders
                                     on Orders.CustomerId=Customers.Id
-                                    Where Customers.FirstName LIKE '%' + @query + '%'  OR Customers.LastName LIKE '%' +  @query + '%' OR Customers.Phone LIKE '%' +  @query + '%' OR Customers.Cell LIKE '%' +  @query + '%'";
+                                    Where Customers.FirstName LIKE '%' + @query + '%'  OR Customers.LastName LIKE '%' +  @query + '%' OR Customers.Phone LIKE '%' +  @query + '%' OR Customers.Cell LIKE '%' +  @query + '%' OR Orders.DeliveryOption LIKE '%' +  @query + '%'";
                 cmd.Parameters.AddWithValue("@query", search);
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();

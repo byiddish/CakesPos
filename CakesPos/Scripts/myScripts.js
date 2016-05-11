@@ -279,8 +279,8 @@
         }
     }
 
-    $('#searchInput').on('input', function () {
-        var s = $('#searchInput').val().toString();
+    $('#searchHistoryInput').on('input', function () {
+        var s = $('#searchHistoryInput').val().toString();
         $('.history').remove();
         $.post("/home/HistorySearch", { search: s }, function (ordersHistory) {
             ordersHistory.forEach(function (ordersHistory) {
@@ -306,7 +306,7 @@
                         paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
                     }
 
-                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + orderDate + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
+                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
                 })
             })
         })
@@ -368,7 +368,7 @@
             $.post("/Home/OrderHistoryFilter", { x: x }, function (ordersHistory) {
                 ordersHistory.forEach(function (ordersHistory) {
                     var paidHtml = "<td></td>";
-                    var orderDate = ConvertJsonDate(ordersHistory.orderDate);
+                    //var orderDate = ConvertJsonDate(ordersHistory.orderDate);
                     var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
                     var discount = ordersHistory.discount;
                     var total = 0;
@@ -389,7 +389,7 @@
                             paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
                         }
 
-                        $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + orderDate + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
+                        $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
                     })
                 })
             })

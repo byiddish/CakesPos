@@ -28,7 +28,8 @@ namespace CakesPos.Controllers
         public ActionResult OrderHistory()
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders();
+            //IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today);
             return View(orders);
         }
 

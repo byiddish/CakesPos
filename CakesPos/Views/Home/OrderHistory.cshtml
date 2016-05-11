@@ -7,7 +7,7 @@
 
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
-        <label>Search<input class="form-control" id="searchInput" placeholder="Search" /></label>
+        <label>Search<input class="form-control" id="searchHistoryInput" placeholder="Search" /></label>
         <label>From<input class="form-control" id="fromInput" type="date" /></label>
         <label>To<input class="form-control" id="toInput" type="date" /></label>
         <label>
@@ -25,7 +25,7 @@
     <table class="table table-bordered table-hover table-responsive table-striped" id="historyTable">
         <tr>
             <th>Customer</th>
-            <th>Order Date</th>
+            @*<th>Order Date</th>*@
             <th>Requested Date</th>
             <th>Delivery Option</th>
             <th>Total</th>
@@ -50,9 +50,16 @@
             }
             <tr class="history">
                 <td>@o.lastName @o.firstName</td>
-                <td>@o.orderDate.ToShortDateString()</td>
+                @*<td>@o.orderDate.ToShortDateString()</td>*@
                 <td>@o.requiredDate.ToShortDateString()</td>
-                <td>@o.deliveryOpt</td>
+                @if (o.deliveryOpt == "Delivery")
+                {
+                    <td>@o.deliveryOpt <span style="color:orange" class="glyphicon glyphicon-road"></span></td>
+                }
+                else
+                {
+                    <td>@o.deliveryOpt</td>
+                }
                 <td>@total.ToString("C")</td>
                 <td></td>
                 @if (o.paid)
