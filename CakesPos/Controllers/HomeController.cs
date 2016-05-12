@@ -28,9 +28,34 @@ namespace CakesPos.Controllers
         public ActionResult OrderHistory()
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders();
-            //IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today);
+            //IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders();
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today);
             return View(orders);
+        }
+
+        public ActionResult Delivery()
+        {
+            List<OrderDetailsViewModel> od=new List<OrderDetailsViewModel>();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt=="Delivery");
+            foreach(OrderHistoryViewModel o in orders)
+            {
+                od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+            }
+            return View(od);
+        }
+
+        public ActionResult DeliveryFilter(int x)
+        {
+            List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            DateTime today = DateTime.Today;
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate >= today.AddDays(-x) && o.requiredDate < today.AddDays(1));
+            foreach (OrderHistoryViewModel o in orders)
+            {
+                od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+            }
+            return View(od);
         }
 
         [HttpPost]

@@ -164,3 +164,16 @@ img {
 #amountPay{
     width:200px;
 }
+
+#deliveryDiv{
+    margin-top:100px;
+}
+
+.deliveryInfoDiv.minimized {
+    height:40px;
+}
+
+.h{
+    width:28px;
+    height:28px;
+}

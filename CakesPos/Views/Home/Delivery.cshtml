@@ -1,0 +1,42 @@
+﻿@model IEnumerable<CakesPos.Data.OrderDetailsViewModel>
+
+
+
+
+@section Styles{
+    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+}
+
+<div class="container" id="deliveryDiv">
+    <label>
+        Filter Date
+        <select class="form-control" id="filterDeliveryDate">
+            <option value="0">Today</option>
+            <option value="1">Yesterday</option>
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="none">None</option>
+        </select>
+    </label>
+    <button class="btn btn-success" id="print">Print</button>
+    <h1>Wednesday May 11 2016</h1>
+    <br />
+    @foreach (CakesPos.Data.OrderDetailsViewModel o in Model)
+    {
+        <div class="deliveryInfoDiv">
+            <div class="panel panel-info deliveryInnerDiv">
+                <div class="panel-heading">
+                    @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName<button class="btn btn-group-xs btn-default pull-right h">-</button>
+                </div>
+                <div class="panel-body">
+                    <h3>@o.order.DeliveryFirstName @o.order.DeliveryLastName<br />@o.order.DeliveryAddress<br />@o.order.DeliveryCity @o.order.DeliveryState @o.order.DeliveryZip<br />@o.order.Phone</h3>
+                    @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+                    {
+                        <h4>@od.quantity - @od.productName</h4>
+                    }
+                    <textarea>Deliver on time.....</textarea>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -2,6 +2,7 @@
     var deliveryMethod = "";
     var paymentMethod = "";
 
+
     $("#delivery").on('click', function () {
         $("#deliveryInfoDiv").show();
         $("#pickup").on('click', function () {
@@ -231,7 +232,26 @@
             }
             else {
                 customers.forEach(function (customer) {
-                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.FirstName + "</td><td>" + customer.LastName + "</td><td>" + customer.Address + "</td><td>" + customer.Phone + "</td><td>" + customer.Caterer + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " data-caterer=" + '"' + customer.Caterer + '"' + " >" + "Select" + "</button></td></tr>");
+                    if (customer.Phone == null) {
+                        customer.Phone = "";
+                    }
+                    if (customer.Cell == null) {
+                        customer.Cell = "";
+                    }
+                    if (customer.Address == null) {
+                        customer.Address = "";
+                    }
+                    if (customer.City == null) {
+                        customer.City = "";
+                    }
+                    if (customer.State == null) {
+                        customer.State = "";
+                    }
+                    if (customer.Zip == null) {
+                        customer.Zip = "";
+                    }
+
+                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.LastName + " " + customer.FirstName + "</td><td>" + customer.Address + " " + customer.City + " " + customer.State + " " + customer.Zip + "</td><td>" + customer.Phone + "</td><td>" + customer.Cell + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " data-cell=" + '"' + customer.Cell + '"' + "data-caterer=" + '"' + customer.caterer + '"' + " >" + "Select" + "</button></td></tr>");
                 })
             }
         })
@@ -312,103 +332,140 @@
         })
     })
 
-        $('#historyTable').on('click', '.viewDetailsBtn', function () {
-            var ordersId = $(this).data('orderid');
-            var customersId = $(this).data('customerid');
-            var subtotal = 0;
-            var total = 0;
-            $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
-                if (ordersHistory.order.DeliveryOption === "Delivery") {
-                    $('#deliveryPanel').show();
-                    $('#odDeliveryInfo').html("<h3>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h3><h3>" + ordersHistory.order.DeliveryAddress + "</h3><h3>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h3><h3>" + ordersHistory.order.Phone + "</h3>");
-                }
-                var discount = ordersHistory.order.Discount;
-                $('#notesBody').html("<h5>" + ordersHistory.order.Notes + "</h5>");
-                $('#odCustomerInfo').html("<h3>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h3><h3>" + ordersHistory.customer.Address + "</h3><h3>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h3><h3>" + ordersHistory.customer.Phone + "</h3>");
-                ordersHistory.orderedProducts.forEach(function (orderedProducts) {
-                    $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + orderedProducts.quantity * orderedProducts.unitPrice + "</td></tr>")
-                    subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
-                })
-                $('#odDiscount').html("Discount: " + discount);
-                $('#odSubtotal').html("Subtotal: $" + subtotal);
-                if (discount >= 1) {
-                    $('#odTotal').html("Total: $" + (subtotal - discount));
-                }
-                else {
-                    $('#odTotal').html("Total: $" + (subtotal - (subtotal * discount)));
-                }
+    $('#historyTable').on('click', '.viewDetailsBtn', function () {
+        var ordersId = $(this).data('orderid');
+        var customersId = $(this).data('customerid');
+        var subtotal = 0;
+        var total = 0;
+        $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
+            if (ordersHistory.order.DeliveryOption === "Delivery") {
+                $('#deliveryPanel').show();
+                $('#odDeliveryInfo').html("<h3>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h3><h3>" + ordersHistory.order.DeliveryAddress + "</h3><h3>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h3><h3>" + ordersHistory.order.Phone + "</h3>");
+            }
+            var discount = ordersHistory.order.Discount;
+            $('#notesBody').html("<h5>" + ordersHistory.order.Notes + "</h5>");
+            $('#odCustomerInfo').html("<h3>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h3><h3>" + ordersHistory.customer.Address + "</h3><h3>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h3><h3>" + ordersHistory.customer.Phone + "</h3>");
+            ordersHistory.orderedProducts.forEach(function (orderedProducts) {
+                $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + orderedProducts.quantity * orderedProducts.unitPrice + "</td></tr>")
+                subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
             })
-            $('#orderDetailsModal').modal('show');
+            $('#odDiscount').html("Discount: " + discount);
+            $('#odSubtotal').html("Subtotal: $" + subtotal);
+            if (discount >= 1) {
+                $('#odTotal').html("Total: $" + (subtotal - discount));
+            }
+            else {
+                $('#odTotal').html("Total: $" + (subtotal - (subtotal * discount)));
+            }
         })
-
-        $('#inventoryBtn').on('click', function () {
-            var productId = $(this).data('productid')
-            var productName = $(this).data('productName')
-            $('#productNameInv').html(productName);
-            $('#quantityInv').val()
-        })
-
-        //$('[data-toggle="popover"]').popover();
-
-        $('.add').on('click', function () {
-            var element = $(this)
-            var id = $(this).data('id')
-            var amount = $(this).closest('tr').find('.invQuantityInput').val();
-            $.post("/Home/UpdateInventory", { id: id, amount: amount }, function () {
-                location.reload();
-                //var prevStock = parseInt(element.closest('tr').find('.inStock').html())
-                //var curStock = prevStock += amount;
-                //element.closest('tr').find('.inStock').html(curStock);
-            })
-        })
-
-        $('#filterDate').on('change', function () {
-            var x = $(this).find("option:selected").val();
-            $('.history').remove();
-            $.post("/Home/OrderHistoryFilter", { x: x }, function (ordersHistory) {
-                ordersHistory.forEach(function (ordersHistory) {
-                    var paidHtml = "<td></td>";
-                    //var orderDate = ConvertJsonDate(ordersHistory.orderDate);
-                    var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
-                    var discount = ordersHistory.discount;
-                    var total = 0;
-
-                    $.post("/home/GetTotalByOrderId", { id: ordersHistory.id }, function (orderTotal) {
-                        if (discount < 1) {
-                            discount = (orderTotal * discount);
-                            total = (orderTotal - discount);
-                        }
-                        else {
-                            total = (orderTotal - discount);
-                        }
-
-                        if (ordersHistory.paid) {
-                            paidHtml = "<td><span style=" + '"color: green"' + ">Paid</span></td>";
-                        }
-                        else {
-                            paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
-                        }
-
-                        $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
-                    })
-                })
-            })
-        })
-
-        function ConvertJsonDate(jsonDate) {
-            var jsonDate = jsonDate.toString();
-            var value = new Date
-                        (
-                             parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
-                        );
-            var date = value.getMonth() +
-                                     1 +
-                                   "/" +
-                       value.getDate() +
-                                   "/" +
-                   value.getFullYear();
-            return date;
-        }
-
-
+        $('#orderDetailsModal').modal('show');
     })
+
+    $('#inventoryBtn').on('click', function () {
+        var productId = $(this).data('productid')
+        var productName = $(this).data('productName')
+        $('#productNameInv').html(productName);
+        $('#quantityInv').val()
+    })
+
+    //$('[data-toggle="popover"]').popover();
+
+    $('.add').on('click', function () {
+        var element = $(this)
+        var id = $(this).data('id')
+        var amount = $(this).closest('tr').find('.invQuantityInput').val();
+        $.post("/Home/UpdateInventory", { id: id, amount: amount }, function () {
+            location.reload();
+            //var prevStock = parseInt(element.closest('tr').find('.inStock').html())
+            //var curStock = prevStock += amount;
+            //element.closest('tr').find('.inStock').html(curStock);
+        })
+    })
+
+    $('#filterDate').on('change', function () {
+        var x = $(this).find("option:selected").val();
+        $('.history').remove();
+        $.post("/Home/OrderHistoryFilter", { x: x }, function (ordersHistory) {
+            //ordersHistory.sort(a, b, function () {
+
+            //})
+            ordersHistory.forEach(function (ordersHistory) {
+                var paidHtml = "<td></td>";
+                //var orderDate = ConvertJsonDate(ordersHistory.orderDate);
+                var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
+                var discount = ordersHistory.discount;
+                var total = 0;
+
+                $.post("/home/GetTotalByOrderId", { id: ordersHistory.id }, function (orderTotal) {
+                    if (discount < 1) {
+                        discount = (orderTotal * discount);
+                        total = (orderTotal - discount);
+                    }
+                    else {
+                        total = (orderTotal - discount);
+                    }
+
+                    if (ordersHistory.paid) {
+                        paidHtml = "<td><span style=" + '"color: green"' + ">Paid</span></td>";
+                    }
+                    else {
+                        paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
+                    }
+
+                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
+                })
+            })
+        })
+    })
+
+    $(".h").click(function () {
+        //$('.toggle', this).slideToggle();
+        $(this).toggleClass('minimized');
+        $(this).children('.deliveryInnerDiv:first').toggle();
+    });
+
+    //$('#filterDeliveryDate').on('change', function () {
+    //    var x = $(this).find("option:selected").val();
+    //    $.post("/Home/DeliveryFilter", { x: x }, function (deliveries) {
+
+    //        deliveries.forEach(function (deliveries) {
+    //            var products= deliveries.orderedProducts.each();
+    //            $('#historyTable').append("<div class="+'"deliveryInfoDiv"'+"><div class="+'"panel panel-info deliveryInnerDiv"'+"><div class="+'"panel-heading"'+">"+deliveries.RequiredDate.Value.ToShortDateString()+"</div><div class="+'"panel-body"'+"><h3>"+deliveries.order.DeliveryFirstName+" "+deliveries.order.DeliveryLastName+"<br />"+deliveries.order.DeliveryAddress+"<br />"+deliveries.order.DeliveryCity+" "+ deliveries.order.DeliveryState+" "+deliveries.order.DeliveryZip+"<br /></h3>")
+
+    //            deliveries.orderedProducts.each(p, function(){
+    //                $('#historyTable').append(
+    //            })
+    //            @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+    //            {
+    //                <h4>@od.quantity x @od.productName</h4>
+    //        }
+    //            <textarea>Deliver on time.....</textarea>
+    //        </div>
+    //    </div>
+    //</div>
+    //        })
+    //    })
+
+    //})
+
+    $('#print').click(function () {
+        window.print();
+    });
+
+    function ConvertJsonDate(jsonDate) {
+        var jsonDate = jsonDate.toString();
+        var value = new Date
+                    (
+                         parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
+                    );
+        var date = value.getMonth() +
+                                 1 +
+                               "/" +
+                   value.getDate() +
+                               "/" +
+               value.getFullYear();
+        return date;
+    }
+
+
+})
