@@ -139,10 +139,10 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer)
+        public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer, string email)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, cell, caterer);
+            cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, cell, caterer, email);
             return RedirectToAction("Admin");
         }
 
@@ -163,11 +163,11 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes)
+        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote)
         {
             DateTime dateTime = DateTime.Now;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            int orderId = cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes);
+            int orderId = cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes, greetings, deliveryNote);
             return Json(orderId);
         }
 

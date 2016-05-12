@@ -55,7 +55,9 @@
             securityCode: $('#securityCode').val(),
             paymentMethod: paymentMethod,
             discount: discount,
-            notes: $('#notes').val()
+            notes: $('#notes').val(),
+            greetings: $('#greetings').val(),
+            deliveryNote: $('#deliveryNote').val()
         },
             function (orderId) {
                 $('#orderTable').find('tr').not(':first').each(function () {
@@ -80,10 +82,12 @@
             $(".productbtn").remove();
             products.forEach(function (product) {
                 var productName = product.ProductName.toString();
-                $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + "data-id=" + product.Id + " data-content=" + '"' + productName + '"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + "><img src=" + "/Uploads/" + product.Image + "></button>")
+                $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + "data-id=" + product.Id + " data-categoryId=" + product.CategoryId + " data-content=" + '"' + productName + '"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + "><img src=" + "/Uploads/" + product.Image + "></button>")
             });
         })
     })
+
+    var catererTotal = 0;
 
     $("#productsInnerDiv").on('click', '.productbtn', function () {
         var exists = false;
@@ -92,7 +96,10 @@
         var productName = p.data("content");
         var inStock = p.data("inStock");
         var price = p.data("price");
-        var row = "<tr data-price=" + price + " data-id=" + id + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
+        var categoryId = p.data("categoryid");
+        var caterer = $('#catererDiscount').val();
+        //catererTotal += price;
+        var row = "<tr data-price=" + price + " data-categoryid=" + categoryId + " data-id=" + id + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
         $('#orderTable').find('tr').not(':first').each(function () {
             if ($(this).data('id') == id) {
                 var quantity = $(this).find('input.q').val();
@@ -106,14 +113,25 @@
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
+            var catererDiscount = 0;
+            var category = $(this).data('categoryid');
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             var price = $(this).data('price')
             if (quantity === undefined) {
                 quantity === 0;
             }
+            if (caterer) {
+                if (category === 1) {
+                    catererDiscount = 5;
+                }
+                else if (category === 2) {
+                    catererDiscount = .1;
+                }
+            }
             var t = (parseFloat(quantity) * parseFloat(price));
-            total += t;
+            //if()
+            total += t - catererDiscount;
             $(this).find('.price').text(t);
             $('#totalItems').text("Total items: " + itemCount);
         });
@@ -133,18 +151,26 @@
 
     $("#orderTable").on('click', '.delete', function () {
         var i = $(this).closest('tr').index();
+        var caterer = $('#catererDiscount').val();
         $("tr").eq(i).remove();
         var total = 0;
         var itemCount = 0;
         $('#orderTable').find('tr').not(':first').each(function () {
+            var catererDiscount = 0;
+            var category = $(this).data('categoryid');
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             var price = $(this).data('price')
             if (quantity === undefined) {
                 quantity === 0;
             }
+            if (caterer) {
+                if (category === 1) {
+                    catererDiscount = 5;
+                }
+            }
             var t = (parseFloat(quantity) * parseFloat(price));
-            total += t;
+            total += t - catererDiscount;
             $(this).find('.price').text(t);
             $('#totalItems').text("Total items: " + itemCount);
         });
@@ -165,7 +191,12 @@
     $("#orderTable").on('input', function () {
         var total = 0;
         var itemCount = 0;
+        //var catererDiscount = 0;
+        var caterer = $('#catererDiscount').val();
+
         $('#orderTable').find('tr').not(':first').each(function () {
+            var catererDiscount = 0;
+            var category = $(this).data('categoryid');
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             if (quantity === "")
@@ -174,9 +205,14 @@
             if (quantity === undefined) {
                 quantity = 1;
             }
+            if (caterer) {
+                if (category === 1) {
+                    catererDiscount = 5;
+                }
+            }
 
             var t = (parseFloat(quantity) * parseFloat(price));
-            total += t;
+            total += t - catererDiscount;
             $(this).find('.price').text(t);
             $('#totalItems').text("Total items: " + itemCount);
         });
@@ -197,15 +233,23 @@
     $('#refresh').on('click', function () {
         var total = 0;
         var itemCount = 0;
+        var caterer = $('#catererDiscount').val();
         $('#orderTable').find('tr').not(':first').each(function () {
+            var catererDiscount = 0;
+            var category = $(this).data('categoryid');
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
             var price = $(this).data('price')
             if (quantity === undefined) {
                 quantity === 0;
             }
+            if (caterer) {
+                if (category === 1) {
+                    catererDiscount = 5;
+                }
+            }
             var t = (parseFloat(quantity) * parseFloat(price));
-            total += t;
+            total += t - catererDiscount;
             $(this).find('.price').text(t);
         });
         $('#totalItems').text("Total items: " + itemCount);
@@ -251,7 +295,7 @@
                         customer.Zip = "";
                     }
 
-                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.LastName + " " + customer.FirstName + "</td><td>" + customer.Address + " " + customer.City + " " + customer.State + " " + customer.Zip + "</td><td>" + customer.Phone + "</td><td>" + customer.Cell + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " data-cell=" + '"' + customer.Cell + '"' + "data-caterer=" + '"' + customer.caterer + '"' + " >" + "Select" + "</button></td></tr>");
+                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.LastName + " " + customer.FirstName + "</td><td>" + customer.Address + " " + customer.City + " " + customer.State + " " + customer.Zip + "</td><td>" + customer.Phone + "</td><td>" + customer.Cell + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " data-cell=" + '"' + customer.Cell + '"' + "data-caterer=" + '"' + customer.Caterer + '"' + " >" + "Select" + "</button></td></tr>");
                 })
             }
         })
@@ -264,12 +308,19 @@
         var phone = $(this).data('phone');
         var customerId = $(this).data('id');
         var caterer = $(this).data('caterer');
-        if (caterer) {
-            caterer = .20;
-        }
-        else {
-            caterer = "";
-        }
+        //if (caterer) {
+        //    caterer = .20;
+        //}
+        //else {
+        //    caterer = "";
+        //}
+
+        //if (caterer) {
+        //    caterer = t;
+        //}
+        //else {
+        //    caterer = "NonCaterer";
+        //}
 
         $('#customerHeader').text("");
         $('#customerAddress').text("");
@@ -277,6 +328,7 @@
         $('#customerId').val("");
         $('#customerIdCheckout').val("");
         $('#discountInput').val("");
+        //$('#catererDiscount').val(false);
 
         $('#customerHeader').append(fistName + " " + lastName);
         $('#customerAddress').append(address);
@@ -286,7 +338,8 @@
         $('.customers').remove();
         $('#searchInput').val("");
         $('#customerIdCheckout').val(customerId);
-        $('#discountInput').val(caterer);
+        $('#catererDiscount').val(caterer);
+        //$('#discountInput').val(caterer);
     });
 
     function getDiscount() {

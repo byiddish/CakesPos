@@ -16,6 +16,7 @@
                     <h3 id="customerHeader"></h3>
                     <h4 id="customerAddress"></h4>
                     <h4 id="customerPhone"></h4>
+                    <input type="hidden" id="catererDiscount"/>
                 </div>
             </div>
             <br />
@@ -52,7 +53,7 @@
                 @foreach (CakesPos.Data.Product product in Model.products)
                 {
                     string productName = product.ProductName.ToString();
-                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /></button>
+                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryId=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /></button>
                 }
             </div>
         </div>
@@ -141,13 +142,17 @@
                             <label>Phone</label>
                             <input type="text" class="form-control" name="phone" id="deliveryPhone" placeholder="Phone" />
                         </div>
+                        <div class="form-group">
+                            <label>Delivery Note</label>
+                            <textarea type="text" class="form-control" name="deliveryNote" id="deliveryNote" placeholder="Delivery Note"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="well">
                     <label>Payment options</label>
-                    <div>
+                    @*<div>
                         <label>Cash <input type="radio" id="cash" name="paymentMethod" value="Cash" /></label>
-                    </div>
+                    </div>*@
                     <div>
                         <label>Credit Card <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /></label>
                     </div>
@@ -217,7 +222,7 @@
                     </div>*@
                 <div class="form-group">
                     <label>Greetings</label>
-                    <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Greetings"></textarea>
+                    <textarea type="text" class="form-control" name="greetings" id="greetings" placeholder="Greetings"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Notes</label>
