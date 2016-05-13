@@ -98,7 +98,7 @@
         var price = p.data("price");
         var categoryId = p.data("categoryid");
         var caterer = $('#catererDiscount').val();
-        //catererTotal += price;
+
         var row = "<tr data-price=" + price + " data-categoryid=" + categoryId + " data-id=" + id + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
         $('#orderTable').find('tr').not(':first').each(function () {
             if ($(this).data('id') == id) {
@@ -110,192 +110,23 @@
         if (!exists) {
             $("#orderTable").append(row);
         }
-        var total = 0;
-        var itemCount = 0;
-        $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
-            var category = $(this).data('categoryid');
-            var quantity = $(this).find('input.q').val();
-            itemCount += (parseInt(quantity));
-            var price = $(this).data('price');
-            if (quantity === undefined) {
-                quantity === 0;
-            }
-            if (caterer === "true") {
-                if (category === 1) {
-                    catererDiscount = 5;
-                    var t = (parseFloat(quantity) * parseFloat(price));
-                    //if()
-                    total += (t - catererDiscount * quantity);
-                }
-                else if (category === 2) {
-                    catererDiscount = .1;
-                    var t = (parseFloat(quantity) * parseFloat(price));
-                    //if()
-                    total += (t - catererDiscount * quantity);
-                }
-            }
-            else {
-                var t = (parseFloat(quantity) * parseFloat(price));
-                //if()
-                total += t;
-            }
-            //var t = (parseFloat(quantity) * parseFloat(price));
-            ////if()
-            //total += t - catererDiscount;
-            if (caterer === "true") {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-            }
-            else {
-                $(this).find('.price').text(t)
-            }
-            $('#totalItems').text("Total items: " + itemCount);
-        });
-        if (total === NaN) {
-            $('#total').text("Total: $" + 0);
-        }
-        else {
-            if (getDiscount() < 1) {
-                var d = total * getDiscount();
-                $('#total').text("Total: $" + (total - d));
-            }
-            else {
-                $('#total').text("Total: $" + (total - getDiscount()));
-            }
-        }
+
+        RefreshOrder();
     })
 
     $("#orderTable").on('click', '.delete', function () {
         var i = $(this).closest('tr').index();
         var caterer = $('#catererDiscount').val();
         $("tr").eq(i).remove();
-        var total = 0;
-        var itemCount = 0;
-        $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
-            var category = $(this).data('categoryid');
-            var quantity = $(this).find('input.q').val();
-            itemCount += (parseInt(quantity));
-            var price = $(this).data('price')
-            if (quantity === undefined) {
-                quantity === 0;
-            }
-            if (caterer) {
-                if (category === 1) {
-                    catererDiscount = 5;
-                }
-            }
-            var t = (parseFloat(quantity) * parseFloat(price));
-            total += (t - catererDiscount*quantity);
-            if (caterer === "true") {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-            }
-            else {
-                $(this).find('.price').text(t)
-            }
-            $('#totalItems').text("Total items: " + itemCount);
-        });
-        if (total === NaN) {
-            $('#total').text("Total: $" + 0);
-        }
-        else {
-            if (getDiscount() < 1) {
-                var d = total * getDiscount();
-                $('#total').text("Total: $" + (total - d));
-            }
-            else {
-                $('#total').text("Total: $" + (total - getDiscount()));
-            }
-        }
+        RefreshOrder();
     })
 
     $("#orderTable").on('input', function () {
-        var total = 0;
-        var itemCount = 0;
-        //var catererDiscount = 0;
-        var caterer = $('#catererDiscount').val();
-
-        $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
-            var category = $(this).data('categoryid');
-            var quantity = $(this).find('input.q').val();
-            itemCount += (parseInt(quantity));
-            if (quantity === "")
-            { quantity = 1; }
-            var price = $(this).data('price')
-            if (quantity === undefined) {
-                quantity = 1;
-            }
-            if (caterer) {
-                if (category === 1) {
-                    catererDiscount = 5;
-                }
-            }
-
-            var t = (parseFloat(quantity) * parseFloat(price));
-            total += (t - catererDiscount*quantity);
-            if (caterer === "true") {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-            }
-            else {
-                $(this).find('.price').text(t)
-            }
-            $('#totalItems').text("Total items: " + itemCount);
-        });
-        if (total === NaN) {
-            $('#total').text("Total: $" + 0);
-        }
-        else {
-            if (getDiscount() < 1) {
-                var d = total * getDiscount();
-                $('#total').text("Total: $" + (total - d));
-            }
-            else {
-                $('#total').text("Total: $" + (total - getDiscount()));
-            }
-        }
+        RefreshOrder();
     });
 
     $('#refresh').on('click', function () {
-        var total = 0;
-        var itemCount = 0;
-        var caterer = $('#catererDiscount').val();
-        $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
-            var category = $(this).data('categoryid');
-            var quantity = $(this).find('input.q').val();
-            itemCount += (parseInt(quantity));
-            var price = $(this).data('price')
-            if (quantity === undefined) {
-                quantity === 0;
-            }
-            if (caterer==="true") {
-                if (category === 1) {
-                    catererDiscount = 5;
-                }
-            }
-            var t = (parseFloat(quantity) * parseFloat(price));
-            total += (t - catererDiscount * quantity);
-            if (caterer === "true") {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-            }
-            else {
-                $(this).find('.price').text(t)
-            }
-        });
-        $('#totalItems').text("Total items: " + itemCount);
-        if (total === NaN) {
-            $('#total').text("Total: $" + 0);
-        }
-        else {
-            if (getDiscount() < 1) {
-                var d = total * getDiscount();
-                $('#total').text("Total: $" + (total - d));
-            }
-            else {
-                $('#total').text("Total: $" + (total - getDiscount()));
-            }
-        }
+        RefreshOrder();
     });
 
     $('#searchInput').on('input', function () {
@@ -339,19 +170,6 @@
         var phone = $(this).data('phone');
         var customerId = $(this).data('id');
         var caterer = $(this).data('caterer');
-        //if (caterer) {
-        //    caterer = .20;
-        //}
-        //else {
-        //    caterer = "";
-        //}
-
-        //if (caterer) {
-        //    caterer = t;
-        //}
-        //else {
-        //    caterer = "NonCaterer";
-        //}
 
         $('#customerHeader').text("");
         $('#customerAddress').text("");
@@ -359,7 +177,6 @@
         $('#customerId').val("");
         $('#customerIdCheckout').val("");
         $('#discountInput').val("");
-        //$('#catererDiscount').val(false);
 
         $('#customerHeader').append(fistName + " " + lastName);
         $('#customerAddress').append(address);
@@ -370,46 +187,8 @@
         $('#searchInput').val("");
         $('#customerIdCheckout').val(customerId);
         $('#catererDiscount').val(caterer);
-        //$('#discountInput').val(caterer);
-        var total = 0;
-        var itemCount = 0;
-        var caterer = $('#catererDiscount').val();
-        $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
-            var category = $(this).data('categoryid');
-            var quantity = $(this).find('input.q').val();
-            itemCount += (parseInt(quantity));
-            var price = $(this).data('price')
-            if (quantity === undefined) {
-                quantity === 0;
-            }
-            if (caterer === "true") {
-                if (category === 1) {
-                    catererDiscount = 5;
-                }
-            }
-            var t = (parseFloat(quantity) * parseFloat(price));
-            total += (t - catererDiscount * quantity);
-            if (caterer === "true") {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-            }
-            else {
-                $(this).find('.price').text(t)
-            }
-        });
-        $('#totalItems').text("Total items: " + itemCount);
-        if (total === NaN) {
-            $('#total').text("Total: $" + 0);
-        }
-        else {
-            if (getDiscount() < 1) {
-                var d = total * getDiscount();
-                $('#total').text("Total: $" + (total - d));
-            }
-            else {
-                $('#total').text("Total: $" + (total - getDiscount()));
-            }
-        }
+
+        RefreshOrder();
     });
 
     function getDiscount() {
@@ -590,5 +369,60 @@
         return date;
     }
 
-
+    function RefreshOrder() {
+        var total = 0;
+        var itemCount = 0;
+        var caterer = $('#catererDiscount').val();
+        $('#orderTable').find('tr').not(':first').each(function () {
+            var catererDiscount = 0;
+            var category = $(this).data('categoryid');
+            var quantity = $(this).find('input.q').val();
+            itemCount += (parseInt(quantity));
+            var price = $(this).data('price');
+            if (quantity === undefined) {
+                quantity === 0;
+            }
+            if (caterer === "true") {
+                if (category === 1) {
+                    catererDiscount = 5;
+                    var t = (parseFloat(quantity) * parseFloat(price));
+                    //if()
+                    total += (t - catererDiscount * quantity);
+                }
+                else if (category === 2) {
+                    catererDiscount = .1;
+                    var t = (parseFloat(quantity) * parseFloat(price));
+                    //if()
+                    total += (t - catererDiscount * quantity);
+                }
+            }
+            else {
+                var t = (parseFloat(quantity) * parseFloat(price));
+                //if()
+                total += t;
+            }
+            //var t = (parseFloat(quantity) * parseFloat(price));
+            ////if()
+            //total += t - catererDiscount;
+            if (caterer === "true") {
+                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
+            }
+            else {
+                $(this).find('.price').text(t)
+            }
+            $('#totalItems').text("Total items: " + itemCount);
+        });
+        if (total === NaN) {
+            $('#total').text("Total: $" + 0);
+        }
+        else {
+            if (getDiscount() < 1) {
+                var d = total * getDiscount();
+                $('#total').text("Total: $" + (total - d));
+            }
+            else {
+                $('#total').text("Total: $" + (total - getDiscount()));
+            }
+        }
+    }
 })
