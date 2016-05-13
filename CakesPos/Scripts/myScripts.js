@@ -270,8 +270,6 @@
         $('#quantityInv').val()
     })
 
-    //$('[data-toggle="popover"]').popover();
-
     $('.add').on('click', function () {
         var element = $(this)
         var id = $(this).data('id')
@@ -383,33 +381,31 @@
                 quantity === 0;
             }
             if (caterer === "true") {
+                var t = (parseFloat(quantity) * parseFloat(price));
                 if (category === 1) {
                     catererDiscount = 5;
-                    var t = (parseFloat(quantity) * parseFloat(price));
-                    //if()
                     total += (t - catererDiscount * quantity);
                 }
                 else if (category === 2) {
-                    catererDiscount = .1;
-                    var t = (parseFloat(quantity) * parseFloat(price));
-                    //if()
+                    catererDiscount = t * 0.1;
+                    total += (t - catererDiscount);
+                }
+                else if (category === 5) {
+                    catererDiscount = 2.5;
                     total += (t - catererDiscount * quantity);
+                }
+                if (caterer === "true" && category === 2) {
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+                }
+                else {
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
                 }
             }
             else {
-                var t = (parseFloat(quantity) * parseFloat(price));
-                //if()
                 total += t;
-            }
-            //var t = (parseFloat(quantity) * parseFloat(price));
-            ////if()
-            //total += t - catererDiscount;
-            if (caterer === "true") {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-            }
-            else {
                 $(this).find('.price').text(t)
             }
+
             $('#totalItems').text("Total items: " + itemCount);
         });
         if (total === NaN) {
