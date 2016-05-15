@@ -1,6 +1,7 @@
 ﻿$(function () {
     var deliveryMethod = "";
     var paymentMethod = "";
+    var paid = false;
 
 
     $("#delivery").on('click', function () {
@@ -29,10 +30,22 @@
 
     $('#cash').on('click', function () {
         paymentMethod = "Cash";
+        paid = true;
     })
 
     $('#creditCard').on('click', function () {
         paymentMethod = "Credit Card";
+        paid = true;
+    })
+
+    $('#check').on('click', function () {
+        paymentMethod = "Check";
+        paid = true;
+    })
+
+    $('#cod').on('click', function () {
+        paymentMethod = "COD";
+        paid = false;
     })
 
     $("#orderSubmitBtn").on('click', function () {
@@ -57,7 +70,8 @@
             discount: discount,
             notes: $('#notes').val(),
             greetings: $('#greetings').val(),
-            deliveryNote: $('#deliveryNote').val()
+            deliveryNote: $('#deliveryNote').val(),
+            paid: paid
         },
             function (orderId) {
                 $('#orderTable').find('tr').not(':first').each(function () {
@@ -352,6 +366,21 @@
         window.print();
     });
 
+    $('#customerAddressCheckbox').change(function () {
+        if (this.checked) {
+            var customerId = $('#customerIdCheckout').val();
+            $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+                $('#deliveryFirstName').val(customer.FirstName)
+                $('#deliveryLastName').val(customer.LastName)
+                $('#deliveryAddress').val(customer.Address)
+                $('#deliveryCity').val(customer.City)
+                $('#deliveryState').val(customer.State)
+                $('#deliveryZip').val(customer.Zip)
+                $('#deliveryPhone').val(customer.Phone)
+            })
+        }
+    });
+
     function ConvertJsonDate(jsonDate) {
         var jsonDate = jsonDate.toString();
         var value = new Date
@@ -407,6 +436,18 @@
             }
 
             $('#totalItems').text("Total items: " + itemCount);
+            if (total === NaN) {
+                $('#total').text("Total: $" + 0);
+            }
+            else {
+                if (getDiscount() < 1) {
+                    var d = total * getDiscount();
+                    $('#total').text("Total: $" + (total - d));
+                }
+                else {
+                    $('#total').text("Total: $" + (total - getDiscount()));
+                }
+            }
         });
         if (total === NaN) {
             $('#total').text("Total: $" + 0);

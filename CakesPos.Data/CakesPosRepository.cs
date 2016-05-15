@@ -65,7 +65,7 @@ namespace CakesPos.Data
             }
         }
 
-        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote)
+        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid)
         {
             int orderId = 0;
 
@@ -86,7 +86,7 @@ namespace CakesPos.Data
             o.Discount = discount;
             o.DeliveryOption = deliveryOpt;
             o.PaymentMethod = paymentMethod;
-            o.Paid = false;
+            o.Paid = paid;
             o.Notes = notes;
             o.Greetings = greetings;
             o.DeliveryNote = deliveryNote;
@@ -232,7 +232,8 @@ namespace CakesPos.Data
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
-                return context.Customers.Where(c => c.Id == id).FirstOrDefault();
+                Customer customer = context.Customers.Where(c => c.Id == id).FirstOrDefault();
+                return customer;
             }
         }
 

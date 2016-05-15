@@ -177,3 +177,25 @@ img {
     width:28px;
     height:28px;
 }
+
+.deliveryLeftDiv{
+    float:left;
+    /*width:45%;*/
+    width:33%
+}
+
+.deliveryMiddleDiv{
+    float:left;
+    width:33%;
+}
+
+.deliveryRightDiv{
+    float:left;
+    /*margin-left:50px;*/
+    /*width:45%;*/
+    width:30%;
+}
+
+/*#orderDeliveryNote{
+    width:100%;
+}*/

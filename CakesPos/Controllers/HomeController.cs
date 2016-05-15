@@ -35,10 +35,10 @@ namespace CakesPos.Controllers
 
         public ActionResult Delivery()
         {
-            List<OrderDetailsViewModel> od=new List<OrderDetailsViewModel>();
+            List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt=="Delivery");
-            foreach(OrderHistoryViewModel o in orders)
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery");
+            foreach (OrderHistoryViewModel o in orders)
             {
                 od.Add(cpr.GetOrderDetails(o.customerId, o.id));
             }
@@ -163,11 +163,11 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote)
+        public ActionResult AddOrder(int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid)
         {
             DateTime dateTime = DateTime.Now;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            int orderId = cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes, greetings, deliveryNote);
+            int orderId = cpr.AddOrder(customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes, greetings, deliveryNote, paid);
             return Json(orderId);
         }
 
@@ -201,6 +201,14 @@ namespace CakesPos.Controllers
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             cpr.UpdateInventory(id, amount);
             return null;
+        }
+
+        [HttpPost]
+        public ActionResult GetCustomerById(int id)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            Customer customer = cpr.GetCustomerById(id);
+            return Json(customer, JsonRequestBehavior.AllowGet);
         }
 
     }

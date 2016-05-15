@@ -114,37 +114,58 @@
                         <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
                     </div>
                     <div class="form-group" id="deliveryInfoDiv" style="display: none;">
-                        <div class="col-xs-6 @*form-group*@">
-                            <label>First Name</label>
-                            <input type="text" class="form-control" name="firstName" id="deliveryFirstName" placeholder="First Name" />
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="customerAddressCheckbox"> Customer address
+                            </label>
                         </div>
-                        <div class="col-xs-6 @*form-group*@">
-                            <label>Last Name</label>
-                            <input type="text" class="form-control" name="lastName" id="deliveryLastName" placeholder="Last Name" />
+                        <div class="col-xs-6 form-group">
+                            <label>
+                                First Name
+                                <input type="text" class="form-control" name="firstName" id="deliveryFirstName" placeholder="First Name" />
+                            </label>
                         </div>
-                        <div class="col-xs-6 @*form-group*@">
-                            <label>Address</label>
-                            <input type="text" class="form-control" name="address" id="deliveryAddress" placeholder="Address" />
+                        <div class="col-xs-6 form-group">
+                            <label>
+                                Last Name
+                                <input type="text" class="form-control" name="lastName" id="deliveryLastName" placeholder="Last Name" />
+                            </label>
                         </div>
-                        <div class="col-xs-3 @*form-group*@">
-                            <label>City</label>
-                            <input type="text" class="form-control" name="city" id="deliveryCity" placeholder="City" />
+                        <div class="col-xs-6 form-group">
+                            <label>
+                                Address
+                                <input type="text" class="form-control" name="address" id="deliveryAddress" placeholder="Address" />
+                            </label>
                         </div>
-                        <div class="col-xs-2 @*form-group*@">
-                            <label>State</label>
-                            <input type="text" class="form-control" name="state" id="deliveryState" placeholder="State" />
+                        <div class="col-xs-3 form-group">
+                            <label>
+                                City
+                                <input type="text" class="form-control" name="city" id="deliveryCity" placeholder="City" />
+                            </label>
                         </div>
-                        <div class="col-xs-3 @*form-group*@">
-                            <label>Zip</label>
-                            <input type="text" class="form-control" name="zip" id="deliveryZip" placeholder="Zip" />
+                        <div class="col-xs-3 form-group">
+                            <label>
+                                State
+                                <input type="text" class="form-control" name="state" id="deliveryState" placeholder="State" />
+                            </label>
+                        </div>
+                        <div class="col-xs-3 form-group">
+                            <label>
+                                Zip
+                                <input type="text" class="form-control" name="zip" id="deliveryZip" placeholder="Zip" />
+                            </label>
                         </div>
                         <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" class="form-control" name="phone" id="deliveryPhone" placeholder="Phone" />
+                            <label for="deliveryPhone">
+                                Phone
+                                <input type="text" class="form-control" name="phone" id="deliveryPhone" placeholder="Phone" />
+                            </label>
                         </div>
                         <div class="form-group">
-                            <label>Delivery Note</label>
-                            <textarea type="text" class="form-control" name="deliveryNote" id="deliveryNote" placeholder="Delivery Note"></textarea>
+                            <label>
+                                Delivery Note
+                                <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" placeholder="Delivery Note"></textarea>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -155,6 +176,9 @@
                     </div>*@
                     <div>
                         <label>Credit Card <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /></label>
+                        <label>Cash <input type="radio" id="cash" name="paymentMethod" value="Cash" /></label>
+                        <label>Check <input type="radio" id="check" name="paymentMethod" value="Check" /></label>
+                        <label>DOC <input type="radio" id="doc" name="paymentMethod" value="DOC" /></label>
                     </div>
                     <div class="form-group" id="creditCardInfoDiv" style="display: none;">
                         <div class="form-group">

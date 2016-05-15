@@ -29,12 +29,21 @@
                     @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName<button class="btn btn-group-xs btn-default pull-right h">-</button>
                 </div>
                 <div class="panel-body">
-                    <h3>@o.order.DeliveryFirstName @o.order.DeliveryLastName<br />@o.order.DeliveryAddress<br />@o.order.DeliveryCity @o.order.DeliveryState @o.order.DeliveryZip<br />@o.order.Phone</h3>
-                    @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
-                    {
-                        <h4>@od.quantity - @od.productName</h4>
-                    }
-                    <textarea>Deliver on time.....</textarea>
+                    <div class="deliveryLeftDiv">
+                        <h3>@o.order.DeliveryFirstName @o.order.DeliveryLastName<br />@o.order.DeliveryAddress<br />@o.order.DeliveryCity @o.order.DeliveryState @o.order.DeliveryZip<br />@o.order.Phone</h3>
+                        </div>
+                    <div class="deliveryMiddleDiv">
+                        @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+                        {
+                            <h5>@od.quantity - @od.productName</h5>
+                        }
+                    </div>
+                    <div class="deliveryRightDiv">
+                        <div class="form-group">
+                            <label for="deliverynote">Delivery Note:</label>
+                            <textarea class="form-control" rows="8" id="deliveryNote"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
