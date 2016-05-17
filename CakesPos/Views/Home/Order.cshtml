@@ -53,7 +53,7 @@
                 @foreach (CakesPos.Data.Product product in Model.products)
                 {
                     string productName = product.ProductName.ToString();
-                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryId=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /></button>
+                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryId=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()"/><br />@product.ProductName @product.Price.ToString("C")</button>
                 }
             </div>
         </div>
