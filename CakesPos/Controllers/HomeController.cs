@@ -45,6 +45,7 @@ namespace CakesPos.Controllers
             return View(od);
         }
 
+        [HttpPost]
         public ActionResult DeliveryFilter(int x)
         {
             List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
@@ -55,7 +56,7 @@ namespace CakesPos.Controllers
             {
                 od.Add(cpr.GetOrderDetails(o.customerId, o.id));
             }
-            return View(od);
+            return Json(od, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -63,8 +64,13 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             DateTime today = DateTime.Today;
+            if(x==1)
+            {
+                IEnumerable<OrderHistoryViewModel> yesterdaysOrders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(-x) && o.requiredDate < today);
+                return Json(yesterdaysOrders.ToList(), JsonRequestBehavior.AllowGet);
+            }
             IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(-x) && o.requiredDate < today.AddDays(1));
-            return Json(orders, JsonRequestBehavior.AllowGet);
+            return Json(orders.OrderByDescending(o => o.requiredDate).ToList(), JsonRequestBehavior.AllowGet);
         }
 
         //[HttpPost]
@@ -158,7 +164,7 @@ namespace CakesPos.Controllers
         public ActionResult HistorySearch(string search)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> ordersHistory = cpr.SearchOrders(search);
+            IEnumerable<OrderHistoryViewModel> ordersHistory = cpr.SearchOrders(search).Take(35);
             return Json(ordersHistory, JsonRequestBehavior.AllowGet);
         }
 

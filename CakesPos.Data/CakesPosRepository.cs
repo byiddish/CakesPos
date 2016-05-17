@@ -180,7 +180,7 @@ namespace CakesPos.Data
                     orders.Add(oh);
                 }
 
-                return orders.OrderByDescending(o => o.requiredDate );
+                return orders.OrderByDescending(o => o.requiredDate);
             }
         }
 
@@ -202,7 +202,8 @@ namespace CakesPos.Data
                 cmd.CommandText = @"Select * from Customers
                                     join Orders
                                     on Orders.CustomerId=Customers.Id
-                                    Where Customers.FirstName LIKE '%' + @query + '%'  OR Customers.LastName LIKE '%' +  @query + '%' OR Customers.Phone LIKE '%' +  @query + '%' OR Customers.Cell LIKE '%' +  @query + '%' OR Orders.DeliveryOption LIKE '%' +  @query + '%'";
+                                    Where Customers.FirstName LIKE '%' + @query + '%'  OR Customers.LastName LIKE '%' +  @query + '%' OR Customers.Phone LIKE '%' +  @query + '%' OR Customers.Cell LIKE '%' +  @query + '%' OR Orders.DeliveryOption LIKE '%' +  @query + '%'
+                                    ORDER BY Customers.LastName ASC, Customers.FirstName ASC, Orders.RequiredDate DESC";
                 cmd.Parameters.AddWithValue("@query", search);
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -224,7 +225,7 @@ namespace CakesPos.Data
                     orders.Add(oh);
                 }
 
-                return orders.OrderByDescending(o => o.requiredDate);
+                return orders;
             }
         }
 
@@ -232,6 +233,7 @@ namespace CakesPos.Data
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
+                context.DeferredLoadingEnabled = false;
                 Customer customer = context.Customers.Where(c => c.Id == id).FirstOrDefault();
                 return customer;
             }
@@ -291,30 +293,30 @@ namespace CakesPos.Data
         {
             List<OrderDetail> orderDetails = new List<OrderDetail>();
             List<Order> orders = new List<Order>();
-            List<InventoryViewModel> ivm=new List<InventoryViewModel>();
+            List<InventoryViewModel> ivm = new List<InventoryViewModel>();
             List<Product> products = new List<Product>();
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 products = context.Products.ToList();
                 orders = context.Orders.Where(o => o.RequiredDate > min && o.RequiredDate < max).ToList();
 
-                foreach(Order o in orders)
+                foreach (Order o in orders)
                 {
                     List<OrderDetail> oDetails = new List<OrderDetail>();
                     oDetails = context.OrderDetails.Where(od => od.OrderId == o.Id).ToList();
-                    foreach(OrderDetail od in oDetails)
+                    foreach (OrderDetail od in oDetails)
                     {
                         orderDetails.Add(od);
                     }
                 }
             }
 
-            foreach(Product p in products)
+            foreach (Product p in products)
             {
                 int quantity = 0;
                 InventoryViewModel i = new InventoryViewModel();
                 IEnumerable<OrderDetail> oDetail = orderDetails.FindAll(o => o.ProductId == p.Id).ToList();
-                foreach(OrderDetail od in oDetail)
+                foreach (OrderDetail od in oDetail)
                 {
                     quantity += od.Quantity;
                 }
@@ -327,7 +329,7 @@ namespace CakesPos.Data
 
         public void UpdateInventory(int id, int amount)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 var product = (from p in context.Products
                                where p.Id == id

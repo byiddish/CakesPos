@@ -8,8 +8,8 @@
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
         <label>Search<input class="form-control" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
-        <label>From<input class="form-control" id="fromInput" type="date" /></label>
-        <label>To<input class="form-control" id="toInput" type="date" /></label>
+        @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
+        <label>To<input class="form-control" id="toInput" type="date" /></label>*@
         <label>
             Filter Date
             <select class="form-control" id="filterDate">
@@ -20,7 +20,7 @@
                 <option value="none">None</option>
             </select>
         </label>
-        <button class="btn btn-success" id="applybtn">Apply</button>
+        @*<button class="btn btn-success" id="applybtn">Apply</button>*@
     </div>
     <table class="table table-bordered table-hover table-responsive table-striped" id="historyTable">
         <tr>
@@ -64,7 +64,7 @@
                 <td></td>
                 @if (o.paid)
                 {
-                    <td style="text-decoration-color:green">Paid</td>
+                    <td ><span style="color:green">Paid </span><span style="color:green" class="glyphicon glyphicon-ok"></span></td>
                 }
                 else
                 {

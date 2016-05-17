@@ -219,32 +219,7 @@
         var s = $('#searchHistoryInput').val().toString();
         $('.history').remove();
         $.post("/home/HistorySearch", { search: s }, function (ordersHistory) {
-            ordersHistory.forEach(function (ordersHistory) {
-                var paidHtml = "<td></td>";
-                var orderDate = ConvertJsonDate(ordersHistory.orderDate);
-                var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
-                var discount = ordersHistory.discount;
-                var total = 0;
-
-                $.post("/home/GetTotalByOrderId", { id: ordersHistory.id }, function (orderTotal) {
-                    if (discount < 1) {
-                        discount = (orderTotal * discount);
-                        total = (orderTotal - discount);
-                    }
-                    else {
-                        total = (orderTotal - discount);
-                    }
-
-                    if (ordersHistory.paid) {
-                        paidHtml = "<td><span style=" + '"color: green"' + ">Paid</span></td>";
-                    }
-                    else {
-                        paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
-                    }
-
-                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
-                })
-            })
+            populateOrders(ordersHistory);
         })
     })
 
@@ -300,37 +275,56 @@
         var x = $(this).find("option:selected").val();
         $('.history').remove();
         $.post("/Home/OrderHistoryFilter", { x: x }, function (ordersHistory) {
-            //ordersHistory.sort(a, b, function () {
-
-            //})
-            ordersHistory.forEach(function (ordersHistory) {
-                var paidHtml = "<td></td>";
-                //var orderDate = ConvertJsonDate(ordersHistory.orderDate);
-                var requiredDate = ConvertJsonDate(ordersHistory.requiredDate);
-                var discount = ordersHistory.discount;
-                var total = 0;
-
-                $.post("/home/GetTotalByOrderId", { id: ordersHistory.id }, function (orderTotal) {
-                    if (discount < 1) {
-                        discount = (orderTotal * discount);
-                        total = (orderTotal - discount);
-                    }
-                    else {
-                        total = (orderTotal - discount);
-                    }
-
-                    if (ordersHistory.paid) {
-                        paidHtml = "<td><span style=" + '"color: green"' + ">Paid</span></td>";
-                    }
-                    else {
-                        paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
-                    }
-
-                    $('#historyTable').append("<tr class=" + '"history"' + "><td>" + ordersHistory.lastName + " " + ordersHistory.firstName + "</td><td>" + requiredDate + "</td><td>" + ordersHistory.deliveryOpt + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + ordersHistory.id + '"' + "data-customerid=" + '"' + ordersHistory.customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
-                })
-            })
+            populateOrders(ordersHistory);
         })
-    })
+    });
+
+    function populateOrders(ordersHistory) {
+        for (var i = 0, l = ordersHistory.length; i < l; i++) {
+            var paidHtml = "<td></td>";
+            var deliveryHtml = "";
+            var requiredDate = ConvertJsonDate(ordersHistory[i].requiredDate);
+            var discount = ordersHistory[i].discount;
+            var id = ordersHistory[i].id;
+            var deliveryOption = ordersHistory[i].deliveryOpt;
+            var firstName = ordersHistory[i].firstName;
+            var lastName = ordersHistory[i].lastName;
+            var customerId = ordersHistory[i].customerId;
+            var total = 0;
+            if (ordersHistory[i].paid) {
+                paidHtml = "<td><span style=" + '"color:green"' + ">Paid </span><span style=" + '"color:green"' + " class=" + '"glyphicon glyphicon-ok"' + "></span></td>";
+            }
+            else {
+                paidHtml = "<td><span style=" + '"color: red"' + ">Not Paid</span></td>";
+            }
+            var orderTotal = getTotal(id);
+
+            if (discount < 1) {
+                discount = (orderTotal * discount);
+                total = (orderTotal - discount);
+            }
+            else {
+                total = (orderTotal - discount);
+            }
+
+            if (deliveryOption === "Delivery") {
+                deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
+            }
+
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + ">Payment</button></td></tr>");
+        }
+    }
+    
+    function getTotal(id) {
+        var total;
+        $.ajaxSetup({ async: false });
+        $.post("/home/GetTotalByOrderId", { id: id }, function (orderTotal) {
+            
+            total = orderTotal;
+        })
+        $.ajaxSetup({ async: true });
+        return total;
+    };
 
     $(".h").click(function () {
         //$('.toggle', this).slideToggle();
@@ -378,6 +372,15 @@
                 $('#deliveryZip').val(customer.Zip)
                 $('#deliveryPhone').val(customer.Phone)
             })
+        }
+        else {
+            $('#deliveryFirstName').val("")
+            $('#deliveryLastName').val("")
+            $('#deliveryAddress').val("")
+            $('#deliveryCity').val("")
+            $('#deliveryState').val("")
+            $('#deliveryZip').val("")
+            $('#deliveryPhone').val("")
         }
     });
 
@@ -431,6 +434,7 @@
                 }
             }
             else {
+                var t = (parseFloat(quantity) * parseFloat(price));
                 total += t;
                 $(this).find('.price').text(t)
             }
