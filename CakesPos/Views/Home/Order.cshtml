@@ -16,7 +16,9 @@
                     <h3 id="customerHeader"></h3>
                     <h4 id="customerAddress"></h4>
                     <h4 id="customerPhone"></h4>
-                    <input type="hidden" id="catererDiscount"/>
+                    <h5 id="customerEmail"></h5>
+                    <input type="hidden" id="catererDiscount" />
+                    <h4 id="catererIndicator"></h4>
                 </div>
             </div>
             <br />
@@ -53,7 +55,7 @@
                 @foreach (CakesPos.Data.Product product in Model.products)
                 {
                     string productName = product.ProductName.ToString();
-                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryId=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()"/><br />@product.ProductName @product.Price.ToString("C")</button>
+                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryid=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /><br />@product.ProductName @product.Price.ToString("C")</button>
                 }
             </div>
         </div>
@@ -94,7 +96,7 @@
 </div>
 
 <div id="checkoutModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog med-modal">
 
         <!-- Modal content-->
         @*<form action="/Home/AddOrder" method="POST">*@
@@ -119,19 +121,19 @@
                                 <input type="checkbox" id="customerAddressCheckbox"> Customer address
                             </label>
                         </div>
-                        <div class="col-xs-6 form-group">
+                        <div class="col-xs-4 form-group">
                             <label>
                                 First Name
                                 <input type="text" class="form-control" name="firstName" id="deliveryFirstName" placeholder="First Name" />
                             </label>
                         </div>
-                        <div class="col-xs-6 form-group">
+                        <div class="col-xs-4 form-group">
                             <label>
                                 Last Name
                                 <input type="text" class="form-control" name="lastName" id="deliveryLastName" placeholder="Last Name" />
                             </label>
                         </div>
-                        <div class="col-xs-6 form-group">
+                        <div class="col-xs-4 form-group">
                             <label>
                                 Address
                                 <input type="text" class="form-control" name="address" id="deliveryAddress" placeholder="Address" />
@@ -143,19 +145,19 @@
                                 <input type="text" class="form-control" name="city" id="deliveryCity" placeholder="City" />
                             </label>
                         </div>
-                        <div class="col-xs-3 form-group">
+                        <div class="col-xs-2 form-group">
                             <label>
                                 State
                                 <input type="text" class="form-control" name="state" id="deliveryState" placeholder="State" />
                             </label>
                         </div>
-                        <div class="col-xs-3 form-group">
+                        <div class="col-xs-2 form-group">
                             <label>
                                 Zip
                                 <input type="text" class="form-control" name="zip" id="deliveryZip" placeholder="Zip" />
                             </label>
                         </div>
-                        <div class="form-group">
+                        <div class="col-xs-4 form-group">
                             <label for="deliveryPhone">
                                 Phone
                                 <input type="text" class="form-control" name="phone" id="deliveryPhone" placeholder="Phone" />
@@ -171,94 +173,56 @@
                 </div>
                 <div class="well">
                     <label>Payment options</label>
-                    @*<div>
-                        <label>Cash <input type="radio" id="cash" name="paymentMethod" value="Cash" /></label>
-                    </div>*@
                     <div>
-                        <label>Credit Card <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /></label>
-                        <label>Cash <input type="radio" id="cash" name="paymentMethod" value="Cash" /></label>
-                        <label>Check <input type="radio" id="check" name="paymentMethod" value="Check" /></label>
-                        <label>DOC <input type="radio" id="doc" name="paymentMethod" value="DOC" /></label>
+                        <div class="form-group">
+                            <input type="radio" id="doc" name="paymentMethod" value="DOC" /><label>DOC</label>
+                            @*</div>*@
+                            @*<div class="form-group">*@
+                            <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>
+                            @*</div>*@
+                        </div>
+                        <div class="form-group" id="creditCardInfoDiv" style="display: none;">
+                            <div class="form-group">
+                                <label>Credit Card</label>
+                                <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
+                            </div>
+                            <div class="col-xs-3 form-group">
+                                <label>Expiration</label>
+                                <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
+                            </div>
+                            <div class="col-xs-2 form-group">
+                                <label>Security Code</label>
+                                <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group" id="creditCardInfoDiv" style="display: none;">
-                        <div class="form-group">
-                            <label>Credit Card</label>
-                            <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
-                        </div>
-                        <div class="col-xs-3 form-group">
-                            <label>Expiration</label>
-                            <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
-                        </div>
-                        <div class="col-xs-2 form-group">
-                            <label>Security Code</label>
-                            <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
-                        </div>
+                    <br />
+                    <div class="form-group">
+                        <label>Required Date</label>
+                        <input type="date" class="form-control" name="requiredDate" id="requiredDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Greetings</label>
+                        <textarea type="text" class="form-control" name="greetings" id="greetings" placeholder="Greetings"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
                     </div>
                 </div>
-                <br />
-                @*<div class="form-group" id="deliveryInfoDiv" style="display: none;">
-                        <div class="form-group">
-                            <label>First Name</label>
-                            <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name">
-                        </div>
-                        <div class="form-group">
-                            <label>Last Name</label>
-                            <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
-                        </div>
-                        <div class="form-group">
-                            <label>Address</label>
-                            <input type="text" class="form-control" name="address" id="address" placeholder="Address">
-                        </div>
-                        <div class="form-group">
-                            <label>City</label>
-                            <input type="text" class="form-control" name="city" id="city" placeholder="City">
-                        </div>
-                        <div class="form-group">
-                            <label>State</label>
-                            <input type="text" class="form-control" name="state" id="state" placeholder="State">
-                        </div>
-                        <div class="form-group">
-                            <label>Zip</label>
-                            <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
-                        </div>
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
-                        </div>
-                    </div>*@
-                <div class="form-group">
-                    <label>Required Date</label>
-                    <input type="date" class="form-control" name="requiredDate" id="requiredDate">
-                </div>
-                @*<div class="form-group" id="creditCardInfoDiv" style="display: none;">
-                        <div class="form-group">
-                            <label>Credit Card</label>
-                            <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
-                        </div>
-                        <div class="form-group">
-                            <label>Expiration</label>
-                            <input type="text" class="form-control" name="expiration" id="expiration" placeholder="Expiration">
-                        </div>
-                        <div class="form-group">
-                            <label>Security Code</label>
-                            <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="Security Code">
-                        </div>
-                    </div>*@
-                <div class="form-group">
-                    <label>Greetings</label>
-                    <textarea type="text" class="form-control" name="greetings" id="greetings" placeholder="Greetings"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="orderSubmitBtn" type="submit" data-dismiss="modal">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" id="orderSubmitBtn" type="submit" data-dismiss="modal">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
+            @*</form>*@
         </div>
-        @*</form>*@
     </div>
 </div>
 

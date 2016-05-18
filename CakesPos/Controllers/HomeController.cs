@@ -217,5 +217,13 @@ namespace CakesPos.Controllers
             return Json(customer, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult MakePayment(int customerId, int orderId, decimal amount, string note)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.MakePayment(customerId, orderId, amount, note);
+            return null;
+        }
+
     }
 }

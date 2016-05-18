@@ -100,6 +100,13 @@ img {
     max-width: 1200px !important;
 }
 
+.med-modal {
+    width: 35% !important;
+    max-width: 1200px !important;
+    max-height:100% !important;
+    /*overflow: scroll !important;*/
+}
+
 /*.info-panel {
     width: 35%;
 }*/

@@ -173,6 +173,7 @@ namespace CakesPos.Data
                     oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
                     oh.deliveryOpt = (string)reader["DeliveryOption"];
                     oh.discount = (decimal)reader["Discount"];
+                    oh.payments = GetPaymentsByOrderId(oh.id);
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
@@ -218,6 +219,7 @@ namespace CakesPos.Data
                     oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
                     oh.deliveryOpt = (string)reader["DeliveryOption"];
                     oh.discount = (decimal)reader["Discount"];
+                    oh.payments = GetPaymentsByOrderId(oh.id);
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
@@ -226,6 +228,17 @@ namespace CakesPos.Data
                 }
 
                 return orders;
+            }
+        }
+
+        public IEnumerable <Payment> GetPaymentsByOrderId(int id)
+        {
+            List<Payment> payments = new List<Payment>();
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                payments = context.Payments.Where(p => p.OrderId == id).ToList();
+                return payments;
             }
         }
 
@@ -335,6 +348,21 @@ namespace CakesPos.Data
                                where p.Id == id
                                select p).First();
                 product.InStock += amount;
+                context.SubmitChanges();
+            }
+        }
+
+        public void MakePayment(int customerId, int orderId, decimal amount, string paymentNote)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                Payment p = new Payment();
+                p.CustomerId = customerId;
+                p.OrderId = orderId;
+                p.Payment1 = amount;
+                p.PaymentNote = paymentNote;
+
+                context.Payments.InsertOnSubmit(p);
                 context.SubmitChanges();
             }
         }

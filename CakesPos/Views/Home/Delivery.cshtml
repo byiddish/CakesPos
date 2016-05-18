@@ -30,7 +30,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="deliveryLeftDiv">
-                        <h3>@o.order.DeliveryFirstName @o.order.DeliveryLastName<br />@o.order.DeliveryAddress<br />@o.order.DeliveryCity @o.order.DeliveryState @o.order.DeliveryZip<br />@o.order.Phone</h3>
+                        <h4>@o.order.DeliveryFirstName @o.order.DeliveryLastName<br />@o.order.DeliveryAddress<br />@o.order.DeliveryCity @o.order.DeliveryState @o.order.DeliveryZip<br />@o.order.Phone</h4>
                         </div>
                     <div class="deliveryMiddleDiv">
                         @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
@@ -41,7 +41,7 @@
                     <div class="deliveryRightDiv">
                         <div class="form-group">
                             <label for="deliverynote">Delivery Note:</label>
-                            <textarea class="form-control" rows="8" id="deliveryNote"></textarea>
+                            <textarea class="form-control" rows="3" id="deliveryNote">@o.order.DeliveryNote</textarea>
                         </div>
                     </div>
                 </div>
