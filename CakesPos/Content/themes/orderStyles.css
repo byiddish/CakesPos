@@ -117,7 +117,7 @@ img {
 
 #orderHistory {
     overflow: scroll;
-    height: 300px;
+    height: 345px;
     /*float:left;
     width:65%;*/
 }
@@ -136,7 +136,7 @@ img {
     height: 200px;*/
     float: left;
     width: 65%;
-    height: 586px;
+    height: 748px;
     /*border: 1px solid black;*/
 }
 

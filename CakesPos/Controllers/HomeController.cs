@@ -25,6 +25,29 @@ namespace CakesPos.Controllers
             return View(ovm);
         }
 
+        [HttpPost]
+        public ActionResult Order(int customerId, int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrdersViewModel ovm = new OrdersViewModel();
+            ovm.categories = cpr.GetAllCategories();
+            ovm.products = cpr.GetProductsByCategory(1);
+            ovm.order = cpr.GetOrderById(orderId);
+            ovm.orderDetails = cpr.GetOrderDetailsById(orderId);
+            return View(ovm);
+        }
+
+        [HttpPost]
+        public ActionResult EditOrder(int customerId, int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrdersViewModel ovm = new OrdersViewModel();
+            ovm.order = cpr.GetOrderById(orderId);
+            ovm.orderDetails = cpr.GetOrderDetailsById(orderId);
+            ovm.customer = cpr.GetCustomerById(customerId);
+            return Json(ovm, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult OrderHistory()
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
@@ -64,7 +87,7 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             DateTime today = DateTime.Today;
-            if(x==1)
+            if (x == 1)
             {
                 IEnumerable<OrderHistoryViewModel> yesterdaysOrders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(-x) && o.requiredDate < today);
                 return Json(yesterdaysOrders.ToList(), JsonRequestBehavior.AllowGet);

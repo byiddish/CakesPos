@@ -80,6 +80,7 @@
       <Column Name="OrderId" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="Payment" Member="Payment1" Type="System.Decimal" DbType="Money" CanBeNull="true" />
       <Column Name="PaymentNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
       <Association Name="Customer_Payment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
       <Association Name="Order_Payment" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
     </Type>

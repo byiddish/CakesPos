@@ -252,6 +252,26 @@ namespace CakesPos.Data
             }
         }
 
+        public Order GetOrderById(int orderId)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                Order order = context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
+                return order;
+            }
+        }
+
+        public IEnumerable<OrderDetail>GetOrderDetailsById(int orderId)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled=false;
+                IEnumerable<OrderDetail> orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
+                return orderDetails;
+            }
+        }
+
         public OrderDetailsViewModel GetOrderDetails(int customerId, int orderId)
         {
             List<OrderDetailsProductModel> products = new List<OrderDetailsProductModel>();
@@ -262,7 +282,7 @@ namespace CakesPos.Data
                 odvm.customer = context.Customers.Where(c => c.Id == customerId).FirstOrDefault();
                 odvm.order = context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
                 odvm.orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
-
+                odvm.payments = context.Payments.Where(p => p.OrderId == orderId).ToList();
                 foreach (OrderDetail od in odvm.orderDetails)
                 {
                     OrderDetailsProductModel pm = new OrderDetailsProductModel();
@@ -361,7 +381,7 @@ namespace CakesPos.Data
                 p.OrderId = orderId;
                 p.Payment1 = amount;
                 p.PaymentNote = paymentNote;
-
+                p.Date = DateTime.Now;
                 context.Payments.InsertOnSubmit(p);
                 context.SubmitChanges();
             }

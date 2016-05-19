@@ -209,7 +209,7 @@
         $('#customerIdCheckout').val(customerId);
         $('#catererDiscount').val(caterer);
         if (caterer == true) {
-            $('#catererIndicator').text("*Caterer*");
+            $('#catererIndicator').html("<span style="+'"color:blue"'+">*Caterer*</span>");
         }
         $('#customerEmail').append(email);
 
@@ -236,19 +236,32 @@
 
     $('#historyTable').on('click', '.viewDetailsBtn', function () {
         $("#table").find("tr:gt(0)").remove();
+        $('#paymentDiv').html("");
         var ordersId = $(this).data('orderid');
         var customersId = $(this).data('customerid');
         var subtotal = 0;
         var total = 0;
+        $('#edit').attr('data-customerid', customersId);
+        $('#edit').attr('data-orderid', ordersId);
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
             if (ordersHistory.order.DeliveryOption === "Delivery") {
                 $('#deliveryPanel').show();
-                $('#odDeliveryInfo').html("<h3>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h3><h3>" + ordersHistory.order.DeliveryAddress + "</h3><h3>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h3><h3>" + ordersHistory.order.Phone + "</h3>");
+                $('#odDeliveryInfo').html("<h4>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h4><h4>" + ordersHistory.order.DeliveryAddress + "</h4><h4>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h4><h4>" + ordersHistory.order.Phone + "</h4>");
+            }
+            if (ordersHistory.payments != null) {
+                ordersHistory.payments.forEach(function (p) {
+                    var date = ConvertJsonDate(p.Date);
+                    var note ="("+p.PaymentNote+")";
+                    if (p.PaymentNote == ""){
+                        note = "";
+                    }
+                    $('#paymentDiv').append("<h5>Payment of: $" + p.Payment1 + " on "+date+" "+note+"</h5>");
+                })
             }
             var discount = ordersHistory.order.Discount;
             $('#notesBody').html("<h5>" + ordersHistory.order.Notes + "</h5>");
             $('#greetingsBody').html("<h5>" + ordersHistory.order.Greetings + "</h5>")
-            $('#odCustomerInfo').html("<h3>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h3><h3>" + ordersHistory.customer.Address + "</h3><h3>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h3><h3>" + ordersHistory.customer.Phone + "</h3>");
+            $('#odCustomerInfo').html("<h4>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h4><h4>" + ordersHistory.customer.Address + "</h4><h4>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h4><h4>Phone: " + ordersHistory.customer.Phone + "</h4><h4>Cell: "+ordersHistory.customer.Cell+"</h4><h5>"+ordersHistory.customer.Email+"</h5>");
             ordersHistory.orderedProducts.forEach(function (orderedProducts) {
                 $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + orderedProducts.quantity * orderedProducts.unitPrice + "</td></tr>")
                 subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
@@ -389,7 +402,7 @@
         window.print();
     });
 
-    $('.paymentBtn').on('click', function () {
+    $('#historyTable').on('click', '.paymentBtn', function () {
         var customerId = $(this).data('customerid');
         var orderId = $(this).data('orderid');
         $('#processPaymentBtn').attr('data-customerid', customerId);
@@ -435,75 +448,97 @@
         }
     });
 
-    function ConvertJsonDate(jsonDate) {
-        var jsonDate = jsonDate.toString();
-        var value = new Date
-                    (
-                         parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
-                    );
-        var date = value.getMonth() +
-                                 1 +
-                               "/" +
-                   value.getDate() +
-                               "/" +
-               value.getFullYear();
-        return date;
-    }
+    $('#edit').on('click', function () {
+        var customerId = $(this).data('customerid');
+        var orderid = $(this).data('orderid');
+        window.location.href = ('/home/order');
+        append(customerId, orderid);
+    })
+    //var customerId = $(this).data('customerid');
+    //var orderid = $(this).data('orderid');
+    //window.location.href = ('/home/order');
+    //append(customerId, orderid);
+    //$.post('/home/EditOrder', { customerId: customerId, orderId: orderid }, function (order) {
+    //f = order.customer.FirstName;
+    //l = order.customer.LastName;
+    //$('#customerHeader').append(order.customer.FirstName + " " + order.customer.lastName);
+    //$('#customerAddress').append(order.customer.Address);
+    //$('#customerPhone').append(order.customer.Phone);
+    //$('#customerId').val(customerId);
+    ////$('.customers').remove();
+    ////$('#searchInput').val("");
+    ////$('#customerIdCheckout').val(customerId);
+    //$('#catererDiscount').val(order.customer.caterer);
+    //if (caterer == true) {
+    //    $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
+    //}
+    //$('#customerEmail').append(order.customer.Email);
+    //})
+    //append(f, l)
+//})
 
-    function RefreshOrder() {
-        var total = 0;
-        var itemCount = 0;
-        var caterer = $('#catererDiscount').val();
-        $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
-            var category = $(this).data('categoryid');
-            var quantity = $(this).find('input.q').val();
-            itemCount += (parseInt(quantity));
-            var price = $(this).data('price');
-            if (quantity === undefined) {
-                quantity === 0;
+function append(c, o) {
+    $.post('/home/EditOrder', { customerId: c, orderId: o }, function (order) {
+        $('#customerHeader').append(order.customer.FirstName + " " + order.customer.lastName)
+    })
+}
+
+function ConvertJsonDate(jsonDate) {
+    var jsonDate = jsonDate.toString();
+    var value = new Date
+                (
+                     parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
+                );
+    var date = value.getMonth() +
+                             1 +
+                           "/" +
+               value.getDate() +
+                           "/" +
+           value.getFullYear();
+    return date;
+}
+
+function RefreshOrder() {
+    var total = 0;
+    var itemCount = 0;
+    var caterer = $('#catererDiscount').val();
+    $('#orderTable').find('tr').not(':first').each(function () {
+        var catererDiscount = 0;
+        var category = $(this).data('categoryid');
+        var quantity = $(this).find('input.q').val();
+        itemCount += (parseInt(quantity));
+        var price = $(this).data('price');
+        if (quantity === undefined) {
+            quantity === 0;
+        }
+        if (caterer === "true") {
+            var t = (parseFloat(quantity) * parseFloat(price));
+            if (category === 1) {
+                catererDiscount = 5;
+                total += (t - catererDiscount * quantity);
             }
-            if (caterer === "true") {
-                var t = (parseFloat(quantity) * parseFloat(price));
-                if (category === 1) {
-                    catererDiscount = 5;
-                    total += (t - catererDiscount * quantity);
-                }
-                else if (category === 2) {
-                    catererDiscount = t * 0.1;
-                    total += (t - catererDiscount);
-                }
-                else if (category === 5) {
-                    catererDiscount = 2.5;
-                    total += (t - catererDiscount * quantity);
-                }
-                if (caterer === "true" && category === 2) {
-                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
-                }
-                else {
-                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
-                }
+            else if (category === 2) {
+                catererDiscount = t * 0.1;
+                total += (t - catererDiscount);
+            }
+            else if (category === 5) {
+                catererDiscount = 2.5;
+                total += (t - catererDiscount * quantity);
+            }
+            if (caterer === "true" && category === 2) {
+                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
             }
             else {
-                var t = (parseFloat(quantity) * parseFloat(price));
-                total += t;
-                $(this).find('.price').text(t)
+                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
             }
+        }
+        else {
+            var t = (parseFloat(quantity) * parseFloat(price));
+            total += t;
+            $(this).find('.price').text(t)
+        }
 
-            $('#totalItems').text("Total items: " + itemCount);
-            if (total === NaN) {
-                $('#total').text("Total: $" + 0);
-            }
-            else {
-                if (getDiscount() < 1) {
-                    var d = total * getDiscount();
-                    $('#total').text("Total: $" + (total - d));
-                }
-                else {
-                    $('#total').text("Total: $" + (total - getDiscount()));
-                }
-            }
-        });
+        $('#totalItems').text("Total items: " + itemCount);
         if (total === NaN) {
             $('#total').text("Total: $" + 0);
         }
@@ -516,5 +551,18 @@
                 $('#total').text("Total: $" + (total - getDiscount()));
             }
         }
+    });
+    if (total === NaN) {
+        $('#total').text("Total: $" + 0);
     }
+    else {
+        if (getDiscount() < 1) {
+            var d = total * getDiscount();
+            $('#total').text("Total: $" + (total - d));
+        }
+        else {
+            $('#total').text("Total: $" + (total - getDiscount()));
+        }
+    }
+}
 })

@@ -1682,6 +1682,8 @@ namespace CakesPos.Data
 		
 		private string _PaymentNote;
 		
+		private System.Nullable<System.DateTime> _Date;
+		
 		private EntityRef<Customer> _Customer;
 		
 		private EntityRef<Order> _Order;
@@ -1700,6 +1702,8 @@ namespace CakesPos.Data
     partial void OnPayment1Changed();
     partial void OnPaymentNoteChanging(string value);
     partial void OnPaymentNoteChanged();
+    partial void OnDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnDateChanged();
     #endregion
 		
 		public Payment()
@@ -1813,6 +1817,26 @@ namespace CakesPos.Data
 					this._PaymentNote = value;
 					this.SendPropertyChanged("PaymentNote");
 					this.OnPaymentNoteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Date", DbType="Date")]
+		public System.Nullable<System.DateTime> Date
+		{
+			get
+			{
+				return this._Date;
+			}
+			set
+			{
+				if ((this._Date != value))
+				{
+					this.OnDateChanging(value);
+					this.SendPropertyChanging();
+					this._Date = value;
+					this.SendPropertyChanged("Date");
+					this.OnDateChanged();
 				}
 			}
 		}
