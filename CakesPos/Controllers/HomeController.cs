@@ -25,27 +25,31 @@ namespace CakesPos.Controllers
             return View(ovm);
         }
 
-        [HttpPost]
-        public ActionResult Order(int customerId, int orderId)
-        {
-            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            OrdersViewModel ovm = new OrdersViewModel();
-            ovm.categories = cpr.GetAllCategories();
-            ovm.products = cpr.GetProductsByCategory(1);
-            ovm.order = cpr.GetOrderById(orderId);
-            ovm.orderDetails = cpr.GetOrderDetailsById(orderId);
-            return View(ovm);
-        }
+        //[HttpPost]
+        //public ActionResult Order(int customerId, int orderId)
+        //{
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    OrdersViewModel ovm = new OrdersViewModel();
+        //    ovm.categories = cpr.GetAllCategories();
+        //    ovm.products = cpr.GetProductsByCategory(1);
+        //    ovm.order = cpr.GetOrderById(orderId);
+        //    ovm.orderDetails = cpr.GetOrderDetailsById(orderId);
+        //    return View(ovm);
+        //}
 
-        [HttpPost]
+        //[HttpPost]
         public ActionResult EditOrder(int customerId, int orderId)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            OrdersViewModel ovm = new OrdersViewModel();
-            ovm.order = cpr.GetOrderById(orderId);
-            ovm.orderDetails = cpr.GetOrderDetailsById(orderId);
-            ovm.customer = cpr.GetCustomerById(customerId);
-            return Json(ovm, JsonRequestBehavior.AllowGet);
+            EditOrdersViewModel ovm = new EditOrdersViewModel();
+            ovm.categories = cpr.GetAllCategories();
+            ovm.products = cpr.GetProductsByCategory(1);
+            //ovm.order = cpr.GetOrderById(orderId);
+            //ovm.orderDetails = cpr.GetOrderDetailsById();
+            //ovm.customer = cpr.GetCustomerById(customerId);
+            //ovm.orderedProducts=cpr.
+            ovm.orderDetails = cpr.GetOrderDetails(customerId, orderId);
+            return View(ovm);
         }
 
         public ActionResult OrderHistory()

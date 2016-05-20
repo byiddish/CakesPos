@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using CakesPos.Data;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CakesPos
+namespace CakesPos.Data
 {
-    public class OrdersViewModel
+    public class EditOrdersViewModel
     {
         public IEnumerable<Product> products { get; set; }
         public IEnumerable<Category> categories { get; set; }
         //public Order order { get; set; }
         //public IEnumerable<OrderDetail> orderDetails { get; set; }
         //public Customer customer { get; set; }
+        public OrderDetailsViewModel orderDetails { get; set; }
     }
 }

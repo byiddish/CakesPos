@@ -287,6 +287,7 @@ namespace CakesPos.Data
                 {
                     OrderDetailsProductModel pm = new OrderDetailsProductModel();
                     Product p = (GetProductById(od.ProductId));
+                    pm.categoryId = p.CategoryId;
                     pm.productId = p.Id;
                     pm.productName = p.ProductName;
                     pm.quantity = od.Quantity;

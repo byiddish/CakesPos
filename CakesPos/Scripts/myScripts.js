@@ -241,8 +241,8 @@
         var customersId = $(this).data('customerid');
         var subtotal = 0;
         var total = 0;
-        $('#edit').attr('data-customerid', customersId);
-        $('#edit').attr('data-orderid', ordersId);
+        $('#edit').attr('href', "/home/editOrder?customerId="+customersId+"&orderId="+ordersId);
+        //$('#edit').attr('data-orderid', ordersId);
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
             if (ordersHistory.order.DeliveryOption === "Delivery") {
                 $('#deliveryPanel').show();
@@ -447,13 +447,18 @@
             $('#deliveryPhone').val("")
         }
     });
-
-    $('#edit').on('click', function () {
-        var customerId = $(this).data('customerid');
-        var orderid = $(this).data('orderid');
-        window.location.href = ('/home/order');
-        append(customerId, orderid);
-    })
+    //$('#edit').on('click', function () {
+    //    var customerId = $(this).data('customerid');
+    //    var orderid = $(this).data('orderid');
+    //    $.post('/home/EditOrder', { customerId: customerId, orderId: orderid }, function (order) {
+    //    })
+    //})
+    //$('#edit').on('click', function () {
+    //    var customerId = $(this).data('customerid');
+    //    var orderid = $(this).data('orderid');
+    //    //window.location.href = ('/home/order');
+    //    append(customerId, orderid);
+    //})
     //var customerId = $(this).data('customerid');
     //var orderid = $(this).data('orderid');
     //window.location.href = ('/home/order');
@@ -477,11 +482,11 @@
     //append(f, l)
 //})
 
-function append(c, o) {
-    $.post('/home/EditOrder', { customerId: c, orderId: o }, function (order) {
-        $('#customerHeader').append(order.customer.FirstName + " " + order.customer.lastName)
-    })
-}
+//function append(c, o) {
+//    $.post('/home/EditOrder', { customerId: c, orderId: o }, function (order) {
+//        $('#customerHeader').append(order.customer.FirstName + " " + order.customer.lastName)
+//    })
+//}
 
 function ConvertJsonDate(jsonDate) {
     var jsonDate = jsonDate.toString();

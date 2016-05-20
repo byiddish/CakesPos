@@ -1,0 +1,334 @@
+﻿@model CakesPos.Data.EditOrdersViewModel
+
+
+@section Styles{
+    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+}
+
+<div id="parent">
+    <div id="leftdiv">
+        <div id="ordersDiv">
+            <div id="customerInfoDiv">
+                <div id="customerInfoDivInner">
+                    <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
+                    <button class="btn btn-lg btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
+                    <input type="hidden" id="customerId" name="customerId" />
+                    <h3 id="customerHeader">@Model.orderDetails.customer.FirstName @Model.orderDetails.customer.LastName</h3>
+                    <h4 id="customerAddress">@Model.orderDetails.customer.Address</h4>
+                    <h4 id="customerPhone">@Model.orderDetails.customer.Phone</h4>
+                    <h5 id="customerEmail">@Model.orderDetails.customer.Email</h5>
+                    <input type="hidden" id="catererDiscount" value=@Model.orderDetails.customer.Caterer />
+                    @if (Model.orderDetails.customer.Caterer == true)
+                    {
+                        <h4 id="catererIndicator"><span style="color:blue">*Caterer*</span></h4>
+                    }
+                    else
+                    {
+                        <h4 id="catererIndicator"></h4>
+                    }
+                </div>
+            </div>
+            <br />
+            <br />
+            <br />
+            <table class="table table-bordered table-hover table-striped" id="orderTable">
+                <tr>
+                    <th>X</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+                @{decimal total = 0;}
+                @{decimal discount = 0;}
+                @if (Model.orderDetails.order.Discount != null)
+                {
+                    discount = (decimal)Model.orderDetails.order.Discount;
+                }
+                @{int itemCount = 0;}
+                @{double catererDiscount = 0;}
+                @foreach (CakesPos.Data.OrderDetailsProductModel od in Model.orderDetails.orderedProducts)
+                {
+                    var price = od.unitPrice * od.quantity;
+                    <tr data-price="@od.unitPrice" data-categoryid="@od.categoryId" data-id="@od.productId">
+                        <td><button class="btn btn-danger delete">X</button></td>
+                        <td>@od.productName</td>
+                        <td><input class=" input input-sm q" type="number" value="@od.quantity" min="1" /></td>
+                        <td class="price">@price.ToString("C")</td>
+                    </tr>
+                    if (Model.orderDetails.customer.Caterer == true)
+                    {
+                        if (od.categoryId == 1)
+                        {
+                            catererDiscount = 5;
+                            total += (price) - ((decimal)catererDiscount * od.quantity);
+                        }
+                        else if (od.categoryId == 2)
+                        {
+                            catererDiscount = .1;
+                            total += (price) - ((decimal)catererDiscount*price);
+                        }
+                    }
+                    total += od.unitPrice * od.quantity - (decimal)catererDiscount;
+                    itemCount += od.quantity;
+                }
+                @if (discount < 1)
+                {
+                    discount = total * discount;
+                }
+                @{total = total - discount;}
+            </table>
+        </div>
+        <div id="totalDiv">
+            <div id="totalDivInner">
+                <h3>Discount  <input class="input-sm discount" id="discountInput" value="@Model.orderDetails.order.Discount" /> <button id="refresh" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button></h3>
+                <h3 id="totalItems">Total items: @itemCount</h3>
+                <h1 id="total">Total: @total.ToString("C")</h1>
+                <button class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#checkoutModal">Place Order</button>
+            </div>
+        </div>
+    </div>
+    <div id="rightdiv">
+        <div id="rightdivInner">
+            @foreach (CakesPos.Data.Category category in Model.categories)
+            {
+                <btn class="btn btn-lg btn-success categorybtn" data-category=@category.Id>@category.CategoryName</btn>
+            }
+
+        </div>
+        <div id="cakesDiv">
+            <div id="productsInnerDiv">
+                @foreach (CakesPos.Data.Product product in Model.products)
+                {
+                    string productName = product.ProductName.ToString();
+                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryid=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /><br />@product.ProductName @product.Price.ToString("C")</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="searchCustomerModal" class="modal fade" role="dialog">
+    <div class="modal-dialog xl-modal">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select Customer</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <h2>Search  <input class="input input-lg input-group-lg" type="text" id="searchInput" autofocus="autofocus" /></h2>
+                </div>
+                <br />
+                <table class="table table-bordered table-striped table-hover" id="searchTable">
+                    <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th>Cell</th>
+                        <th>Select</th>
+                    </tr>
+                </table>
+                <div id="message"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="checkoutModal" class="modal fade" role="dialog">
+    <div class="modal-dialog med-modal">
+
+        <!-- Modal content-->
+        @*<form action="/Home/AddOrder" method="POST">*@
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Checkout</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="customerIdCheckout" name="customerId" />
+                <div class="well">
+                    <label>Delivery options</label>
+                    <div>
+                        <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
+                    </div>
+                    <div>
+                        <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
+                    </div>
+                    <div class="form-group" id="deliveryInfoDiv" style="display: none;">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="customerAddressCheckbox"> Customer address
+                            </label>
+                        </div>
+                        <div class="col-xs-4 form-group">
+                            <label>
+                                First Name
+                                <input type="text" class="form-control" name="firstName" id="deliveryFirstName" value="@Model.orderDetails.order.DeliveryFirstName" placeholder="First Name" />
+                            </label>
+                        </div>
+                        <div class="col-xs-4 form-group">
+                            <label>
+                                Last Name
+                                <input type="text" class="form-control" name="lastName" id="deliveryLastName" value="@Model.orderDetails.order.DeliveryLastName" placeholder="Last Name" />
+                            </label>
+                        </div>
+                        <div class="col-xs-4 form-group">
+                            <label>
+                                Address
+                                <input type="text" class="form-control" name="address" id="deliveryAddress" value="@Model.orderDetails.order.DeliveryAddress" placeholder="Address" />
+                            </label>
+                        </div>
+                        <div class="col-xs-3 form-group">
+                            <label>
+                                City
+                                <input type="text" class="form-control" name="city" id="deliveryCity" value="@Model.orderDetails.order.DeliveryCity" placeholder="City" />
+                            </label>
+                        </div>
+                        <div class="col-xs-2 form-group">
+                            <label>
+                                State
+                                <input type="text" class="form-control" name="state" id="deliveryState" value="@Model.orderDetails.order.DeliveryState" placeholder="State" />
+                            </label>
+                        </div>
+                        <div class="col-xs-2 form-group">
+                            <label>
+                                Zip
+                                <input type="text" class="form-control" name="zip" id="deliveryZip" value="@Model.orderDetails.order.DeliveryZip" placeholder="Zip" />
+                            </label>
+                        </div>
+                        <div class="col-xs-4 form-group">
+                            <label for="deliveryPhone">
+                                Phone
+                                <input type="text" class="form-control" name="phone" id="deliveryPhone" value="@Model.orderDetails.order.Phone" placeholder="Phone" />
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                Delivery Note
+                                <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" value="@Model.orderDetails.order.DeliveryNote" placeholder="Delivery Note"></textarea>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="well">
+                    <label>Payment options</label>
+                    <div>
+                        <div class="form-group">
+                            <input type="radio" id="doc" name="paymentMethod" value="DOC" /><label>DOC</label>
+                            @*</div>*@
+                            @*<div class="form-group">*@
+                            <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>
+                            @*</div>*@
+                        </div>
+                        <div class="form-group" id="creditCardInfoDiv" style="display: none;">
+                            <div class="form-group">
+                                <label>Credit Card</label>
+                                <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
+                            </div>
+                            <div class="col-xs-3 form-group">
+                                <label>Expiration</label>
+                                <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
+                            </div>
+                            <div class="col-xs-2 form-group">
+                                <label>Security Code</label>
+                                <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="form-group">
+                        <label>Required Date</label>
+                        <input type="date" class="form-control" name="requiredDate" id="requiredDate" value="@Model.orderDetails.order.RequiredDate.Value.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="form-group">
+                        <label>Greetings</label>
+                        <textarea type="text" class="form-control" name="greetings" id="greetings" value="@Model.orderDetails.order.Greetings" placeholder="Greetings"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea type="text" class="form-control" name="notes" id="notes" value="@Model.orderDetails.order.Notes" placeholder="Notes"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="orderSubmitBtn" type="submit" data-dismiss="modal">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            @*</form>*@
+        </div>
+    </div>
+</div>
+
+
+<div id="newCustomerModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <form action="/home/AddCustomer" method="POST">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">New Customer</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Caterer <input type="checkbox" name="caterer" id="caterer" value="true" /></label>
+                        <input type="hidden" name="caterer" value="false" />
+                    </div>
+                    <div class="form-group">
+                        <label>First name</label>
+                        <input type="text" class="form-control" name="firstname" id="firstName" placeholder="First Name" autofocus="autofocus">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-control" name="address" id="address" placeholder="Address">
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" class="form-control" name="city" id="city" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" class="form-control" name="state" id="state" placeholder="State">
+                    </div>
+                    <div class="form-group">
+                        <label>Zip</label>
+                        <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
+                    </div>
+                    <div class="form-group">
+                        <label>Cell</label>
+                        <input type="text" class="form-control" name="cell" id="cell" placeholder="Cell">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Email">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="newCustomerSubmit">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

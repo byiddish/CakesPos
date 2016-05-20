@@ -49,6 +49,7 @@
       <DependentUpon>CakesPos.dbml</DependentUpon>
     </Compile>
     <Compile Include="CakesPosRepository.cs" />
+    <Compile Include="EditOrdersViewModel.cs" />
     <Compile Include="InventoryByCategoryModel.cs" />
     <Compile Include="InventoryViewModel.cs" />
     <Compile Include="OrderDetailsProductModel.cs" />
