@@ -12,12 +12,12 @@
                 <div id="customerInfoDivInner">
                     <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
                     <button class="btn btn-lg btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
-                    <input type="hidden" id="customerId" name="customerId" />
+                    <input type="hidden" id="customerId" name="customerId" value=@Model.orderDetails.customer.Id/>
                     <h3 id="customerHeader">@Model.orderDetails.customer.FirstName @Model.orderDetails.customer.LastName</h3>
                     <h4 id="customerAddress">@Model.orderDetails.customer.Address</h4>
                     <h4 id="customerPhone">@Model.orderDetails.customer.Phone</h4>
                     <h5 id="customerEmail">@Model.orderDetails.customer.Email</h5>
-                    <input type="hidden" id="catererDiscount" value=@Model.orderDetails.customer.Caterer />
+                    <input type="hidden" id="catererDiscount" value=@Model.orderDetails.customer.Caterer.ToString().ToLower() />
                     @if (Model.orderDetails.customer.Caterer == true)
                     {
                         <h4 id="catererIndicator"><span style="color:blue">*Caterer*</span></h4>
@@ -53,29 +53,43 @@
                         <td><button class="btn btn-danger delete">X</button></td>
                         <td>@od.productName</td>
                         <td><input class=" input input-sm q" type="number" value="@od.quantity" min="1" /></td>
-                        <td class="price">@price.ToString("C")</td>
+                        @if (Model.orderDetails.customer.Caterer == true)
+                        {
+                            if (od.categoryId == 1)
+                            {
+                                catererDiscount = 5;
+                                total += (price) - ((decimal)catererDiscount * od.quantity);
+                                var discountHtml = -5 * od.quantity;
+                                <td class="price">@price.ToString("C") <span style="color:red">(@discountHtml)</span></td>
+                            }
+                            else if (od.categoryId == 2)
+                            {
+                                catererDiscount = .1;
+                                total += (price) - ((decimal)catererDiscount * price);
+                                var discountHtml = ((decimal)catererDiscount * price);
+                                <td class="price">@price.ToString("C") <span style="color:red">(@discountHtml)</span></td>
+                            }
+                            else if (od.categoryId == 5)
+                            {
+                                catererDiscount = 2.5;
+                                total += (price) - ((decimal)catererDiscount * od.quantity);
+                                var discountHtml = -2.5 * od.quantity;
+                                <td class="price">@price.ToString("C") <span style="color:red">(@discountHtml)</span></td>
+                            }
+                        }
+                        else
+                        {
+                            total += od.unitPrice * od.quantity - (decimal)catererDiscount;
+                            <td class="price">@price.ToString("C")</td>
+                        }
+                        @{itemCount += od.quantity;}
                     </tr>
-                    if (Model.orderDetails.customer.Caterer == true)
-                    {
-                        if (od.categoryId == 1)
+                        if (discount < 1)
                         {
-                            catererDiscount = 5;
-                            total += (price) - ((decimal)catererDiscount * od.quantity);
+                            discount = total * discount;
                         }
-                        else if (od.categoryId == 2)
-                        {
-                            catererDiscount = .1;
-                            total += (price) - ((decimal)catererDiscount*price);
-                        }
-                    }
-                    total += od.unitPrice * od.quantity - (decimal)catererDiscount;
-                    itemCount += od.quantity;
+                        total = total - discount;
                 }
-                @if (discount < 1)
-                {
-                    discount = total * discount;
-                }
-                @{total = total - discount;}
             </table>
         </div>
         <div id="totalDiv">
@@ -151,14 +165,28 @@
                 <h4 class="modal-title">Checkout</h4>
             </div>
             <div class="modal-body">
-                <input type="hidden" id="customerIdCheckout" name="customerId" />
+                <input type="hidden" id="customerIdCheckout" name="customerId" value=@Model.orderDetails.customer.Id />
                 <div class="well">
                     <label>Delivery options</label>
                     <div>
-                        <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
+                        @if (Model.orderDetails.order.DeliveryOption == "Pickup")
+                        {
+                            <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" checked="checked"/></label>
+                        }
+                        else
+                        {
+                            <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
+                        }
                     </div>
                     <div>
-                        <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
+                        @if (Model.orderDetails.order.DeliveryOption == "Delivery")
+                        {
+                            <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" checked="checked"/></label>
+                        }
+                        else
+                        {
+                            <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
+                        }
                     </div>
                     <div class="form-group" id="deliveryInfoDiv" style="display: none;">
                         <div class="checkbox">
@@ -211,7 +239,7 @@
                         <div class="form-group">
                             <label>
                                 Delivery Note
-                                <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" value="@Model.orderDetails.order.DeliveryNote" placeholder="Delivery Note"></textarea>
+                                <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" @*value="@Model.orderDetails.order.DeliveryNote"*@ placeholder="Delivery Note">@Model.orderDetails.order.DeliveryNote</textarea>
                             </label>
                         </div>
                     </div>
@@ -220,17 +248,38 @@
                     <label>Payment options</label>
                     <div>
                         <div class="form-group">
-                            <input type="radio" id="doc" name="paymentMethod" value="DOC" /><label>DOC</label>
-                            @*</div>*@
-                            @*<div class="form-group">*@
-                            <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>
-                            @*</div>*@
+                            @if (Model.orderDetails.order.PaymentMethod == "DOC")
+                            {
+                                <input type="radio" id="doc" name="paymentMethod" value="DOC" checked="checked"/><label>DOC</label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="doc" name="paymentMethod" value="DOC" /><label>DOC</label>
+                            }
+                            @if (Model.orderDetails.order.PaymentMethod == "Credit Card")
+                            {
+                                <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" checked="checked"/><label>Credit Card </label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>
+                            }
+                            @if (Model.orderDetails.order.PaymentMethod == "Cash")
+                            {
+                                <input type="radio" id="cash" name="paymentMethod" value="Cash" checked="checked"/><label>Cash </label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>
+                            }
+                            @if (Model.orderDetails.order.PaymentMethod == "Check")
+                            {
+                                <input type="radio" id="check" name="paymentMethod" value="Check" checked="checked"/><label>Check </label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>
+                            }
                         </div>
                         <div class="form-group" id="creditCardInfoDiv" style="display: none;">
                             <div class="form-group">
@@ -254,15 +303,15 @@
                     </div>
                     <div class="form-group">
                         <label>Greetings</label>
-                        <textarea type="text" class="form-control" name="greetings" id="greetings" value="@Model.orderDetails.order.Greetings" placeholder="Greetings"></textarea>
+                        <textarea type="text" class="form-control" name="greetings" id="greetings" @*value="@Model.orderDetails.order.Greetings"*@ placeholder="Greetings">@Model.orderDetails.order.Greetings</textarea>
                     </div>
                     <div class="form-group">
                         <label>Notes</label>
-                        <textarea type="text" class="form-control" name="notes" id="notes" value="@Model.orderDetails.order.Notes" placeholder="Notes"></textarea>
+                        <textarea type="text" class="form-control" name="notes" id="notes" @*value="@Model.orderDetails.order.Notes"*@ placeholder="Notes">@Model.orderDetails.order.Notes</textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success" id="orderSubmitBtn" type="submit" data-dismiss="modal">Submit</button>
+                    <button class="btn btn-success" id="EditOrderSubmitBtn" data-orderId=@Model.orderDetails.order.Id type="submit" data-dismiss="modal">Submit</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>

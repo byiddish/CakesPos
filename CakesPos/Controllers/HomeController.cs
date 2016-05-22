@@ -252,5 +252,15 @@ namespace CakesPos.Controllers
             return null;
         }
 
+        [HttpPost]
+        public ActionResult UpdateOrderById(int orderId, int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid)
+        {
+            DateTime dateTime = DateTime.Now;
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.DeleteOrderDetailsById(orderId);
+            cpr.UpdateOrderById(orderId, customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes, greetings, deliveryNote, paid);
+            return null;
+        }
+
     }
 }

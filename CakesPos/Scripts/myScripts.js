@@ -50,12 +50,18 @@
 
     $("#orderSubmitBtn").on('click', function () {
         var discount = parseFloat($('.discount').val());
+        if ($('input[name=paymentMethod]:checked').val() === "DOC") {
+            paid = false;
+        }
+        else {
+            paid = true;
+        }
 
         discount = discount || 0;
         $.post("/home/AddOrder", {
             customerId: $('#customerIdCheckout').val(),
             requiredDate: $('#requiredDate').val(),
-            deliveryOpt: deliveryMethod,
+            deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
             deliveryFirstName: $('#deliveryFirstName').val(),
             deliveryLastName: $('#deliveryLastName').val(),
             deliveryAddress: $('#deliveryAddress').val(),
@@ -66,7 +72,7 @@
             creditCard: $('#creditCardNumber').val(),
             expiration: $('#expiration').val(),
             securityCode: $('#securityCode').val(),
-            paymentMethod: paymentMethod,
+            paymentMethod: $('input[name=paymentMethod]:checked').val(),
             discount: discount,
             notes: $('#notes').val(),
             greetings: $('#greetings').val(),
@@ -88,6 +94,57 @@
                     }, function () { });
                 })
             })
+    });
+
+    $("#EditOrderSubmitBtn").on('click', function () {
+        var orderId = $(this).data('orderid');
+        var discount = parseFloat($('.discount').val());
+        if ($('input[name=paymentMethod]:checked').val() === "DOC") {
+            paid = false;
+        }
+        else {
+            paid = true;
+        }
+
+        discount = discount || 0;
+        $.post("/home/UpdateOrderById", {
+            orderId: orderId,
+            customerId: $('#customerIdCheckout').val(),
+            requiredDate: $('#requiredDate').val(),
+            deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
+            deliveryFirstName: $('#deliveryFirstName').val(),
+            deliveryLastName: $('#deliveryLastName').val(),
+            deliveryAddress: $('#deliveryAddress').val(),
+            deliveryCity: $('#deliveryCity').val(),
+            deliveryState: $('#deliveryState').val(),
+            deliveryZip: $('#deliveryZip').val(),
+            phone: $('#deliveryPhone').val(),
+            creditCard: $('#creditCardNumber').val(),
+            expiration: $('#expiration').val(),
+            securityCode: $('#securityCode').val(),
+            paymentMethod: $('input[name=paymentMethod]:checked').val(),
+            discount: discount,
+            notes: $('#notes').val(),
+            greetings: $('#greetings').val(),
+            deliveryNote: $('#orderDeliveryNote').val(),
+            paid: paid
+        },
+            function () {
+                $('#orderTable').find('tr').not(':first').each(function () {
+                    var product = $(this);
+                    var productId = product.data('id');
+                    var price = product.data('price');
+                    var quantity = $(this).find('input.q').val();
+
+                    $.post("/home/AddOrderDetails", {
+                        orderId: orderId,
+                        productId: productId,
+                        unitPrice: price,
+                        quantity: quantity
+                    }, function () { });
+                })
+            })
+        alert("Order #" + orderId + " updated successfuly!");
     });
 
     $(".categorybtn").on('click', function () {
