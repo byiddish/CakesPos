@@ -103,8 +103,8 @@ img {
 .med-modal {
     width: 35% !important;
     max-width: 1200px !important;
-    max-height:100% !important;
-    /*overflow: scroll !important;*/
+    max-height: 900px !important;
+    overflow: scroll !important;
 }
 
 /*.info-panel {
@@ -156,51 +156,51 @@ img {
     width: 255px;
 }
 
-.thInv{
+.thInv {
     background-color: saddlebrown;
     color: white;
     text-align: center;
 }
 
-.invQuantityInput{
-    width:60px;
-    height:34px;
-    font-size:large;
+.invQuantityInput {
+    width: 60px;
+    height: 34px;
+    font-size: large;
 }
 
-#amountPay{
-    width:200px;
+#amountPay {
+    width: 200px;
 }
 
-#deliveryDiv{
-    margin-top:100px;
+#deliveryDiv {
+    margin-top: 100px;
 }
 
 .deliveryInfoDiv.minimized {
-    height:40px;
+    height: 40px;
 }
 
-.h{
-    width:28px;
-    height:28px;
+.h {
+    width: 28px;
+    height: 28px;
 }
 
-.deliveryLeftDiv{
-    float:left;
+.deliveryLeftDiv {
+    float: left;
     /*width:45%;*/
-    width:33%
+    width: 33%;
 }
 
-.deliveryMiddleDiv{
-    float:left;
-    width:33%;
+.deliveryMiddleDiv {
+    float: left;
+    width: 33%;
 }
 
-.deliveryRightDiv{
-    float:left;
+.deliveryRightDiv {
+    float: left;
     /*margin-left:50px;*/
     /*width:45%;*/
-    width:30%;
+    width: 30%;
 }
 
 /*#orderDeliveryNote{

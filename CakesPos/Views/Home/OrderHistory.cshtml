@@ -40,13 +40,13 @@
             if (o.discount < 1)
             {
 
-                decimal x = cpr.GetTotalByOrderId(o.id);
+                decimal x = (decimal)cpr.GetTotalByOrderId(o.id,o.customerId);
                 decimal discount = x * o.discount;
                 total = x - discount;
             }
             else
             {
-                total = cpr.GetTotalByOrderId(o.id) - o.discount;
+                total = (decimal)cpr.GetTotalByOrderId(o.id,o.customerId) - o.discount;
             }
             <tr class="history">
                 <td>@o.lastName @o.firstName</td>
@@ -79,7 +79,7 @@
                 }
 
                 <td>
-                    <button class="btn btn-info viewDetailsBtn" data-orderid=@o.id data-customerid=@o.customerId >View Details</button>
+                    <button class="btn btn-info viewDetailsBtn" data-caterer="@o.caterer" data-orderid=@o.id data-customerid=@o.customerId >View Details</button>
                     <button class="btn btn-success paymentBtn" data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#paymentModal">Payment</button>
                 </td>
             </tr>

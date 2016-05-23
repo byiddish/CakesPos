@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace CakesPos.Data
 {
     public class CakesPosRepository
@@ -177,6 +178,7 @@ namespace CakesPos.Data
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
+                    oh.caterer = c.Caterer;
 
                     orders.Add(oh);
                 }
@@ -200,18 +202,19 @@ namespace CakesPos.Data
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = connection.CreateCommand())
             {
-                cmd.CommandText = @"Select * from Customers
-                                    join Orders
-                                    on Orders.CustomerId=Customers.Id
-                                    Where Customers.FirstName LIKE '%' + @query + '%'  OR Customers.LastName LIKE '%' +  @query + '%' OR Customers.Phone LIKE '%' +  @query + '%' OR Customers.Cell LIKE '%' +  @query + '%' OR Orders.DeliveryOption LIKE '%' +  @query + '%'
-                                    ORDER BY Customers.LastName ASC, Customers.FirstName ASC, Orders.RequiredDate DESC";
+                cmd.CommandText = @"Select o.CreditCard,o.CustomerId,o.DeliveryAddress,o.DeliveryCity,o.DeliveryFirstName,o.DeliveryLastName,o.DeliveryNote,o.DeliveryOption,o.DeliveryState,o.DeliveryZip,o.Discount,o.Expiration,o.Greetings,o.Id AS orderId,o.Notes,o.OrderDate,o.Paid,o.PaymentMethod,o.Phone,o.RequiredDate,o.SecurityCode,c.Address,c.Caterer,c.Cell,c.City,c.Email,c.FirstName,c.Id,c.LastName,c.Phone,c.State,c.Zip
+                                    FROM Customers AS c
+                                    JOIN Orders AS o
+                                    ON  o.CustomerId= c.Id
+                                    WHERE c.FirstName LIKE '%' + @query + '%'  OR c.LastName LIKE '%' +  @query + '%' OR c.Phone LIKE '%' +  @query + '%' OR c.Cell LIKE '%' +  @query + '%' OR o.DeliveryOption LIKE '%' +  @query + '%'
+                                    ORDER BY c.LastName ASC, c.FirstName ASC, o.RequiredDate DESC";
                 cmd.Parameters.AddWithValue("@query", search);
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     OrderHistoryViewModel oh = new OrderHistoryViewModel();
-                    oh.id = (int)reader["Id"];
+                    oh.id = (int)reader["orderId"];
                     oh.customerId = (int)reader["CustomerId"];
                     oh.orderDate = (DateTime)reader["OrderDate"];
                     oh.requiredDate = (DateTime)reader["RequiredDate"];
@@ -223,6 +226,7 @@ namespace CakesPos.Data
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
+                    oh.caterer = c.Caterer;
 
                     orders.Add(oh);
                 }
@@ -231,10 +235,10 @@ namespace CakesPos.Data
             }
         }
 
-        public IEnumerable <Payment> GetPaymentsByOrderId(int id)
+        public IEnumerable<Payment> GetPaymentsByOrderId(int id)
         {
             List<Payment> payments = new List<Payment>();
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 payments = context.Payments.Where(p => p.OrderId == id).ToList();
@@ -254,7 +258,7 @@ namespace CakesPos.Data
 
         public Order GetOrderById(int orderId)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 Order order = context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
@@ -262,11 +266,11 @@ namespace CakesPos.Data
             }
         }
 
-        public IEnumerable<OrderDetail>GetOrderDetailsById(int orderId)
+        public IEnumerable<OrderDetail> GetOrderDetailsById(int orderId)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
-                context.DeferredLoadingEnabled=false;
+                context.DeferredLoadingEnabled = false;
                 IEnumerable<OrderDetail> orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
                 return orderDetails;
             }
@@ -308,16 +312,40 @@ namespace CakesPos.Data
             }
         }
 
-        public decimal GetTotalByOrderId(int orderId)
+        public double GetTotalByOrderId(int orderId, int customerId)
         {
-            decimal total = 0;
+            Customer c = GetCustomerById(customerId);
+            double total = 0;
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 IEnumerable<OrderDetail> orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
                 foreach (OrderDetail od in orderDetails)
                 {
-                    total += od.UnitPrice * od.Quantity;
+                    double catererDiscount = 0;
+                    if (c.Caterer)
+                    {
+                        Product p = GetProductById(od.ProductId);
+                        if (p.CategoryId == 1)
+                        {
+                            catererDiscount = 5;
+                            total += (double)od.UnitPrice * (double)od.Quantity - (double)od.Quantity * catererDiscount;
+                        }
+                        else if (p.CategoryId == 2)
+                        {
+                            catererDiscount = (double)od.UnitPrice * (double)od.Quantity * 0.1;
+                            total += ((double)od.Quantity * (double)od.UnitPrice - catererDiscount);
+                        }
+                        else if(p.CategoryId==5)
+                        {
+                            catererDiscount = 2.5;
+                            total += (double)od.UnitPrice * (double)od.Quantity - (double)od.Quantity * catererDiscount;
+                        }
+                    }
+                    else
+                    {
+                        total += (double)od.UnitPrice * od.Quantity;
+                    }
                 }
             }
             return total;
@@ -375,15 +403,15 @@ namespace CakesPos.Data
 
         public void DeleteOrderDetailsById(int id)
         {
-             using (var connection = new SqlConnection(_connectionString))
-             using (var cmd = connection.CreateCommand())
-             {
-                 cmd.CommandText = @"DELETE from OrderDetails
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"DELETE from OrderDetails
                                     Where OrderId=@orderId";
-                 cmd.Parameters.AddWithValue("@orderId", id);
-                 connection.Open();
-                 cmd.ExecuteNonQuery();
-             }
+                cmd.Parameters.AddWithValue("@orderId", id);
+                connection.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
 
 
@@ -444,7 +472,7 @@ namespace CakesPos.Data
                 cmd.Parameters.AddWithValue("@notes", notes);
                 cmd.Parameters.AddWithValue("@greetings", greetings);
                 cmd.Parameters.AddWithValue("@deliveryNote", deliveryNote);
-               
+
                 connection.Open();
                 cmd.ExecuteNonQuery();
             }
@@ -470,7 +498,7 @@ namespace CakesPos.Data
 
         public void MakePayment(int customerId, int orderId, decimal amount, string paymentNote)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 Payment p = new Payment();
                 p.CustomerId = customerId;

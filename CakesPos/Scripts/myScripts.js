@@ -296,6 +296,7 @@
         $('#paymentDiv').html("");
         var ordersId = $(this).data('orderid');
         var customersId = $(this).data('customerid');
+        var caterer = $(this).data('caterer');
         var subtotal = 0;
         var total = 0;
         $('#edit').attr('href', "/home/editOrder?customerId="+customersId+"&orderId="+ordersId);
@@ -320,16 +321,57 @@
             $('#greetingsBody').html("<h5>" + ordersHistory.order.Greetings + "</h5>")
             $('#odCustomerInfo').html("<h4>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h4><h4>" + ordersHistory.customer.Address + "</h4><h4>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h4><h4>Phone: " + ordersHistory.customer.Phone + "</h4><h4>Cell: "+ordersHistory.customer.Cell+"</h4><h5>"+ordersHistory.customer.Email+"</h5>");
             ordersHistory.orderedProducts.forEach(function (orderedProducts) {
-                $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + orderedProducts.quantity * orderedProducts.unitPrice + "</td></tr>")
-                subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
+                var catererDiscount = 0;
+                var catererHtml = "";
+                //var d = 0;
+                //if (caterer) {
+                //    if (orderedProducts.categoryId == 1) {
+                //        catererDiscountHtml = "(" + 5 * orderedProducts.quantity + ")";
+                //    }
+                //    else if(orderedProducts.categoryId==){
+
+                //    }
+                //}
+
+
+                if (caterer === true) {
+                    var t = (parseFloat(orderedProducts.quantity) * parseFloat(orderedProducts.unitPrice));
+                    if (orderedProducts.categoryId === 1) {
+                        catererDiscount = 5;
+                        total += (t - catererDiscount * orderedProducts.quantity);
+                    }
+                    else if (orderedProducts.categoryId === 2) {
+                        catererDiscount = t * 0.1;
+                        total += (t - catererDiscount);
+                    }
+                    else if (orderedProducts.categoryId === 5) {
+                        catererDiscount = 2.5;
+                        total += (t - catererDiscount * orderedProducts.quantity);
+                    }
+                    if (orderedProducts.caterer === true && orderedProducts.categoryId === 2) {
+                        catererHtml= (t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+                    }
+                    else {
+                        catererHtml=(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * orderedProducts.quantity + ")</span>");
+                    }
+                }
+                else {
+                    var t = (parseFloat(orderedProducts.quantity) * parseFloat(orderedProducts.unitPrice));
+                    total += t;
+                    catererHtml = t;
+                }
+
+
+                $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + catererHtml + "</td></tr>")
+                //subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
             })
             $('#odDiscount').html("Discount: " + discount);
-            $('#odSubtotal').html("Subtotal: $" + subtotal);
+            $('#odSubtotal').html("Subtotal: $" + total);
             if (discount >= 1) {
-                $('#odTotal').html("Total: $" + (subtotal - discount));
+                $('#odTotal').html("Total: $" + (total - discount));
             }
             else {
-                $('#odTotal').html("Total: $" + (subtotal - (subtotal * discount)));
+                $('#odTotal').html("Total: $" + (total - (total * discount)));
             }
         })
         $('#orderDetailsModal').modal('show');
@@ -374,9 +416,10 @@
             var lastName = ordersHistory[i].lastName;
             var customerId = ordersHistory[i].customerId;
             var payments = ordersHistory[i].payments;
+            var caterer = ordersHistory[i].caterer;
             var p=0;
             var total = 0;
-            var orderTotal = getTotal(id);
+            var orderTotal = getTotal(id,customerId);
             if (discount < 1) {
                 discount = (orderTotal * discount);
                 total = (orderTotal - discount);
@@ -410,14 +453,14 @@
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid="+id+" data-customerid="+customerId+" data-toggle="+'"modal"'+" data-target="+'"#paymentModal"'+ ">Payment</button></td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"'+caterer+'"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
         }
     }
 
-    function getTotal(id) {
+    function getTotal(id, customerId) {
         var total;
         $.ajaxSetup({ async: false });
-        $.post("/home/GetTotalByOrderId", { id: id }, function (orderTotal) {
+        $.post("/home/GetTotalByOrderId", { id: id ,customerId: customerId}, function (orderTotal) {
 
             total = orderTotal;
         })
@@ -430,6 +473,24 @@
         $(this).toggleClass('minimized');
         $(this).children('.deliveryInnerDiv:first').toggle();
     });
+
+    //$("#homeLink").on('click', function () {
+    //    window.location.href = "/home/order";
+    //})
+
+    //$("#orderHistoryLink").on('click', function () {
+    //    window.location.href = "/home/orderHistory";
+    //})
+
+    //$("#inventoryLink").on('click', function () {
+    //    window.location.href = "/home/inventory";
+    //})
+
+    //$("#deliveryLink").on('click', function () {
+    //    window.location.href = "/home/delivery";
+    //})
+
+
 
     //$('#filterDeliveryDate').on('change', function () {
     //    var x = $(this).find("option:selected").val();

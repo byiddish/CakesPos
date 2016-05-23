@@ -10,6 +10,7 @@ namespace CakesPos.Data
     {
         public int id { get; set; }
         public int customerId { get; set; }
+        public bool caterer { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
         public DateTime orderDate { get; set; }

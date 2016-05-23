@@ -221,10 +221,10 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult GetTotalByOrderId(int id)
+        public ActionResult GetTotalByOrderId(int id, int customerId)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            decimal total = cpr.GetTotalByOrderId(id);
+            double total = cpr.GetTotalByOrderId(id, customerId);
             return Json(total, JsonRequestBehavior.AllowGet);
         }
 
