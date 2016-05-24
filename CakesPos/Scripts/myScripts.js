@@ -266,7 +266,7 @@
         $('#customerIdCheckout').val(customerId);
         $('#catererDiscount').val(caterer);
         if (caterer == true) {
-            $('#catererIndicator').html("<span style="+'"color:blue"'+">*Caterer*</span>");
+            $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
         }
         $('#customerEmail').append(email);
 
@@ -299,7 +299,8 @@
         var caterer = $(this).data('caterer');
         var subtotal = 0;
         var total = 0;
-        $('#edit').attr('href', "/home/editOrder?customerId="+customersId+"&orderId="+ordersId);
+        $('#edit').attr('href', "/home/editOrder?customerId=" + customersId + "&orderId=" + ordersId);
+        $('#cancel').attr('data-id', ordersId);
         //$('#edit').attr('data-orderid', ordersId);
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
             if (ordersHistory.order.DeliveryOption === "Delivery") {
@@ -309,17 +310,17 @@
             if (ordersHistory.payments != null) {
                 ordersHistory.payments.forEach(function (p) {
                     var date = ConvertJsonDate(p.Date);
-                    var note ="("+p.PaymentNote+")";
-                    if (p.PaymentNote == ""){
+                    var note = "(" + p.PaymentNote + ")";
+                    if (p.PaymentNote == "") {
                         note = "";
                     }
-                    $('#paymentDiv').append("<h5>Payment of: $" + p.Payment1 + " on "+date+" "+note+"</h5>");
+                    $('#paymentDiv').append("<h5>Payment of: $" + p.Payment1 + " on " + date + " " + note + "</h5>");
                 })
             }
             var discount = ordersHistory.order.Discount;
             $('#notesBody').html("<h5>" + ordersHistory.order.Notes + "</h5>");
             $('#greetingsBody').html("<h5>" + ordersHistory.order.Greetings + "</h5>")
-            $('#odCustomerInfo').html("<h4>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h4><h4>" + ordersHistory.customer.Address + "</h4><h4>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h4><h4>Phone: " + ordersHistory.customer.Phone + "</h4><h4>Cell: "+ordersHistory.customer.Cell+"</h4><h5>"+ordersHistory.customer.Email+"</h5>");
+            $('#odCustomerInfo').html("<h4>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h4><h4>" + ordersHistory.customer.Address + "</h4><h4>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h4><h4>Phone: " + ordersHistory.customer.Phone + "</h4><h4>Cell: " + ordersHistory.customer.Cell + "</h4><h5>" + ordersHistory.customer.Email + "</h5>");
             ordersHistory.orderedProducts.forEach(function (orderedProducts) {
                 var catererDiscount = 0;
                 var catererHtml = "";
@@ -334,7 +335,7 @@
                 //}
 
 
-                if (caterer === true) {
+                if (caterer === true || caterer === "True") {
                     var t = (parseFloat(orderedProducts.quantity) * parseFloat(orderedProducts.unitPrice));
                     if (orderedProducts.categoryId === 1) {
                         catererDiscount = 5;
@@ -348,11 +349,11 @@
                         catererDiscount = 2.5;
                         total += (t - catererDiscount * orderedProducts.quantity);
                     }
-                    if (orderedProducts.caterer === true && orderedProducts.categoryId === 2) {
-                        catererHtml= (t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+                    if (orderedProducts.caterer === true || caterer === "True" && orderedProducts.categoryId === 2) {
+                        catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
                     }
                     else {
-                        catererHtml=(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * orderedProducts.quantity + ")</span>");
+                        catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * orderedProducts.quantity + ")</span>");
                     }
                 }
                 else {
@@ -404,6 +405,50 @@
         })
     });
 
+    $('#filterDeliveryDate').on('change', function () {
+        var x = $(this).find("option:selected").val();
+        $('.deliveryInfoDiv').remove();
+        $('#deliveryAlert').remove();
+        $.post("/Home/DeliveryFilter", { x: x }, function (deliveries) {
+            populateDeliveries(deliveries);
+        })
+    });
+
+    function populateDeliveries(deliveries) {
+        if ($.isEmptyObject(deliveries)) {
+            $('#deliveryAlertDiv').append("<h3 id=" + '"' + "deliveryAlert" + '"' + ">No deliveries for this time period...</h3>");
+        }
+        for (var i = 0, l = deliveries.length; i < l; i++) {
+            var requiredDate = ConvertJsonDate(deliveries[i].order.RequiredDate);
+            var firstName = deliveries[i].customer.FirstName;
+            var lastName = deliveries[i].customer.LastName;
+            var deliveryFirstName = deliveries[i].order.DeliveryFirstName;
+            var deliveryLastName = deliveries[i].order.DeliveryLastName;
+            var deliveryAddress = deliveries[i].order.DeliveryAddress;
+            var deliveryCity = deliveries[i].order.DeliveryCity;
+            var deliveryState = deliveries[i].order.State;
+            var deliveryZip = deliveries[i].order.DeliveryZip;
+            var deliveryPhone = deliveries[i].order.Phone;
+            var deliveryNote = deliveries[i].order.DeliveryNote;
+            $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "<button class=" + '"' + "btn btn-group-xs btn-default pull-right h" + '"' + ">-</button></div><div class=" + '"' + "panel-body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br />" + deliveryPhone + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + "></div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><textarea class=" + '"' + "form-control" + '"' + " rows=" + '"' + "3" + '"' + " id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</textarea></div></div></div></div></div>");
+
+            //for (var j = 0, l = deliveries[i].orderedProducts.length; j < l; j++) {
+            //    var quantity = deliveries[i].orderedProducts[j].quantity;
+            //    var productName = deliveries[i].orderedProducts[j].productName;
+
+               
+                //$('#deliveryInfoDiv').siblings
+            //}
+        }
+    }
+    //    ------------------------
+
+    //                                @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+    //    {
+    //                                <h5>@od.quantity - @od.productName</h5>
+    //}
+    //----------------------------------------
+
     function populateOrders(ordersHistory) {
         for (var i = 0, l = ordersHistory.length; i < l; i++) {
             var paidHtml = "<td></td>";
@@ -417,9 +462,9 @@
             var customerId = ordersHistory[i].customerId;
             var payments = ordersHistory[i].payments;
             var caterer = ordersHistory[i].caterer;
-            var p=0;
+            var p = 0;
             var total = 0;
-            var orderTotal = getTotal(id,customerId);
+            var orderTotal = getTotal(id, customerId);
             if (discount < 1) {
                 discount = (orderTotal * discount);
                 total = (orderTotal - discount);
@@ -428,16 +473,16 @@
                 total = (orderTotal - discount);
             }
 
-            payments.forEach(function(payment){
-                p+=payment.Payment1;
+            payments.forEach(function (payment) {
+                p += payment.Payment1;
             })
-            var balance=total-p;
+            var balance = total - p;
             //var total = 0;
-            if (ordersHistory[i].paid || balance<=0) {
+            if (ordersHistory[i].paid || balance <= 0) {
                 paidHtml = "<td><span style=" + '"color:green"' + ">Paid </span><span style=" + '"color:green"' + " class=" + '"glyphicon glyphicon-ok"' + "></span></td>";
             }
             else {
-                paidHtml = "<td><span style=" + '"color: red"' + ">"+balance+"</span></td>";
+                paidHtml = "<td><span style=" + '"color: red"' + ">" + balance + "</span></td>";
             }
             //var orderTotal = getTotal(id);
 
@@ -453,14 +498,14 @@
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"'+caterer+'"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
         }
     }
 
     function getTotal(id, customerId) {
         var total;
         $.ajaxSetup({ async: false });
-        $.post("/home/GetTotalByOrderId", { id: id ,customerId: customerId}, function (orderTotal) {
+        $.post("/home/GetTotalByOrderId", { id: id, customerId: customerId }, function (orderTotal) {
 
             total = orderTotal;
         })
@@ -565,6 +610,14 @@
             $('#deliveryPhone').val("")
         }
     });
+
+    $('#cancel').on('click', function () {
+        var id = $(this).data('id');
+        $.post("/home/DeleteOrder", { id: id }, function () {
+            window.location.href = ('/home/orderHistory');
+            alert("Order #" + id + " was cancelled!");
+        })
+    })
     //$('#edit').on('click', function () {
     //    var customerId = $(this).data('customerid');
     //    var orderid = $(this).data('orderid');
@@ -598,70 +651,83 @@
     //$('#customerEmail').append(order.customer.Email);
     //})
     //append(f, l)
-//})
+    //})
 
-//function append(c, o) {
-//    $.post('/home/EditOrder', { customerId: c, orderId: o }, function (order) {
-//        $('#customerHeader').append(order.customer.FirstName + " " + order.customer.lastName)
-//    })
-//}
+    //function append(c, o) {
+    //    $.post('/home/EditOrder', { customerId: c, orderId: o }, function (order) {
+    //        $('#customerHeader').append(order.customer.FirstName + " " + order.customer.lastName)
+    //    })
+    //}
 
-function ConvertJsonDate(jsonDate) {
-    var jsonDate = jsonDate.toString();
-    var value = new Date
-                (
-                     parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
-                );
-    var date = value.getMonth() +
-                             1 +
-                           "/" +
-               value.getDate() +
-                           "/" +
-           value.getFullYear();
-    return date;
-}
+    function ConvertJsonDate(jsonDate) {
+        var jsonDate = jsonDate.toString();
+        var value = new Date
+                    (
+                         parseInt(jsonDate.replace(/(^.*\()|([+-].*$)/g, ''))
+                    );
+        var date = value.getMonth() +
+                                 1 +
+                               "/" +
+                   value.getDate() +
+                               "/" +
+               value.getFullYear();
+        return date;
+    }
 
-function RefreshOrder() {
-    var total = 0;
-    var itemCount = 0;
-    var caterer = $('#catererDiscount').val();
-    $('#orderTable').find('tr').not(':first').each(function () {
-        var catererDiscount = 0;
-        var category = $(this).data('categoryid');
-        var quantity = $(this).find('input.q').val();
-        itemCount += (parseInt(quantity));
-        var price = $(this).data('price');
-        if (quantity === undefined) {
-            quantity === 0;
-        }
-        if (caterer === "true") {
-            var t = (parseFloat(quantity) * parseFloat(price));
-            if (category === 1) {
-                catererDiscount = 5;
-                total += (t - catererDiscount * quantity);
+    function RefreshOrder() {
+        var total = 0;
+        var itemCount = 0;
+        var caterer = $('#catererDiscount').val();
+        $('#orderTable').find('tr').not(':first').each(function () {
+            var catererDiscount = 0;
+            var category = $(this).data('categoryid');
+            var quantity = $(this).find('input.q').val();
+            itemCount += (parseInt(quantity));
+            var price = $(this).data('price');
+            if (quantity === undefined) {
+                quantity === 0;
             }
-            else if (category === 2) {
-                catererDiscount = t * 0.1;
-                total += (t - catererDiscount);
-            }
-            else if (category === 5) {
-                catererDiscount = 2.5;
-                total += (t - catererDiscount * quantity);
-            }
-            if (caterer === "true" && category === 2) {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+            if (caterer === "true") {
+                var t = (parseFloat(quantity) * parseFloat(price));
+                if (category === 1) {
+                    catererDiscount = 5;
+                    total += (t - catererDiscount * quantity);
+                }
+                else if (category === 2) {
+                    catererDiscount = t * 0.1;
+                    total += (t - catererDiscount);
+                }
+                else if (category === 5) {
+                    catererDiscount = 2.5;
+                    total += (t - catererDiscount * quantity);
+                }
+                if (caterer === "true" && category === 2) {
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+                }
+                else {
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
+                }
             }
             else {
-                $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
+                var t = (parseFloat(quantity) * parseFloat(price));
+                total += t;
+                $(this).find('.price').text(t)
             }
-        }
-        else {
-            var t = (parseFloat(quantity) * parseFloat(price));
-            total += t;
-            $(this).find('.price').text(t)
-        }
 
-        $('#totalItems').text("Total items: " + itemCount);
+            $('#totalItems').text("Total items: " + itemCount);
+            if (total === NaN) {
+                $('#total').text("Total: $" + 0);
+            }
+            else {
+                if (getDiscount() < 1) {
+                    var d = total * getDiscount();
+                    $('#total').text("Total: $" + (total - d));
+                }
+                else {
+                    $('#total').text("Total: $" + (total - getDiscount()));
+                }
+            }
+        });
         if (total === NaN) {
             $('#total').text("Total: $" + 0);
         }
@@ -674,18 +740,5 @@ function RefreshOrder() {
                 $('#total').text("Total: $" + (total - getDiscount()));
             }
         }
-    });
-    if (total === NaN) {
-        $('#total').text("Total: $" + 0);
     }
-    else {
-        if (getDiscount() < 1) {
-            var d = total * getDiscount();
-            $('#total').text("Total: $" + (total - d));
-        }
-        else {
-            $('#total').text("Total: $" + (total - getDiscount()));
-        }
-    }
-}
 })

@@ -14,10 +14,12 @@
             Filter Date
             <select class="form-control" id="filterDate">
                 <option value="0">Today</option>
-                <option value="1">Yesterday</option>
-                <option value="7">Last 7 Days</option>
-                <option value="30">Last 30 Days</option>
-                <option value="none">None</option>
+                <option value="1">Tommorow</option>
+                <option value="7">Next 7 Days</option>
+                <option value="30">Next 30</option>
+                <option value="-1">Yesterday</option>
+                <option value="-7">Last 7 Days</option>
+                <option value="-30">Last 30 Days</option>
             </select>
         </label>
         @*<button class="btn btn-success" id="applybtn">Apply</button>*@
@@ -79,7 +81,7 @@
                 }
 
                 <td>
-                    <button class="btn btn-info viewDetailsBtn" data-caterer="@o.caterer" data-orderid=@o.id data-customerid=@o.customerId >View Details</button>
+                    <button class="btn btn-info viewDetailsBtn" data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId >View Details</button>
                     <button class="btn btn-success paymentBtn" data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#paymentModal">Payment</button>
                 </td>
             </tr>
@@ -125,7 +127,7 @@
                                 <br />
                                 <button class="btn btn-success">Update Status</button>
                                 <a class="btn btn-warning" id="edit">Edit</a>
-                                <button class="btn btn-danger">Cancel</button>
+                                <button class="btn btn-danger" id="cancel">Cancel</button>
                             </div>
                         </div>
                     </div>

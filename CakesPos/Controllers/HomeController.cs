@@ -64,7 +64,7 @@ namespace CakesPos.Controllers
         {
             List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery");
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate==DateTime.Today);
             foreach (OrderHistoryViewModel o in orders)
             {
                 od.Add(cpr.GetOrderDetails(o.customerId, o.id));
@@ -78,12 +78,33 @@ namespace CakesPos.Controllers
             List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             DateTime today = DateTime.Today;
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate >= today.AddDays(-x) && o.requiredDate < today.AddDays(1));
-            foreach (OrderHistoryViewModel o in orders)
+            if (x <= 0)
             {
-                od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+                IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate >= today.AddDays(x) && o.requiredDate <= today);
+                foreach (OrderHistoryViewModel o in orders)
+                {
+                    od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+                }
+                return Json(od, JsonRequestBehavior.AllowGet);
             }
-            return Json(od, JsonRequestBehavior.AllowGet);
+            else if (x == -1)
+            {
+                IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate >= today.AddDays(x) && o.requiredDate < today);
+                foreach (OrderHistoryViewModel o in orders)
+                {
+                    od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+                }
+                return Json(od, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate <= today.AddDays(x) && o.requiredDate >= today);
+                foreach (OrderHistoryViewModel o in orders)
+                {
+                    od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+                }
+                return Json(od, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpPost]
@@ -91,13 +112,21 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             DateTime today = DateTime.Today;
-            if (x == 1)
+            if (x == -1)
             {
-                IEnumerable<OrderHistoryViewModel> yesterdaysOrders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(-x) && o.requiredDate < today);
+                IEnumerable<OrderHistoryViewModel> yesterdaysOrders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(x) && o.requiredDate < today);
                 return Json(yesterdaysOrders.ToList(), JsonRequestBehavior.AllowGet);
             }
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(-x) && o.requiredDate < today.AddDays(1));
-            return Json(orders.OrderByDescending(o => o.requiredDate).ToList(), JsonRequestBehavior.AllowGet);
+            else if (x <= 0)
+            {
+                IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate >= today.AddDays(x) && o.requiredDate <= today);
+                return Json(orders.OrderByDescending(o => o.requiredDate).ToList(), JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate <= today.AddDays(x) && o.requiredDate >= today);
+                return Json(orders.OrderByDescending(o => o.requiredDate).ToList(), JsonRequestBehavior.AllowGet);
+            }
         }
 
         //[HttpPost]
@@ -259,6 +288,15 @@ namespace CakesPos.Controllers
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             cpr.DeleteOrderDetailsById(orderId);
             cpr.UpdateOrderById(orderId, customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes, greetings, deliveryNote, paid);
+            return null;
+        }
+
+        [HttpPost]
+        public ActionResult DeleteOrder(int id)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.DeleteOrderDetailsById(id);
+            cpr.DeleteOrderById(id);
             return null;
         }
 

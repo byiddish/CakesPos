@@ -510,5 +510,18 @@ namespace CakesPos.Data
                 context.SubmitChanges();
             }
         }
+
+        public void DeleteOrderById(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"DELETE from Orders
+                                    Where Id=@Id";
+                cmd.Parameters.AddWithValue("@Id", id);
+                connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }
