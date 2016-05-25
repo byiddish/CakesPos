@@ -202,10 +202,13 @@
 
     $('#searchInput').on('input', function () {
         $('.customers').remove();
+        $('.message').remove();
         var s = $('#searchInput').val().toString();
         $.post("/home/Search", { search: s }, function (customers) {
-            if (s === "") {
-                $('.customers').remove();
+            if (s === "" || $.isEmptyObject(customers)) {
+                //$('.customers').remove();
+                $('#searchTable').append("<h1 class="+'"'+"message"+'"'+">No matches found...</h1>");
+
             }
             else {
                 customers.forEach(function (customer) {
@@ -301,6 +304,7 @@
         var total = 0;
         $('#edit').attr('href', "/home/editOrder?customerId=" + customersId + "&orderId=" + ordersId);
         $('#cancel').attr('data-id', ordersId);
+        $('#updateStatusBtn').attr('data-orderid', ordersId);
         //$('#edit').attr('data-orderid', ordersId);
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
             if (ordersHistory.order.DeliveryOption === "Delivery") {
@@ -426,28 +430,38 @@
             var deliveryLastName = deliveries[i].order.DeliveryLastName;
             var deliveryAddress = deliveries[i].order.DeliveryAddress;
             var deliveryCity = deliveries[i].order.DeliveryCity;
-            var deliveryState = deliveries[i].order.State;
+            var deliveryState = deliveries[i].order.DeliveryState;
             var deliveryZip = deliveries[i].order.DeliveryZip;
             var deliveryPhone = deliveries[i].order.Phone;
             var deliveryNote = deliveries[i].order.DeliveryNote;
-            $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "<button class=" + '"' + "btn btn-group-xs btn-default pull-right h" + '"' + ">-</button></div><div class=" + '"' + "panel-body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br />" + deliveryPhone + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + "></div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><textarea class=" + '"' + "form-control" + '"' + " rows=" + '"' + "3" + '"' + " id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</textarea></div></div></div></div></div>");
 
-            //for (var j = 0, l = deliveries[i].orderedProducts.length; j < l; j++) {
-            //    var quantity = deliveries[i].orderedProducts[j].quantity;
-            //    var productName = deliveries[i].orderedProducts[j].productName;
 
-               
-                //$('#deliveryInfoDiv').siblings
-            //}
+
+            var productsHtml = "";
+            var quantity = "";
+            var productName = "";
+
+            if ($.isEmptyObject(deliveries[i].orderedProducts)) {
+                productsHtml="No products for this order..."
+            }
+            else {
+                for (var j = 0, l = deliveries[i].orderedProducts.length; j < l; j++) {
+                    quantity = "";
+                    if (deliveries[i].orderedProducts != null) {
+                        quantity = deliveries[i].orderedProducts[j].quantity;
+                    }
+                    productName = "";
+                    if (deliveries[i].orderedProducts != null) {
+                        productName = deliveries[i].orderedProducts[j].productName;
+                    }
+                    productsHtml += "<h5>" + quantity + " - " + productName + "</h5>";
+                }
+            }
+
+            $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "<button class=" + '"' + "btn btn-group-xs btn-default pull-right min" + '"' + ">-</button></div><div class=" + '"' + "panel-body body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br />" + deliveryPhone + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + ">" + productsHtml + "</div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><textarea class=" + '"' + "form-control" + '"' + " rows=" + '"' + "3" + '"' + " id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</textarea></div></div></div></div></div>");
         }
     }
-    //    ------------------------
 
-    //                                @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
-    //    {
-    //                                <h5>@od.quantity - @od.productName</h5>
-    //}
-    //----------------------------------------
 
     function populateOrders(ordersHistory) {
         for (var i = 0, l = ordersHistory.length; i < l; i++) {
@@ -462,6 +476,10 @@
             var customerId = ordersHistory[i].customerId;
             var payments = ordersHistory[i].payments;
             var caterer = ordersHistory[i].caterer;
+            var status = "";
+            if (ordersHistory[i].status != null) {
+                status = ordersHistory[i].status.Status1;
+            }
             var p = 0;
             var total = 0;
             var orderTotal = getTotal(id, customerId);
@@ -498,7 +516,7 @@
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td></td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
         }
     }
 
@@ -513,11 +531,30 @@
         return total;
     };
 
-    $(".h").click(function () {
+    $('#deliveriesDiv').on('click', '.min', function () {
         //$('.toggle', this).slideToggle();
-        $(this).toggleClass('minimized');
-        $(this).children('.deliveryInnerDiv:first').toggle();
+        $(this).toggleClass(".minimized");
     });
+
+    $('#newCustomerSubmit').on('click', function () {
+        var caterer = false;
+        if ($('#caterer').is(":checked")) {
+            caterer = true;
+        }
+        var firstName = $('#firstName').val();
+        var lastName = $('#lastName').val();
+        var address = $('#address').val();
+        var city = $('#city').val();
+        var state = $('#state').val();
+        var zip = $('#zip').val();
+        var phone = $('#phone').val();
+        var cell = $('#cell').val();
+        var email = $('#email').val();
+
+        $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone: phone, cell: cell, caterer: caterer, email: email }, function () {
+            alert("New customer added!");
+        })
+    })
 
     //$("#homeLink").on('click', function () {
     //    window.location.href = "/home/order";
@@ -618,6 +655,19 @@
             alert("Order #" + id + " was cancelled!");
         })
     })
+
+    $('#updateStatusBtn').on('click', function () {
+        var orderId = $(this).data('orderid');
+        var status = $('.status:checked').val();
+        if (status == undefined) {
+            status = "";
+        }
+        $.post("/home/UpdateStatus", { orderId: orderId, status: status }, function () {
+            location.reload();
+            alert("Status updated!!!");
+        })
+    })
+
     //$('#edit').on('click', function () {
     //    var customerId = $(this).data('customerid');
     //    var orderid = $(this).data('orderid');
@@ -742,3 +792,156 @@
         }
     }
 })
+
+
+
+
+
+
+//(function ($) {
+//    "use strict";
+
+//    // Options for Message
+//    //----------------------------------------------
+//    var options = {
+//        'btn-loading': '<i class="fa fa-spinner fa-pulse"></i>',
+//        'btn-success': '<i class="fa fa-check"></i>',
+//        'btn-error': '<i class="fa fa-remove"></i>',
+//        'msg-success': 'All Good! Redirecting...',
+//        'msg-error': 'Wrong login credentials!',
+//        'useAJAX': true,
+//    };
+
+//    // Login Form
+//    //----------------------------------------------
+//    // Validation
+//    $("#login-form").validate({
+//        rules: {
+//            lg_username: "required",
+//            lg_password: "required",
+//        },
+//        errorClass: "form-invalid"
+//    });
+
+//    // Form Submission
+//    $("#login-form").submit(function () {
+//        remove_loading($(this));
+
+//        if (options['useAJAX'] == true) {
+//            // Dummy AJAX request (Replace this with your AJAX code)
+//            // If you don't want to use AJAX, remove this
+//            dummy_submit_form($(this));
+
+//            // Cancel the normal submission.
+//            // If you don't want to use AJAX, remove this
+//            return false;
+//        }
+//    });
+
+//    // Register Form
+//    //----------------------------------------------
+//    // Validation
+//    $("#register-form").validate({
+//        rules: {
+//            reg_username: "required",
+//            reg_password: {
+//                required: true,
+//                minlength: 5
+//            },
+//            reg_password_confirm: {
+//                required: true,
+//                minlength: 5,
+//                equalTo: "#register-form [name=reg_password]"
+//            },
+//            reg_email: {
+//                required: true,
+//                email: true
+//            },
+//            reg_agree: "required",
+//        },
+//        errorClass: "form-invalid",
+//        errorPlacement: function (label, element) {
+//            if (element.attr("type") === "checkbox" || element.attr("type") === "radio") {
+//                element.parent().append(label); // this would append the label after all your checkboxes/labels (so the error-label will be the last element in <div class="controls"> )
+//            }
+//            else {
+//                label.insertAfter(element); // standard behaviour
+//            }
+//        }
+//    });
+
+//    // Form Submission
+//    $("#register-form").submit(function () {
+//        remove_loading($(this));
+
+//        if (options['useAJAX'] == true) {
+//            // Dummy AJAX request (Replace this with your AJAX code)
+//            // If you don't want to use AJAX, remove this
+//            dummy_submit_form($(this));
+
+//            // Cancel the normal submission.
+//            // If you don't want to use AJAX, remove this
+//            return false;
+//        }
+//    });
+
+//    // Forgot Password Form
+//    //----------------------------------------------
+//    // Validation
+//    $("#forgot-password-form").validate({
+//        rules: {
+//            fp_email: "required",
+//        },
+//        errorClass: "form-invalid"
+//    });
+
+//    // Form Submission
+//    $("#forgot-password-form").submit(function () {
+//        remove_loading($(this));
+
+//        if (options['useAJAX'] == true) {
+//            // Dummy AJAX request (Replace this with your AJAX code)
+//            // If you don't want to use AJAX, remove this
+//            dummy_submit_form($(this));
+
+//            // Cancel the normal submission.
+//            // If you don't want to use AJAX, remove this
+//            return false;
+//        }
+//    });
+
+//    // Loading
+//    //----------------------------------------------
+//    function remove_loading($form) {
+//        $form.find('[type=submit]').removeClass('error success');
+//        $form.find('.login-form-main-message').removeClass('show error success').html('');
+//    }
+
+//    function form_loading($form) {
+//        $form.find('[type=submit]').addClass('clicked').html(options['btn-loading']);
+//    }
+
+//    function form_success($form) {
+//        $form.find('[type=submit]').addClass('success').html(options['btn-success']);
+//        $form.find('.login-form-main-message').addClass('show success').html(options['msg-success']);
+//    }
+
+//    function form_failed($form) {
+//        $form.find('[type=submit]').addClass('error').html(options['btn-error']);
+//        $form.find('.login-form-main-message').addClass('show error').html(options['msg-error']);
+//    }
+
+//    // Dummy Submit Form (Remove this)
+//    //----------------------------------------------
+//    // This is just a dummy form submission. You should use your AJAX function or remove this function if you are not using AJAX.
+//    function dummy_submit_form($form) {
+//        if ($form.valid()) {
+//            form_loading($form);
+
+//            setTimeout(function () {
+//                form_success($form);
+//            }, 2000);
+//        }
+//    }
+
+//})(jQuery);

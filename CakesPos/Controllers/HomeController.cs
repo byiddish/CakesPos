@@ -64,7 +64,7 @@ namespace CakesPos.Controllers
         {
             List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate==DateTime.Today);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.deliveryOpt == "Delivery" && o.requiredDate == DateTime.Today);
             foreach (OrderHistoryViewModel o in orders)
             {
                 od.Add(cpr.GetOrderDetails(o.customerId, o.id));
@@ -205,7 +205,7 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, cell, caterer, email);
-            return RedirectToAction("Admin");
+            return null;
         }
 
         [HttpPost]
@@ -295,9 +295,24 @@ namespace CakesPos.Controllers
         public ActionResult DeleteOrder(int id)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.DeleteStatusById(id);
+            cpr.DeletePaymentsById(id);
             cpr.DeleteOrderDetailsById(id);
             cpr.DeleteOrderById(id);
             return null;
+        }
+
+        [HttpPost]
+        public ActionResult UpdateStatus(int orderId, string status)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.AddStatus(orderId, status);
+            return null;
+        }
+
+        public ActionResult Login()
+        {
+            return View();
         }
 
     }

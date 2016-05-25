@@ -175,6 +175,7 @@ namespace CakesPos.Data
                     oh.deliveryOpt = (string)reader["DeliveryOption"];
                     oh.discount = (decimal)reader["Discount"];
                     oh.payments = GetPaymentsByOrderId(oh.id);
+                    oh.status = GetLatestStatusById(oh.id);
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
@@ -223,6 +224,7 @@ namespace CakesPos.Data
                     oh.deliveryOpt = (string)reader["DeliveryOption"];
                     oh.discount = (decimal)reader["Discount"];
                     oh.payments = GetPaymentsByOrderId(oh.id);
+                    oh.status = GetLatestStatusById(oh.id);
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
@@ -521,6 +523,53 @@ namespace CakesPos.Data
                 cmd.Parameters.AddWithValue("@Id", id);
                 connection.Open();
                 cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeletePaymentsById(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"DELETE from Payments
+                                    Where OrderId=@Id";
+                cmd.Parameters.AddWithValue("@Id", id);
+                connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteStatusById(int id)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"DELETE from Status
+                                    Where OrderId=@Id";
+                cmd.Parameters.AddWithValue("@Id", id);
+                connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void AddStatus(int orderId, string status)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                Status s=new Status();
+                s.OrderId=orderId;
+                s.Status1=status;
+                context.Status.InsertOnSubmit(s);
+                context.SubmitChanges();
+            }
+        }
+
+        public Status GetLatestStatusById(int orderId)
+        {
+            using(var context=new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                return context.Status.Where(s => s.OrderId == orderId).OrderByDescending(s => s.Id).FirstOrDefault();
             }
         }
     }

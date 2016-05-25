@@ -22,7 +22,7 @@
     </label>
     <button class="btn btn-success" id="print">Print</button>
     <div id="deliveryAlertDiv">
-        @if (Model.DefaultIfEmpty() != null)
+        @if (Model.DefaultIfEmpty()!=null)
         {
                 <h3 id ="deliveryAlert">No deliveries for this time period...</h3>
         }
@@ -35,17 +35,26 @@
             <div class="deliveryInfoDiv">
                 <div class="panel panel-info deliveryInnerDiv">
                     <div class="panel-heading">
-                        @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName<button class="btn btn-group-xs btn-default pull-right h">-</button>
+                        @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName<button class="btn btn-group-xs btn-default pull-right min">-</button>
                     </div>
-                    <div class="panel-body">
+                    <div class="panel-body body">
                         <div class="deliveryLeftDiv">
                             <h4>@o.order.DeliveryFirstName @o.order.DeliveryLastName<br />@o.order.DeliveryAddress<br />@o.order.DeliveryCity @o.order.DeliveryState @o.order.DeliveryZip<br />@o.order.Phone</h4>
                         </div>
                         <div class="deliveryMiddleDiv">
-                            @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+                            @if(o.orderedProducts.Count()==0)
                             {
-                                <h5>@od.quantity - @od.productName</h5>
+                            <h5>No products fo this order...</h5>
                             }
+                            else
+                            {
+                                foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+                                {
+
+                                    <h5>@od.quantity - @od.productName</h5>
+                                }
+                            }
+
                         </div>
                         <div class="deliveryRightDiv">
                             <div class="form-group">

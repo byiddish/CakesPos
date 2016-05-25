@@ -176,11 +176,11 @@ img {
     margin-top: 100px;
 }
 
-.deliveryInfoDiv.minimized {
+.min.minimized {
     height: 40px;
 }
 
-.h {
+.min {
     width: 28px;
     height: 28px;
 }
@@ -206,3 +206,5 @@ img {
 /*#orderDeliveryNote{
     width:100%;
 }*/
+
+
