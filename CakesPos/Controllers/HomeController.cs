@@ -315,5 +315,17 @@ namespace CakesPos.Controllers
             return View();
         }
 
+        [HttpPost]
+        public ActionResult CreateInvoice(int customerId, int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
+            InvoiceManager i = new InvoiceManager();
+            i.CreateInvoicePDF(o);
+            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\JustAmazingToby.pdf");
+            return null;
+        }
+
+
     }
 }

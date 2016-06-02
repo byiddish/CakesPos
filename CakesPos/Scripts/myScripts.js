@@ -50,6 +50,8 @@
 
     $("#orderSubmitBtn").on('click', function () {
         var discount = parseFloat($('.discount').val());
+        var customerId = $('#customerIdCheckout').val();
+        var ordersId;
         if ($('input[name=paymentMethod]:checked').val() === "DOC") {
             paid = false;
         }
@@ -80,6 +82,7 @@
             paid: paid
         },
             function (orderId) {
+                ordersId = orderId;
                 $('#orderTable').find('tr').not(':first').each(function () {
                     var product = $(this);
                     var productId = product.data('id');
@@ -91,8 +94,16 @@
                         productId: productId,
                         unitPrice: price,
                         quantity: quantity
-                    }, function () { });
+                    }, function () {
+                    });
                 })
+                //$.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+                //    if (customer.Caterer && customer.Email != "") {
+                //        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+
+                //        })
+                //    }
+                //})
             })
     });
 
@@ -207,7 +218,7 @@
         $.post("/home/Search", { search: s }, function (customers) {
             if (s === "" || $.isEmptyObject(customers)) {
                 //$('.customers').remove();
-                $('#searchTable').append("<h1 class="+'"'+"message"+'"'+">No matches found...</h1>");
+                $('#searchTable').append("<h1 class=" + '"' + "message" + '"' + ">No matches found...</h1>");
 
             }
             else {
@@ -442,7 +453,7 @@
             var productName = "";
 
             if ($.isEmptyObject(deliveries[i].orderedProducts)) {
-                productsHtml="No products for this order..."
+                productsHtml = "No products for this order..."
             }
             else {
                 for (var j = 0, l = deliveries[i].orderedProducts.length; j < l; j++) {
