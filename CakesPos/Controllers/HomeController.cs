@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
+using Authentications.Data;
 
 namespace CakesPos.Controllers
 {
@@ -16,6 +18,7 @@ namespace CakesPos.Controllers
             return View();
         }
 
+        //[Authorize]
         public ActionResult Order()
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
@@ -145,6 +148,7 @@ namespace CakesPos.Controllers
         //    return Json(orders, JsonRequestBehavior.AllowGet);
         //}
 
+        [AllowAnonymous]
         public ActionResult Admin()
         {
             return View();
@@ -180,6 +184,36 @@ namespace CakesPos.Controllers
 
         }
 
+        [AllowAnonymous]
+        [HttpPost]
+        public ActionResult AddUser(string username, string name, string password)
+        {
+            var mgr = new UserManager(Properties.Settings.Default.ContstrAuth);
+            mgr.AddUser(username, password, name);
+
+            return RedirectToAction("Login");
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public ActionResult Login(string username, string password)
+        {
+            var mgr = new UserManager(Properties.Settings.Default.ContstrAuth);
+            var user = mgr.GetUser(username, password);
+            if (user == null)
+            {
+                return View(new UserViewModel { Name = username });
+            }
+
+            FormsAuthentication.SetAuthCookie(user.UserName, true);
+            return RedirectToAction("Order");
+        }
+
+        public ActionResult Signout()
+        {
+            FormsAuthentication.SignOut();
+            return RedirectToAction("Login");
+        }
 
         public ActionResult AddNewProduct(string productName, decimal price, int inStock, HttpPostedFileBase image, int categoryId)
         {
@@ -310,21 +344,22 @@ namespace CakesPos.Controllers
             return null;
         }
 
+        [AllowAnonymous]
         public ActionResult Login()
         {
             return View();
         }
 
-        [HttpPost]
-        public ActionResult CreateInvoice(int customerId, int orderId)
-        {
-            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
-            InvoiceManager i = new InvoiceManager();
-            i.CreateInvoicePDF(o);
-            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\JustAmazingToby.pdf");
-            return null;
-        }
+        //[HttpPost]
+        //public ActionResult CreateInvoice(int customerId, int orderId)
+        //{
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
+        //    //InvoiceManager i = new InvoiceManager();
+        //    //i.CreateInvoicePDF(o);
+        //    //i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\JustAmazingToby.pdf");
+        //    return null;
+        //}
 
 
     }

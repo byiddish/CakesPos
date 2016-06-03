@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakesPos", "CakesPos\CakesP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakesPos.Data", "CakesPos.Data\CakesPos.Data.csproj", "{B2989967-453F-4858-92B9-047FD59FB3BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentications.Data", "Authentications.Data\Authentications.Data.csproj", "{8A338EE3-9092-44A7-ACD5-AB506562A773}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B2989967-453F-4858-92B9-047FD59FB3BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2989967-453F-4858-92B9-047FD59FB3BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2989967-453F-4858-92B9-047FD59FB3BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A338EE3-9092-44A7-ACD5-AB506562A773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A338EE3-9092-44A7-ACD5-AB506562A773}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A338EE3-9092-44A7-ACD5-AB506562A773}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A338EE3-9092-44A7-ACD5-AB506562A773}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

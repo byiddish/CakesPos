@@ -1,29 +1,57 @@
-﻿<!-- All the files that are required -->
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-<link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.13.1/jquery.validate.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+﻿@using Authentications.Data;
+@model UserViewModel
+
+
 @section Styles{
-    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+    <link href="~/Content/themes/Login.css" rel="stylesheet" />
 }
 
-<!-- Where all the magic happens -->
-<!-- LOGIN FORM -->
-<div class="text-center" style="padding:50px 0">
-    <div class="logo">Login</div>
-    <div class="login-form-1">
-        <form id="login-form" class="text-left">
-            <div class="login-form-main-message"></div>
-            <div class="main-login-form">
-                <div class="login-group">
-                    <div class="form-group">
-                        <label for="lg_password" class="sr-only">Password</label>
-                        <input type="password" class="form-control" id="lg_password" name="lg_password" placeholder="Password">
-                        <button class="success"><span class="fa fa-spinner fa-spin"></span>Updating Status</button>
-                    </div>
+
+
+<div class="container" id="loginDiv">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="pr-wrap">
+                <div class="pass-reset">
+                    <label>
+                        Enter the email you signed up with
+                    </label>
+                    <input type="email" placeholder="Email" />
+                    <input type="submit" value="Submit" class="pass-reset-submit btn btn-success btn-sm" />
                 </div>
-                <button type="submit" class="login-button"><i class="fa fa-chevron-right"></i></button>
             </div>
-        </form>
+            <div class="wrap">
+                <p class="form-title">
+                    Sign In
+                </p>
+                <form action="/home/Login" method="POST" enctype="multipart/form-data">
+                    @*<input type="text" placeholder="Username" />*@
+                    @{string username = "";}
+                    @if (Model != null)
+                    {
+                        username = Model.Name;
+                    }
+                    <input class="input-group input-lg" type="text" value="@username" name="username" placeholder="User Name" />
+                    <input class="input-group input-lg" type="password" name="password" placeholder="Password" />
+                    <button type="submit" class="btn btn-success btn-block" >Sign in</button>
+                    <div class="remember-forgot">
+                        <div class="row">
+                            @*<div class="col-md-6">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" />
+                                        Remember Me
+                                    </label>
+                                </div>
+                            </div>*@
+                            @*<div class="col-md-6 forgot-pass-content">
+                        <a href="javascript:void(0)" class="forgot-pass">Forgot Password</a>
+                    </div>*@
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
+

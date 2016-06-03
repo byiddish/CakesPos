@@ -203,6 +203,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="Content\themes\Login.css" />
     <Content Include="Content\themes\orderStyles.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -247,7 +248,9 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
@@ -272,6 +275,10 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Authentications.Data\Authentications.Data.csproj">
+      <Project>{8a338ee3-9092-44a7-acd5-ab506562a773}</Project>
+      <Name>Authentications.Data</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CakesPos.Data\CakesPos.Data.csproj">
       <Project>{b2989967-453f-4858-92b9-047fd59fb3bc}</Project>
       <Name>CakesPos.Data</Name>
