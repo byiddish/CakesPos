@@ -1,0 +1,134 @@
+﻿@model IEnumerable<CakesPos.Data.OrderHistoryViewModel>
+
+
+@section Styles{
+    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+}
+
+<div class="container well" id="orderDiv">
+    <div class="form-group">
+        <div id="filters">
+            <div id="filterByDiv">
+                <label>Filter By</label><select class="form-control" id="filterBySelect">
+                    <option value="byMonth">Filter By Month</option>
+                    <option value="byDate">Filter By Date</option>
+                </select>
+                @*<label>Search<input class="form-control" id="sea" placeholder="Search" autofocus="autofocus" /><button class="btn btn-default">-</button></label>*@
+                @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
+                    <label>To<input class="form-control" id="toInput" type="date" /></label>*@
+            </div>
+            <div id="monthFilter">
+                @*<label>
+                    Filter By Month @*<button class="btn btn-xs btn-default" id="monthMin"> <span></span> </button>*@
+                @*</label>*@
+                <div id="monthSelectionDiv">
+                    <label>Filter By Month</label><select class="form-control" id="">
+                        <option value="-30">Current Month</option>
+                        <option value="0">Jan</option>
+                        <option value="1">Feb</option>
+                        <option value="7">March</option>
+                        <option value="30">April</option>
+                        <option value="-1">May</option>
+                        <option value="-7">June</option>
+                        <option value="-30">July</option>
+                        <option value="-30">Aug</option>
+                        <option value="-30">Sep</option>
+                        <option value="-30">Nov</option>
+                        <option value="-30">Oct</option>
+                        <option value="-30">Dec</option>
+                    </select>
+                </div>
+            </div>
+            <div id="dateFilter">
+
+                @*<label>
+                    Filter By Date@*<button class="btn btn-xs btn-default" id="dateMin"> - </button>*@
+                @*</label>*@
+                <div id="dateInputDiv" style="display:none">
+                    <lable>From</lable><input class="form-control" id="fromInput" type="date" />
+                    <lable>To</lable><input class="form-control" id="toInput" type="date" />
+                    <button class="btn btn-success" id="searchDateBtn">Search</button>
+                </div>
+            </div>
+            @*<button class="btn btn-success" id="applybtn">Apply</button>*@
+        </div>
+    </div>
+    <table class="table table-bordered table-hover table-responsive table-striped" id="historysTable">
+        <tr>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Balance</th>
+            <th>Action</th>
+        </tr>
+        @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
+        {
+            var status = "";
+            if (o.status != null)
+            {
+                status = o.status.Status1;
+            }
+            CakesPos.Data.CakesPosRepository cpr = new CakesPos.Data.CakesPosRepository(@"Data Source=.\sqlexpress;Initial Catalog=CakesPos;Integrated Security=True");
+            decimal total = 0;
+            if (o.discount < 1)
+            {
+
+                decimal x = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId);
+                decimal discount = x * o.discount;
+                total = x - discount;
+            }
+            else
+            {
+                total = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId) - o.discount;
+            }
+            <tr class="history">
+                <td>@o.lastName @o.firstName</td>
+                <td>@o.total.ToString("C")</td>
+                <td><span style="color:red">@o.balance.ToString("C")</span></td>
+                <td>
+                    <button class="btn btn-info viewDetailsBtn" data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>Send Statement</button>
+                    <button class="btn btn-success paymentBtn" data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#paymentModal">Payment</button>
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div class="modal fade" id="alertEmptyInput" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Invalid Entry</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>All date inputs are nessesary!</p>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="alertInvalidInputs" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Invalid Entry</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>Date selection is invalid!</p>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>

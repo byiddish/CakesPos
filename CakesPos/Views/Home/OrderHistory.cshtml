@@ -9,7 +9,7 @@
     <div class="form-group">
         <label>Search<input class="form-control" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
         @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
-        <label>To<input class="form-control" id="toInput" type="date" /></label>*@
+            <label>To<input class="form-control" id="toInput" type="date" /></label>*@
         <label>
             Filter Date
             <select class="form-control" id="filterDate">
@@ -38,7 +38,7 @@
         @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
         {
             var status = "";
-            if(o.status!=null)
+            if (o.status != null)
             {
                 status = o.status.Status1;
             }
@@ -47,13 +47,13 @@
             if (o.discount < 1)
             {
 
-                decimal x = (decimal)cpr.GetTotalByOrderId(o.id,o.customerId);
+                decimal x = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId);
                 decimal discount = x * o.discount;
                 total = x - discount;
             }
             else
             {
-                total = (decimal)cpr.GetTotalByOrderId(o.id,o.customerId) - o.discount;
+                total = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId) - o.discount;
             }
             <tr class="history">
                 <td>@o.lastName @o.firstName</td>
@@ -68,16 +68,16 @@
                     <td>@o.deliveryOpt</td>
                 }
                 <td>@total.ToString("C")</td>
-                
+
                 <td>@status</td>
                 @{decimal balance = 0;}
-                @{decimal? payment=0;}
-                @if(o.payments!=null)
+                @{decimal? payment = 0;}
+                @if (o.payments != null)
                 {
                     payment = o.payments.Sum(p => p.Payment1);
                 }
                 @{balance = total - (decimal)payment;}
-                @if (o.paid || balance<=0)
+                @if (o.paid || balance <= 0)
                 {
                     <td class="balance"><span style="color:green">Paid </span><span style="color:green" class="glyphicon glyphicon-ok"></span></td>
                 }
@@ -87,8 +87,8 @@
                 }
 
                 <td>
-                    <button class="btn btn-info viewDetailsBtn" data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId >View Details</button>
-                    <button class="btn btn-success paymentBtn" data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#paymentModal">Payment</button>
+                    <button class="btn btn-info viewDetailsBtn" data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>View Details</button>
+                    <button class="btn btn-success paymentBtn" data-balance=@balance data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#paymentModal">Payment</button>
                 </td>
             </tr>
         }
@@ -120,7 +120,7 @@
                                         <th>Price</th>
                                     </tr>
                                 </table>
-                               
+
                             </div>
                             <div id="paymentDiv">
 
@@ -137,7 +137,7 @@
                             </div>
                         </div>
                     </div>
-                   
+
                     <div id="infoDiv">
                         <div class="panel panel-info info-panel" id="customerPanel">
                             <div class="panel-heading">
@@ -158,7 +158,7 @@
                                 Greetings
                             </div>
                             <div class="panel-body" id="greetingsBody">
-                                
+
                             </div>
                         </div>
                         <div class="panel panel-default info-panel" id="notesPanel">
@@ -191,6 +191,13 @@
             <div class="modal-body" align="center">
                 <h3 id="customerNamePay"></h3>
                 <div class="form-group">
+                    <h2>Full Amount</h2>
+                    <label class="switch">
+                        <input type="checkbox" id="fullAmountCheckbox">
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+                <div class="form-group">
                     <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
                 </div>
                 <div class="form-group">
@@ -218,14 +225,14 @@
             </div>
             <div class="modal-body" align="center">
                 @*<h3 id="customerNamePay"></h3>
-                <div class="form-group">
-                    <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
-                </div>
-                <div class="form-group">
-                    <textarea id="paymentNote" placeholder="Notes"></textarea>
-                </div>*@
+                    <div class="form-group">
+                        <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="paymentNote" placeholder="Notes"></textarea>
+                    </div>*@
                 <div class="form-group" align="center">
-                   <h1><input type="checkbox" class="checkbox checkbox-inline status" value="Picked up"/> Picked up</h1>
+                    <h1><input type="checkbox" class="checkbox checkbox-inline status" value="Picked up" /> Picked up</h1>
                 </div>
                 <div class="form-group" align="center">
                     <h1><input type="checkbox" class="checkbox checkbox-inline status" value="Delivered" /> Delivered</h1>

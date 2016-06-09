@@ -350,17 +350,36 @@ namespace CakesPos.Controllers
             return View();
         }
 
-        //[HttpPost]
-        //public ActionResult CreateInvoice(int customerId, int orderId)
-        //{
-        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-        //    OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
-        //    //InvoiceManager i = new InvoiceManager();
-        //    //i.CreateInvoicePDF(o);
-        //    //i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\JustAmazingToby.pdf");
-        //    return null;
-        //}
+        [HttpPost]
+        public ActionResult CreateInvoice(int customerId, int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
+            InvoiceManager i = new InvoiceManager();
+            i.CreateInvoicePDF(o);
+            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\lazersOrder.pdf");
+            return null;
+        }
+        
+        public ActionResult Statements()
+        {
+            DateTime min = DateTime.Now.AddMonths(-1).Date;
+            DateTime max = DateTime.Now.Date;
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetCatererOrdersByDate(min, max);
+            orders = orders.OrderBy(o => o.lastName);
+            return View(orders);
+        }
 
+
+        [HttpPost]
+        public ActionResult Statements(DateTime min, DateTime max)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<OrderHistoryViewModel> orders= cpr.GetCatererOrdersByDate(min, max);
+            orders = orders.OrderBy(o => o.lastName);
+            return Json(orders, JsonRequestBehavior.AllowGet);
+        }
 
     }
 }

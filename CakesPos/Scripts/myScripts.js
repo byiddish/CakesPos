@@ -1,4 +1,17 @@
-﻿$(function () {
+﻿
+$(window).load(function () {
+    $(".loader").fadeOut("slow");
+})
+
+$(document).ajaxStart(function () {
+    $(".loader").fadeOut("slow");
+});
+//$(document).ajaxComplete(function () {
+//    $(".loader").css("display", "none");
+//});
+
+
+$(function () {
     var deliveryMethod = "";
     var paymentMethod = "";
     var paid = false;
@@ -97,13 +110,13 @@
                     }, function () {
                     });
                 })
-                //$.post("/home/GetCustomerById", { id: customerId }, function (customer) {
-                //    if (customer.Caterer && customer.Email != "") {
-                //        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+                $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+                    if (customer.Caterer && customer.Email != "") {
+                        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
 
-                //        })
-                //    }
-                //})
+                        })
+                    }
+                })
             })
     });
 
@@ -496,16 +509,16 @@
             var orderTotal = getTotal(id, customerId);
             if (discount < 1) {
                 discount = (orderTotal * discount);
-                total = (orderTotal - discount);
+                total = parseFloat((orderTotal - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
             }
             else {
-                total = (orderTotal - discount);
+                total = parseFloat((orderTotal - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
             }
 
             payments.forEach(function (payment) {
                 p += payment.Payment1;
             })
-            var balance = total - p;
+            var balance = parseFloat(total - p, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
             //var total = 0;
             if (ordersHistory[i].paid || balance <= 0) {
                 paidHtml = "<td><span style=" + '"color:green"' + ">Paid </span><span style=" + '"color:green"' + " class=" + '"glyphicon glyphicon-ok"' + "></span></td>";
@@ -527,7 +540,19 @@
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
+        }
+    }
+
+    function populateCatererOrders(ordersHistory) {
+        for (var i = 0, l = ordersHistory.length; i < l; i++) {
+            var customerId = ordersHistory[i].customerId;
+            var firstName = ordersHistory[i].firstName;
+            var lastName = ordersHistory[i].lastName;
+            var balance = '$' + parseFloat(ordersHistory[i].balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+            var total = '$' + parseFloat(ordersHistory[i].total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+
+            $('#historysTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + total + "</td><td><span style=" + '"color: red"' + ">" + balance + "</span></td><td><button class=" + '"btn btn-info sendStatement"' + "data-customerid=" + '"' + customerId + '"' + ">Send Statement</button><button class=" + '"btn btn-success paymentBtn"' + " data-customerid=" + customerId + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
         }
     }
 
@@ -563,8 +588,31 @@
         var email = $('#email').val();
 
         $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone: phone, cell: cell, caterer: caterer, email: email }, function () {
-            alert("New customer added!");
+            $('#alertNewCustomerAdded').modal();
         })
+
+        $('#customerHeader').text("");
+        $('#customerAddress').text("");
+        $('#customerPhone').text("");
+        $('#customerId').val("");
+        $('#customerIdCheckout').val("");
+        $('#discountInput').val("");
+        $('#catererIndicator').html("");
+        $('#customerEmail').text("");
+
+        $('#customerHeader').append(firstName + " " + lastName);
+        $('#customerAddress').append(address);
+        $('#customerPhone').append(phone);
+        $('#customerId').val(customerId);
+        //$('#searchCustomerModal').modal('toggle');
+        $('.customers').remove();
+        $('#searchInput').val("");
+        $('#customerIdCheckout').val(customerId);
+        $('#catererDiscount').val(caterer);
+        if (caterer == true) {
+            $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
+        }
+        $('#customerEmail').append(email);
     })
 
     //$("#homeLink").on('click', function () {
@@ -616,8 +664,22 @@
     $('#historyTable').on('click', '.paymentBtn', function () {
         var customerId = $(this).data('customerid');
         var orderId = $(this).data('orderid');
+        var balance = $(this).data('balance');
         $('#processPaymentBtn').attr('data-customerid', customerId);
         $('#processPaymentBtn').attr('data-orderid', orderId);
+        $('#processPaymentBtn').attr('data-balance', balance);
+    })
+
+    $('#placeOrderBtn').on('click', function () {
+        if ($('#customerIdCheckout').val() === "") {
+            $('#alertInvalidCustomer').modal();
+        }
+        else if ($('#orderTable tr').length<2) {
+            $('#alertInvalidOrder').modal();
+        }
+        else{
+            $('#checkoutModal').modal();
+        }
     })
 
     $('#processPaymentBtn').on('click', function () {
@@ -678,6 +740,62 @@
             alert("Status updated!!!");
         })
     })
+
+    $('#fullAmountCheckbox').change(function () {
+        if (this.checked) {
+            var balance = $('#processPaymentBtn').data('balance');
+            $('#amountPay').val(parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())
+        }
+        else {
+            $('#amountPay').val("");
+        }
+    })
+
+    //$('#monthMin').on('click', function () {
+    //    $('#monthSelectionDiv').slideToggle();
+    //});
+
+    //$('#dateMin').on('click', function () {
+    //    $('#monthSelectionDiv').slideToggle();
+    //});
+
+    
+    $('#filterBySelect').on('change', function () {
+        var x = $(this).find("option:selected").val();
+        if (x === "byMonth") {
+            $('#dateInputDiv').hide();
+            $('#monthSelectionDiv').slideToggle();
+        }
+        else {
+            $('#monthSelectionDiv').hide();
+            $('#dateInputDiv').slideToggle();
+        }
+    })
+
+    $('#searchDateBtn').on('click', function () {
+        if ($('#fromInput').val() === "" || $('#toInput').val() === "") {
+            $('#alertEmptyInput').modal();
+        }
+        else if ($('#fromInput').val() > $('#toInput').val()) {
+            $('#alertInvalidInputs').modal();
+        }
+        else {
+
+            var min = $('#fromInput').val();
+            var max = $('#toInput').val();
+
+            $.post("/home/Statements", { min: min, max: max }, function (orders) {
+                $("#historysTable").find("tr:gt(0)").remove();
+                populateCatererOrders(orders);
+            })
+        }
+    })
+
+    $('#newCustomerBtn').on('click', function () {
+        var phone = $('#searchInput').val();
+        $('#phone').val(phone);
+    })
+        
 
     //$('#edit').on('click', function () {
     //    var customerId = $(this).data('customerid');

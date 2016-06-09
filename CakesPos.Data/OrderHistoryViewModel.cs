@@ -21,6 +21,8 @@ namespace CakesPos.Data
         public decimal amount { get; set; }
         public decimal discount { get; set; }
         public Status status { get; set; }
+        public decimal total { get; set; }
+        public decimal balance { get; set; }
         public IEnumerable<Payment> payments { get; set; }
     }
 }

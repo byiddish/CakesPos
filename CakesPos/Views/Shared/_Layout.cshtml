@@ -10,6 +10,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
+    <div class="loader"></div>
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -25,9 +26,16 @@
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="/home/order">Order</a></li>
                     <li><a href="/home/OrderHistory">Order History </a></li>
+                    <li><a href="/home/Statements">Statements </a></li>
                     <li><a href="/home/inventory">Inventory</a></li>
                     <li><a href="/home/delivery">Delivery</a></li>
                 </ul>
+                @if (HttpContext.Current.User.Identity.Name != "")
+                {
+                    <ul class="nav navbar-nav">
+                        <li><a href="/home/Signout">Sign Out</a></li>
+                    </ul>
+                }
             </div><!--/.nav-collapse -->
         </div>
     </nav>

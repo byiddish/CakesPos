@@ -120,7 +120,7 @@ namespace CakesPos
             string path = @"C:\Users\Barry\Documents\Pdf-Files\";
            
 
-            FileStream fs = new FileStream(path+"JustAmazingToby.pdf", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            FileStream fs = new FileStream(path+"lazersOrder.pdf", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
            
             PdfWriter.GetInstance(doc5, fs);
 
@@ -146,7 +146,7 @@ namespace CakesPos
         public void EmailInvoice(string file)
         {
             MailMessage mail = new MailMessage();
-            mail.From = new System.Net.Mail.MailAddress("\"Elegant parties\" <eleagant@gmail.com>");
+            mail.From = new System.Net.Mail.MailAddress("\"Elegant Cakes\" <elegakkk@gmail.com>");
 
             // The important part -- configuring the SMTP client
             SmtpClient smtp = new SmtpClient();
@@ -154,11 +154,11 @@ namespace CakesPos
             smtp.EnableSsl = true;
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network; // [2] Added this
             smtp.UseDefaultCredentials = false; // [3] Changed this
-            smtp.Credentials = smtp.Credentials = new NetworkCredential("elegant@gmail.com", "ggggg55");  // [4] Added this. 
+            smtp.Credentials = smtp.Credentials = new NetworkCredential("elegenthhhh@gmail.com", "eletty44");  // [4] Added this. 
             smtp.Host = "smtp.gmail.com";
 
             //recipient address
-            mail.To.Add(new MailAddress("customer.com"));
+            mail.To.Add(new MailAddress("customer@gmail.com"));
 
             //Formatted mail body
             mail.IsBodyHtml = true;

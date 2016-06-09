@@ -338,7 +338,7 @@ namespace CakesPos.Data
                             catererDiscount = (double)od.UnitPrice * (double)od.Quantity * 0.1;
                             total += ((double)od.Quantity * (double)od.UnitPrice - catererDiscount);
                         }
-                        else if(p.CategoryId==5)
+                        else if (p.CategoryId == 5)
                         {
                             catererDiscount = 2.5;
                             total += (double)od.UnitPrice * (double)od.Quantity - (double)od.Quantity * catererDiscount;
@@ -554,11 +554,11 @@ namespace CakesPos.Data
 
         public void AddStatus(int orderId, string status)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
-                Status s=new Status();
-                s.OrderId=orderId;
-                s.Status1=status;
+                Status s = new Status();
+                s.OrderId = orderId;
+                s.Status1 = status;
                 context.Status.InsertOnSubmit(s);
                 context.SubmitChanges();
             }
@@ -566,10 +566,54 @@ namespace CakesPos.Data
 
         public Status GetLatestStatusById(int orderId)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 return context.Status.Where(s => s.OrderId == orderId).OrderByDescending(s => s.Id).FirstOrDefault();
+            }
+        }
+
+        public IEnumerable<OrderHistoryViewModel> GetCatererOrdersByDate(DateTime min, DateTime max)
+        {
+            List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Orders WHERE OrderDate >= @min AND OrderDate<=@max";
+                cmd.Parameters.Add("@min", min);
+                cmd.Parameters.Add("@max", max);
+                connection.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    OrderHistoryViewModel oh = new OrderHistoryViewModel();
+                    oh.id = (int)reader["Id"];
+                    oh.customerId = (int)reader["CustomerId"];
+                    oh.orderDate = (DateTime)reader["OrderDate"];
+                    oh.requiredDate = (DateTime)reader["RequiredDate"];
+                    oh.paymentMethod = (string)reader["PaymentMethod"];
+                    oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
+                    oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    oh.discount = (decimal)reader["Discount"];
+                    oh.payments = GetPaymentsByOrderId(oh.id);
+                    //oh.status = GetLatestStatusById(oh.id);
+                    Customer c = GetCustomerById(oh.customerId);
+                    oh.firstName = c.FirstName;
+                    oh.lastName = c.LastName;
+                    oh.caterer = c.Caterer;
+
+                    oh.total = (decimal)GetTotalByOrderId(oh.id, oh.customerId);
+                    oh.balance = oh.total - (decimal)oh.payments.Sum(p => p.Payment1);
+
+                    orders.Add(oh);
+                }
+                IEnumerable<OrderHistoryViewModel> filteredOrders = orders.Where(o => o.caterer == true).GroupBy(o => o.customerId).Select(group => group.First());
+                foreach(OrderHistoryViewModel o in filteredOrders)
+                {
+                    o.total=orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.total);
+                    o.balance = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.balance);
+                }
+                return filteredOrders;
             }
         }
     }
