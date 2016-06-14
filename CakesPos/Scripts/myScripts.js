@@ -540,7 +540,7 @@ $(function () {
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + " data-toggle=" + '"modal"' + " data-target=" + '"#paymentModal"' + ">Payment</button></td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + ">Payment</button></td></tr>");
         }
     }
 
@@ -668,6 +668,16 @@ $(function () {
         $('#processPaymentBtn').attr('data-customerid', customerId);
         $('#processPaymentBtn').attr('data-orderid', orderId);
         $('#processPaymentBtn').attr('data-balance', balance);
+        $('#processPaymentBtn').data('customerid', customerId);
+        $('#processPaymentBtn').data('orderid', orderId);
+        $('#processPaymentBtn').data('balance', balance);
+        $('#paymentModal').modal();
+    })
+
+    $('#paymentModal').on("hidden.bs.modal", function () {
+        $('#fullAmountCheckbox').attr('checked', false);
+        $('#amountPay').val("");
+        $('#paymentNote').val("");
     })
 
     $('#placeOrderBtn').on('click', function () {
@@ -881,10 +891,10 @@ $(function () {
                     total += (t - catererDiscount * quantity);
                 }
                 if (caterer === "true" && category === 2) {
-                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + (parseFloat(catererDiscount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + ")</span>");
                 }
                 else {
-                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * quantity + ")</span>");
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + (parseFloat((catererDiscount * quantity), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + ")</span>");
                 }
             }
             else {
@@ -894,29 +904,31 @@ $(function () {
             }
 
             $('#totalItems').text("Total items: " + itemCount);
-            if (total === NaN) {
-                $('#total').text("Total: $" + 0);
-            }
-            else {
-                if (getDiscount() < 1) {
-                    var d = total * getDiscount();
-                    $('#total').text("Total: $" + (total - d));
-                }
-                else {
-                    $('#total').text("Total: $" + (total - getDiscount()));
-                }
-            }
+            //if (total === NaN) {
+            //    $('#total').text("Total: $" +(parseFloat(0, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
+            //}
+            //else {
+            //    if (getDiscount() < 1) {
+            //        var d = total * getDiscount();
+            //        total = total - d;
+            //        $('#total').text("Total: $" + (parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
+            //    }
+            //    else {
+            //        total = total - getDiscount();
+            //        $('#total').text("Total: $" + (parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
+            //    }
+            //}
         });
         if (total === NaN) {
-            $('#total').text("Total: $" + 0);
+            $('#total').text("Total: $" + (parseFloat(0, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
         }
         else {
             if (getDiscount() < 1) {
                 var d = total * getDiscount();
-                $('#total').text("Total: $" + (total - d));
+                $('#total').text("Total: $" + (parseFloat(total-d, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
             }
             else {
-                $('#total').text("Total: $" + (total - getDiscount()));
+                $('#total').text("Total: $" + ("Total: $" + (parseFloat((total - getDiscount()), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())));
             }
         }
     }

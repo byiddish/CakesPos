@@ -357,7 +357,7 @@ namespace CakesPos.Controllers
             OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
             InvoiceManager i = new InvoiceManager();
             i.CreateInvoicePDF(o);
-            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\lazersOrder.pdf");
+            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\file.pdf");
             return null;
         }
         

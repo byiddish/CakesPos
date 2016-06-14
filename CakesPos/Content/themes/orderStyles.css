@@ -216,6 +216,11 @@ img {
     margin-top: 100px;
 }
 
+#tableDiv{
+    overflow: scroll;
+    height: 550px;
+}
+
 .loader {
     position: fixed;
     left: 0px;
