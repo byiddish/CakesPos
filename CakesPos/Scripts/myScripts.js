@@ -1138,6 +1138,43 @@ $(function () {
     //    })
     //}
 
+    $('#customersTable tr').on('click', function () {
+        var customerId = $(this).data('customerid');
+        var balance = $(this).data('balance');
+        var customer = $(this).data('customer');
+        $('#accountPayment').attr('customerid', customerId);
+        $('#accountPayment').attr('balance', balance);
+        $('#customerEdit').attr('customerid', customerId);
+        $('#customerEdit').attr('customer', customer);
+        $('.modal-title').html(customer)
+        $('#customerActionModal').modal();
+    })
+
+    $('#accountPayment').on('click', function () {
+        var customerId = $(this).attr('customerid');
+        var balance = $(this).attr('balance');
+        $('#accountPaymentBtn').attr('customerid', customerId);
+        $('#accountPaymentBtn').attr('balance', balance);
+        $('#accountPaymentModal').modal();
+    })
+
+    $('#accountFullAmountCheckbox').change(function () {
+        if (this.checked) {
+            var balance = $('#accountPaymentBtn').attr('balance');
+            //$('#amountPay').val(parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())
+            $('#amountPay').val(balance);
+        }
+        else {
+            $('#amountPay').val("");
+        }
+    })
+
+    $('#customerEdit').on('click', function () {
+        var customer = $(this).attr('customer');
+        $('.modal-title').html(customer)
+        $('#EditCustomerModal').modal();
+    })
+
     function ConvertJsonDate(jsonDate) {
         var jsonDate = jsonDate.toString();
         var value = new Date
