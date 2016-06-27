@@ -59,9 +59,15 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             //IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders();
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.SearchOrders("", 0, "open");
             return View(orders);
         }
+
+        //[HttpPost]
+        //public ActionResult GetOrderHistoryFiltered(string name, int date, string opt)
+        //{
+
+        //}
 
         public ActionResult Delivery()
         {
@@ -251,10 +257,10 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult HistorySearch(string search)
+        public ActionResult HistorySearch(string search, int x, string opt)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> ordersHistory = cpr.SearchOrders(search).Take(35);
+            IEnumerable<OrderHistoryViewModel> ordersHistory = cpr.SearchOrders(search, x, opt);
             return Json(ordersHistory, JsonRequestBehavior.AllowGet);
         }
 
@@ -281,6 +287,13 @@ namespace CakesPos.Controllers
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             OrderDetailsViewModel orderHistory = cpr.GetOrderDetails(orderId, customerId);
             return Json(orderHistory, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetOrderStatus(int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return Json(cpr.GetLatestStatusById(orderId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -351,24 +364,94 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
+        public ActionResult CreateInvoiceEmail(int customerId, int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
+            InvoiceManager i = new InvoiceManager();
+            i.CreateInvoicePDF(o);
+            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\" + orderId + ".pdf", o.customer.Email);
+            return null;
+        }
+
+        [HttpPost]
         public ActionResult CreateInvoice(int customerId, int orderId)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             OrderDetailsViewModel o = cpr.GetOrderDetails(customerId, orderId);
             InvoiceManager i = new InvoiceManager();
             i.CreateInvoicePDF(o);
-            i.EmailInvoice(@"C:\Users\Barry\Documents\Pdf-Files\file.pdf");
             return null;
         }
-        
+
+        [HttpPost]
+        public ActionResult DeductFromAccount(int customerId, decimal amount)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.DeductFromAccount(customerId, amount);
+            return null;
+        }
+
         public ActionResult Statements()
         {
-            DateTime min = DateTime.Now.AddMonths(-1).Date;
-            DateTime max = DateTime.Now.Date;
+            //DateTime min = DateTime.Now.AddMonths(-1).Date;
+            //DateTime max = DateTime.Now.Date;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders = cpr.GetCatererOrdersByDate(min, max);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetCatererOrdersForStatements();
             orders = orders.OrderBy(o => o.lastName);
             return View(orders);
+        }
+
+        [HttpPost]
+        public ActionResult GenerateStatementEmail(int customerId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            int id = cpr.GenerateStatement(customerId);
+            StatementsModel s = cpr.GetStatementsForPdf(id, customerId);
+            StatementManager sm = new StatementManager();
+            sm.CreateStatementPDF(s, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
+            cpr.AddStatementFilePath(s.Statement.Id, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
+            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
+            //Statement s=cpr.GetStatementByCustomerId(customerId);
+            //StatementManager sm = new StatementManager();
+            //sm.CreateStatementPDF(s, @"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf");
+            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.StatementDate.ToShortDateString());
+            //cpr.AddStatementsFilePath()
+            return null;
+        }
+
+        [HttpPost]
+        public ActionResult GenerateStatementPrint(int customerId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            int id = cpr.GenerateStatement(customerId);
+            StatementsModel s = cpr.GetStatementsForPdf(id, customerId);
+            StatementManager sm = new StatementManager();
+            sm.CreateStatementPDF(s, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
+            cpr.AddStatementFilePath(s.Statement.Id, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
+            return Json(id, JsonRequestBehavior.AllowGet);
+            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
+            //Statement s=cpr.GetStatementByCustomerId(customerId);
+            //StatementManager sm = new StatementManager();
+            //sm.CreateStatementPDF(s, @"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf");
+            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.StatementDate.ToShortDateString());
+            //cpr.AddStatementsFilePath()
+        }
+
+        [HttpGet]
+        public ActionResult GetOpenStatements()
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<StatementsModel> statements = cpr.GetAllOpenStatements();
+            return Json(statements, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult AddStatementPayment(int customerId, int statementId, decimal amount, string paymentNote)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.AddStatementPayment(customerId, statementId, amount, paymentNote);
+            return null;
         }
 
 
@@ -376,9 +459,29 @@ namespace CakesPos.Controllers
         public ActionResult Statements(DateTime min, DateTime max)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            IEnumerable<OrderHistoryViewModel> orders= cpr.GetCatererOrdersByDate(min, max);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetCatererOrdersByDate(min, max);
             orders = orders.OrderBy(o => o.lastName);
             return Json(orders, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult GetStatementsFiltered(string search, string filter)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return Json(cpr.GetStatementsFiltered(search, filter), JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult Customers()
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return View(cpr.GetAllCustomers());
+        }
+
+        [HttpPost]
+        public ActionResult SearchCustomer(string search)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return Json(cpr.SearchCustomers(search), JsonRequestBehavior.AllowGet);
         }
 
     }

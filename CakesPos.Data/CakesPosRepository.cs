@@ -91,6 +91,8 @@ namespace CakesPos.Data
             o.Notes = notes;
             o.Greetings = greetings;
             o.DeliveryNote = deliveryNote;
+            o.Statement = false;
+            o.Invoice = false;
             //Payment p = new Payment();
             //p.CustomerId = customerId;
             //p.PaymentMethod = paymentMethod;
@@ -150,7 +152,7 @@ namespace CakesPos.Data
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
-                return context.Customers.ToList();
+                return context.Customers.ToList().OrderBy(c => c.LastName).OrderBy(c => c.FirstName);
             }
         }
 
@@ -193,21 +195,74 @@ namespace CakesPos.Data
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
-                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList();
+                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList().OrderBy(c => c.LastName).OrderBy(c => c.FirstName);
             }
         }
 
-        public IEnumerable<OrderHistoryViewModel> SearchOrders(string search)
+        //public IEnumerable<OrderHistoryViewModel> SearchOrders(string search, int x, string opt)
+        //{
+        //    List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
+        //    using (var connection = new SqlConnection(_connectionString))
+        //    using (var cmd = connection.CreateCommand())
+        //    {
+
+        //    }
+        //}
+
+        public IEnumerable<OrderHistoryViewModel> SearchOrders(string search, int x, string opt)
         {
+            DateTime today = DateTime.Now.Date;
+            string com = "";
+            string option = "";
+            if (x == 8)
+            {
+                com = "";
+            }
+            else if (x == -1)
+            {
+                com = "o.requiredDate >= " + "'" + today.AddDays(x).ToShortDateString() + "'" + " AND o.requiredDate < " + "'" + today.ToShortDateString() + "'" + "AND";
+            }
+            else if (x <= 0)
+            {
+                com = "o.requiredDate >= " + "'" + today.AddDays(x).ToShortDateString() + "'" + " AND o.requiredDate <= " + "'" + today.ToShortDateString() + "'" + "AND";
+            }
+            else if (x == 1)
+            {
+                com = "o.requiredDate =" + "'" + today.AddDays(x).ToShortDateString() + "'" + "AND";
+            }
+            else if (x == 0)
+            {
+                com = "o.requiredDate = " + "'" + today.ToShortDateString() + "'" + "AND";
+            }
+            else
+            {
+                com = "o.requiredDate <= " + "'" + today.AddDays(x).ToShortDateString() + "'" + " AND o.requiredDate >= " + "'" + today.ToShortDateString() + "'" + "AND";
+            }
+            if (opt == "open")
+            {
+                option = "((o.paid=0 AND o.Invoice=1) OR (o.paid=1 AND o.Invoice=0) OR (o.paid=0 AND o.Invoice=0))";
+            }
+            else if (opt == "delivered")
+            {
+                option = "o.Invoice=1";
+            }
+            else if (opt == "paid")
+            {
+                option = "o.paid=1";
+            }
+            else if (opt == "closed")
+            {
+                option = "o.Invoice=1 AND o.paid=1";
+            }
             List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = connection.CreateCommand())
             {
-                cmd.CommandText = @"Select o.CreditCard,o.CustomerId,o.DeliveryAddress,o.DeliveryCity,o.DeliveryFirstName,o.DeliveryLastName,o.DeliveryNote,o.DeliveryOption,o.DeliveryState,o.DeliveryZip,o.Discount,o.Expiration,o.Greetings,o.Id AS orderId,o.Notes,o.OrderDate,o.Paid,o.PaymentMethod,o.Phone,o.RequiredDate,o.SecurityCode,c.Address,c.Caterer,c.Cell,c.City,c.Email,c.FirstName,c.Id,c.LastName,c.Phone,c.State,c.Zip
+                cmd.CommandText = @"Select o.CreditCard,o.CustomerId,o.DeliveryAddress,o.DeliveryCity,o.DeliveryFirstName,o.DeliveryLastName,o.DeliveryNote,o.DeliveryOption,o.DeliveryState,o.DeliveryZip,o.Discount,o.Expiration,o.Greetings,o.Id AS orderId,o.Notes,o.OrderDate,o.Paid,o.PaymentMethod,o.Phone,o.RequiredDate,o.SecurityCode,o.[Statement],o.[Invoice],c.Address,c.Caterer,c.Cell,c.City,c.Email,c.FirstName,c.Id,c.LastName,c.Phone,c.State,c.Zip
                                     FROM Customers AS c
                                     JOIN Orders AS o
                                     ON  o.CustomerId= c.Id
-                                    WHERE c.FirstName LIKE '%' + @query + '%'  OR c.LastName LIKE '%' +  @query + '%' OR c.Phone LIKE '%' +  @query + '%' OR c.Cell LIKE '%' +  @query + '%' OR o.DeliveryOption LIKE '%' +  @query + '%'
+                                    WHERE " + option + " AND " + com + @" (c.FirstName LIKE '%' + @query + '%'  OR c.LastName LIKE '%' + @query + '%' OR c.Phone LIKE '%' + @query + '%' OR c.Cell LIKE '%' + @query + '%' OR o.DeliveryOption LIKE '%' + @query + '%')
                                     ORDER BY c.LastName ASC, c.FirstName ASC, o.RequiredDate DESC";
                 cmd.Parameters.AddWithValue("@query", search);
                 connection.Open();
@@ -500,6 +555,8 @@ namespace CakesPos.Data
 
         public void MakePayment(int customerId, int orderId, decimal amount, string paymentNote)
         {
+            var total = (decimal)GetTotalByOrderId(orderId, customerId);
+            var totalPayments = GetPaymentsByOrderId(orderId).Sum(p => p.Payment1);
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 Payment p = new Payment();
@@ -509,6 +566,11 @@ namespace CakesPos.Data
                 p.PaymentNote = paymentNote;
                 p.Date = DateTime.Now;
                 context.Payments.InsertOnSubmit(p);
+                if (totalPayments + amount >= total)
+                {
+                    var order = context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
+                    order.Paid = true;
+                }
                 context.SubmitChanges();
             }
         }
@@ -552,6 +614,26 @@ namespace CakesPos.Data
             }
         }
 
+        public bool CheckIfCaterer(int customerId)
+        {
+            Customer c = new Customer();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                c = context.Customers.Where(cust => cust.Id == customerId).FirstOrDefault();
+            }
+            return c.Caterer;
+        }
+
+        public void SetOrderInvoiced(int orderId)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                var order = context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
+                order.Invoice = true;
+                context.SubmitChanges();
+            }
+        }
+
         public void AddStatus(int orderId, string status)
         {
             using (var context = new CakesPosDataContext(_connectionString))
@@ -562,6 +644,7 @@ namespace CakesPos.Data
                 context.Status.InsertOnSubmit(s);
                 context.SubmitChanges();
             }
+            SetOrderInvoiced(orderId);
         }
 
         public Status GetLatestStatusById(int orderId)
@@ -573,6 +656,414 @@ namespace CakesPos.Data
             }
         }
 
+        public int GenerateStatement(int customerId)
+        {
+            decimal total = 0;
+            decimal payments = 0;
+            List<Order> orders = new List<Order>();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                orders = context.Orders.Where(o => o.CustomerId == customerId && o.Statement == false).ToList();
+            }
+            foreach (Order o in orders)
+            {
+                total += (decimal)GetTotalByOrderId(o.Id, customerId);
+                IEnumerable<Payment> p = GetPaymentsByOrderId(o.Id);
+                payments += (decimal)p.Sum(x => x.Payment1);
+            }
+            Statement s = new Statement();
+            s.CustomerId = customerId;
+            s.Balance = total - payments;
+            s.Date = DateTime.Now.Date;
+            s.Open = true;
+            int statementId = 0;
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                context.Statements.InsertOnSubmit(s);
+                context.SubmitChanges();
+                statementId = s.Id;
+            }
+            foreach (Order o in orders)
+            {
+                OrdersStatement os = new OrdersStatement();
+                os.OrderId = o.Id;
+                os.StatementId = statementId;
+                using (var context = new CakesPosDataContext(_connectionString))
+                {
+                    context.OrdersStatements.InsertOnSubmit(os);
+                    var order = context.Orders.Where(or => or.Id == o.Id).FirstOrDefault();
+                    order.Statement = true;
+                    context.SubmitChanges();
+                }
+            }
+            return statementId;
+        }
+
+        public void AddStatementFilePath(int id, string filePath)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                var statement = context.Statements.Where(s => s.Id == id).FirstOrDefault();
+                statement.FilePath = filePath;
+                context.SubmitChanges();
+            }
+        }
+
+        public Statement GetStatementById(int statementId)
+        {
+            Statement Statement = new Statement();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                Statement = context.Statements.Where(s => s.Id == statementId).FirstOrDefault();
+            }
+            return Statement;
+        }
+
+        public IEnumerable<OrderDetailsViewModel> GetStatementOrders(int statementId, int customerId)
+        {
+            List<OrderDetailsViewModel> orders = new List<OrderDetailsViewModel>();
+            List<OrdersStatement> ordersStatements = new List<OrdersStatement>();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                ordersStatements = context.OrdersStatements.Where(o => o.StatementId == statementId).ToList();
+            }
+            foreach (OrdersStatement o in ordersStatements)
+            {
+                orders.Add(GetOrderDetails(customerId, o.OrderId));
+            }
+            return orders;
+        }
+
+        public StatementsModel GetStatementsForPdf(int statementId, int customerId)
+        {
+            StatementsModel s = new StatementsModel();
+            s.Statement = GetStatementById(statementId);
+            s.Orders = GetStatementOrders(statementId, customerId);
+            return s;
+        }
+
+        public IEnumerable<StatementsModel> GetAllOpenStatements()
+        {
+            List<StatementsModel> sModel = new List<StatementsModel>();
+            List<Statement> statements = new List<Statement>();
+            List<OrdersStatement> ordersStatements = new List<OrdersStatement>();
+
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                statements = context.Statements.Where(s => s.Open != false).ToList();
+            }
+            foreach (Statement s in statements)
+            {
+                List<OrderDetailsViewModel> orders = new List<OrderDetailsViewModel>();
+                List<StatementPayment> payments = new List<StatementPayment>();
+                StatementsModel sm = new StatementsModel();
+                sm.Statement = s;
+                using (var context = new CakesPosDataContext(_connectionString))
+                {
+                    context.DeferredLoadingEnabled = false;
+                    payments = context.StatementPayments.Where(p => p.StatementId == s.Id).ToList();
+                    ordersStatements = context.OrdersStatements.Where(o => o.StatementId == s.Id).ToList();
+                }
+                foreach (OrdersStatement o in ordersStatements)
+                {
+                    orders.Add(GetOrderDetails((int)s.CustomerId, o.OrderId));
+                }
+                sm.Payments = payments;
+                sm.Orders = orders;
+                sModel.Add(sm);
+            }
+            return sModel;
+        }
+
+        public IEnumerable<int> GetCustomerIdBySearch(string search)
+        {
+            List<int> customerIds = new List<int>();
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * FROM Customers 
+                                WHERE FirstName LIKE '%' + @query + '%'  OR LastName LIKE '%' + @query + '%'";
+                cmd.Parameters.AddWithValue("@query", search);
+                connection.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    customerIds.Add((int)reader["Id"]);
+                }
+            }
+            return customerIds;
+        }
+
+        public IEnumerable<StatementsModel> GetStatementsFiltered(string search, string filter)
+        {
+            bool open = true;
+            IEnumerable<int> ids = GetCustomerIdBySearch(search);
+            List<StatementsModel> sModel = new List<StatementsModel>();
+            List<Statement> statements = new List<Statement>();
+            List<OrdersStatement> ordersStatements = new List<OrdersStatement>();
+
+            if (filter == "closed")
+            {
+                open = false;
+            }
+            if (filter == "closed" || filter == "open")
+            {
+                foreach (int id in ids)
+                {
+                    using (var context = new CakesPosDataContext(_connectionString))
+                    {
+                        context.DeferredLoadingEnabled = false;
+                        statements.AddRange(context.Statements.Where(s => s.CustomerId == id && s.Open == open).ToList());
+                    }
+                }
+            }
+            else
+            {
+                foreach (int id in ids)
+                {
+                    using (var context = new CakesPosDataContext(_connectionString))
+                    {
+                        context.DeferredLoadingEnabled = false;
+                        statements.AddRange(context.Statements.Where(s => s.CustomerId == id).ToList());
+                    }
+                }
+            }
+
+            foreach (Statement s in statements)
+            {
+                List<OrderDetailsViewModel> orders = new List<OrderDetailsViewModel>();
+                List<StatementPayment> payments = new List<StatementPayment>();
+                StatementsModel sm = new StatementsModel();
+                sm.Statement = s;
+                using (var context = new CakesPosDataContext(_connectionString))
+                {
+                    context.DeferredLoadingEnabled = false;
+                    payments = context.StatementPayments.Where(p => p.StatementId == s.Id).ToList();
+                    ordersStatements = context.OrdersStatements.Where(o => o.StatementId == s.Id).ToList();
+                }
+                foreach (OrdersStatement o in ordersStatements)
+                {
+                    orders.Add(GetOrderDetails((int)s.CustomerId, o.OrderId));
+                }
+                sm.Payments = payments;
+                sm.Orders = orders;
+                sModel.Add(sm);
+            }
+            return sModel;
+        }
+
+
+
+        //public Statement GetStatementByCustomerId(int customerId)
+        //{
+        //    Statement s = new Statement();
+        //    List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
+        //    IEnumerable<OrderHistoryViewModel> oh = GetOrdersForStatementById(customerId);
+        //    foreach (OrderHistoryViewModel o in oh)
+        //    {
+        //        od.Add(GetOrderDetails(customerId, o.id));
+        //        UpdateOrderAsStatement(o.id);
+        //    }
+        //    s.Orders = od;
+        //    s.StatementDate = DateTime.Now.Date;
+        //    s.StatementNumber = AddStatement(s);
+        //    return s;
+        //}
+
+        public void AddStatementsFilePath(int id, string path)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE Statements
+                                  SET FilePath = @filePath
+                                  WHERE Id=@id";
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@filePath", path);
+                connection.Open();
+                cmd.ExecuteScalar();
+            }
+        }
+
+        //        public int AddStatement(Statement s)
+        //        {
+        //            int id = 0;
+        //            using (var connection = new SqlConnection(_connectionString))
+        //            using (var cmd = connection.CreateCommand())
+        //            {
+        //                cmd.CommandText = @"INSERT INTO Statement
+        //                                  VALUES (@balance, @date)";
+        //                cmd.Parameters.AddWithValue("@balance", s.Total);
+        //                cmd.Parameters.AddWithValue("@date", s.StatementDate);
+        //                //cmd.Parameters.AddWithValue("@filePath", filePath);
+        //                connection.Open();
+        //                id = (int)cmd.ExecuteScalar();
+        //            }
+        //            return id;
+        //        }
+
+        //        public void UpdateOrderAsStatement(int orderId)
+        //        {
+        //            using (var connection = new SqlConnection(_connectionString))
+        //            using (var cmd = connection.CreateCommand())
+        //            {
+        //                cmd.CommandText = @"UPDATE Orders
+        //                                  SET Statement = 1
+        //                                  WHERE Id=@orderId";
+        //                cmd.Parameters.AddWithValue("@orderId", orderId);
+        //                connection.Open();
+        //                cmd.ExecuteScalar();
+        //            }
+        //        }
+
+        //public decimal GenerateStatmentTotal(List<Order> orders)
+        //{
+        //    decimal total = 0;
+        //    foreach(Order o in orders)
+        //    {
+        //        IEnumerable<OrderDetail> od= GetTotalByOrderId(orders)
+        //        foreach(OrderDetail d in od)
+        //        {
+        //            if(d.)
+        //        }
+        //    }
+        //}
+
+        public void AddStatementPayment(int customerId, int statementId, decimal amount, string paymentNote)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                StatementPayment p = new StatementPayment();
+                p.CustomerId = customerId;
+                p.StatementId = statementId;
+                p.Payment = amount;
+                p.PaymentNote = paymentNote;
+                p.Date = DateTime.Now.Date;
+                context.StatementPayments.InsertOnSubmit(p);
+                context.SubmitChanges();
+            }
+        }
+
+        public IEnumerable<StatementPayment> GetStatementPayments(int statementId)
+        {
+            List<StatementPayment> payments = new List<StatementPayment>();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                payments = context.StatementPayments.Where(p => p.StatementId == statementId).ToList();
+            }
+            return payments;
+        }
+
+        public void DeductFromAccount(int customerId, decimal amount)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"UPDATE Customers
+                                  SET Account -= @amount
+                                  WHERE Id=@customerid";
+                cmd.Parameters.AddWithValue("@amount", amount);
+                cmd.Parameters.AddWithValue("customerid", customerId);
+                connection.Open();
+                cmd.ExecuteScalar();
+            }
+        }
+
+        public IEnumerable<OrderHistoryViewModel> GetCatererOrdersForStatements()
+        {
+            List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * From Orders
+                                  JOIN Customers
+                                  ON Orders.CustomerId=Customers.Id
+                                  WHERE Customers.Caterer=1 AND Orders.[Statement]!=1";
+                connection.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    OrderHistoryViewModel oh = new OrderHistoryViewModel();
+                    oh.id = (int)reader["Id"];
+                    oh.customerId = (int)reader["CustomerId"];
+                    oh.orderDate = (DateTime)reader["OrderDate"];
+                    oh.requiredDate = (DateTime)reader["RequiredDate"];
+                    oh.paymentMethod = (string)reader["PaymentMethod"];
+                    oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
+                    oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    oh.discount = (decimal)reader["Discount"];
+                    oh.payments = GetPaymentsByOrderId(oh.id);
+                    //oh.status = GetLatestStatusById(oh.id);
+                    //Customer c = GetCustomerById(oh.customerId);
+                    oh.firstName = (string)reader["FirstName"];
+                    oh.lastName = (string)reader["LastName"];
+                    oh.caterer = (bool)reader["Caterer"];
+
+                    oh.total = (decimal)GetTotalByOrderId(oh.id, oh.customerId);
+                    oh.balance = oh.total - (decimal)oh.payments.Sum(p => p.Payment1);
+
+                    orders.Add(oh);
+                }
+                IEnumerable<OrderHistoryViewModel> filteredOrders = orders.GroupBy(o => o.customerId).Select(group => group.First());
+                foreach (OrderHistoryViewModel o in filteredOrders)
+                {
+                    o.total = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.total);
+                    o.balance = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.balance);
+                }
+                return filteredOrders;
+            }
+        }
+
+        public IEnumerable<OrderHistoryViewModel> GetOrdersForStatementById(int customerId)
+        {
+            List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
+            using (var connection = new SqlConnection(_connectionString))
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = @"SELECT * From Orders
+                                  JOIN Customers
+                                  ON Orders.CustomerId=Customers.Id
+                                  WHERE Customers.Id =@Id AND Orders.[Statement]!=1";
+                cmd.Parameters.AddWithValue("@Id", customerId);
+                connection.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    OrderHistoryViewModel oh = new OrderHistoryViewModel();
+                    oh.id = (int)reader["Id"];
+                    oh.customerId = (int)reader["CustomerId"];
+                    oh.orderDate = (DateTime)reader["OrderDate"];
+                    oh.requiredDate = (DateTime)reader["RequiredDate"];
+                    oh.paymentMethod = (string)reader["PaymentMethod"];
+                    oh.paid = reader.GetBoolean(reader.GetOrdinal("Paid"));
+                    oh.deliveryOpt = (string)reader["DeliveryOption"];
+                    oh.discount = (decimal)reader["Discount"];
+                    oh.payments = GetPaymentsByOrderId(oh.id);
+                    //oh.status = GetLatestStatusById(oh.id);
+                    //Customer c = GetCustomerById(oh.customerId);
+                    oh.firstName = (string)reader["FirstName"];
+                    oh.lastName = (string)reader["LastName"];
+                    oh.caterer = (bool)reader["Caterer"];
+
+                    oh.total = (decimal)GetTotalByOrderId(oh.id, oh.customerId);
+                    oh.balance = oh.total - (decimal)oh.payments.Sum(p => p.Payment1);
+
+                    orders.Add(oh);
+                }
+                IEnumerable<OrderHistoryViewModel> filteredOrders = orders.GroupBy(o => o.customerId).Select(group => group.First());
+                foreach (OrderHistoryViewModel o in filteredOrders)
+                {
+                    o.total = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.total);
+                    o.balance = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.balance);
+                }
+                return filteredOrders;
+            }
+        }
+
+
+
+
         public IEnumerable<OrderHistoryViewModel> GetCatererOrdersByDate(DateTime min, DateTime max)
         {
             List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
@@ -580,8 +1071,8 @@ namespace CakesPos.Data
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandText = "SELECT * FROM Orders WHERE OrderDate >= @min AND OrderDate<=@max";
-                cmd.Parameters.Add("@min", min);
-                cmd.Parameters.Add("@max", max);
+                cmd.Parameters.AddWithValue("@min", min);
+                cmd.Parameters.AddWithValue("@max", max);
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -608,9 +1099,9 @@ namespace CakesPos.Data
                     orders.Add(oh);
                 }
                 IEnumerable<OrderHistoryViewModel> filteredOrders = orders.Where(o => o.caterer == true).GroupBy(o => o.customerId).Select(group => group.First());
-                foreach(OrderHistoryViewModel o in filteredOrders)
+                foreach (OrderHistoryViewModel o in filteredOrders)
                 {
-                    o.total=orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.total);
+                    o.total = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.total);
                     o.balance = orders.FindAll(od => od.customerId == o.customerId).Sum(result => result.balance);
                 }
                 return filteredOrders;
@@ -618,3 +1109,4 @@ namespace CakesPos.Data
         }
     }
 }
+

@@ -65,6 +65,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StatementsModel.cs" />
+    <Compile Include="StatementOrder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -1,11 +1,11 @@
 ﻿
-$(window).load(function () {
-    $(".loader").fadeOut("slow");
-})
+//$(window).load(function () {
+//    $(".loader").fadeOut("slow");
+//})
 
-$(document).ajaxStart(function () {
-    $(".loader").fadeOut("slow");
-});
+//$(document).ajaxStart(function () {
+//    $(".loader").fadeOut("slow");
+//});
 //$(document).ajaxComplete(function () {
 //    $(".loader").css("display", "none");
 //});
@@ -65,7 +65,7 @@ $(function () {
         var discount = parseFloat($('.discount').val());
         var customerId = $('#customerIdCheckout').val();
         var ordersId;
-        if ($('input[name=paymentMethod]:checked').val() === "DOC") {
+        if ($('input[name=paymentMethod]:checked').val() === "COD") {
             paid = false;
         }
         else {
@@ -75,7 +75,7 @@ $(function () {
         discount = discount || 0;
         $.post("/home/AddOrder", {
             customerId: $('#customerIdCheckout').val(),
-            requiredDate: $('#requiredDate').val(),
+            requiredDate: $('.requiredDate').val(),
             deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
             deliveryFirstName: $('#deliveryFirstName').val(),
             deliveryLastName: $('#deliveryLastName').val(),
@@ -110,13 +110,13 @@ $(function () {
                     }, function () {
                     });
                 })
-                $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
-                    if (customer.Caterer && customer.Email != "") {
-                        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+                //$.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+                //    if (customer.Caterer && customer.Email != "") {
+                //        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
 
-                        })
-                    }
-                })
+                //        })
+                //    }
+                //})
             })
     });
 
@@ -170,6 +170,185 @@ $(function () {
             })
         alert("Order #" + orderId + " updated successfuly!");
     });
+
+    $('.sendStatementBtn').on('click', function () {
+        var customerId = $(this).data('customerid');
+        $('#emailStatementBtn').data('customerid', customerId);
+    })
+
+    $('#emailStatementBtn').on('click', function () {
+        var customerId = $(this).data('customerid');
+        $.post("/home/GenerateStatement", { customerId: customerId }, function () {
+            alert("Statement generated!!!");
+        })
+    })
+
+    $('.printStatement').on('click', function () {
+        var $btn = $(this).button('loading')
+        var customerId = $(this).data('customerid');
+        var tr = $(this);
+        $.post("/home/GenerateStatementPrint", { customerId: customerId }, function (id) {
+            printStatement(id);
+        })
+        $btn.button('reset')
+        tr.closest('tr').remove();
+    });
+
+    $('#billsTab').on('click', function () {
+        $('#billsTab').attr('class', 'active');
+        $('#statementsTab').attr('class', '');
+        $('#containerDiv').remove();
+        $('#statementHeader').html("Bills");
+        $.get("/home/GetOpenStatements", function (bills) {
+            populateBills(bills);
+        })
+    })
+
+    $('#statementsTab').on('click', function () {
+        $('#billsTab').attr('class', '');
+        $('#statementsTab').attr('class', 'active');
+        $('#containerDiv').remove();
+    })
+
+    function getTotalStatementPayments(Payments) {
+        var totalPayments = 0;
+        $.each(Payments, function (i, v) {
+            totalPayments += v.Payment;
+        })
+        return totalPayments;
+    }
+
+
+    function populateBills(bills) {
+        $('#orderDiv').append("<div id=" + '"' + "containerDiv" + '"' + "><label>Search <input class=" + '"' + "input input-lg form-control" + '"' + "type=" + '"' + "text" + '"' + " id=" + '"' + "customerSearch" + '"' + " placeholder=" + '"' + "Customer Name" + '"' + "/></label><select class=" + '"' + "input input-lg" + '"' + " id=" + '"' + "filterBills" + '"' + "><option value=" + '"' + "open" + '"' + ">Open</option><option value=" + '"' + "closed" + '"' + ">Closed</option><option value=" + '"' + "all" + '"' + ">All</option></select></div>");
+        $('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
+        $.each(bills, function (i, v) {
+            var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
+            $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td>" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + '"' + balance + '"' + ">Payment</button></td></tr>");
+
+        })
+    }
+
+    $('#orderDiv').on('change', '#filterBills', '#customerSearch', function () {
+        var filter = $('#orderDiv #filterBills option:selected').val().toString();
+        var search = $('#orderDiv #customerSearch').val().toString();
+        $('.billsTable').find("tr:gt(0)").remove();
+        $('#billsAlert').remove();
+        $('#statementHeader').html("Bills");
+        $.post("/home/GetStatementsFiltered", { search: search, filter: filter }, function (bills) {
+            if (bills.length === 0) {
+                $('#containerDiv').append("<h3 id=billsAlert>No matches found!!...</h3>")
+            }
+            //$('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
+            $.each(bills, function (i, v) {
+                var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
+                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td>" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + '"' + balance + '"' + ">Payment</button></td></tr>");
+
+            })
+        })
+    })
+
+    $('#orderDiv').on('input', '#customerSearch', function () {
+        var filter = $('#orderDiv #filterBills option:selected').val().toString();
+        var search = $('#orderDiv #customerSearch').val().toString();
+        $('.billsTable').find("tr:gt(0)").remove();
+        $('#billsAlert').remove();
+        $('#statementHeader').html("Bills");
+        $.post("/home/GetStatementsFiltered", { search: search, filter: filter }, function (bills) {
+            if (bills.length === 0) {
+                $('#containerDiv').append("<h3 id=billsAlert>No matches found...</h3>")
+            }
+            //$('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
+            $.each(bills, function (i, v) {
+                var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
+                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td>" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + '"' + balance + '"' + ">Payment</button></td></tr>");
+
+            })
+        })
+    })
+
+    $('#orderDiv').on('click', '.viewPdfBtn', function () {
+        var statementId = $(this).data('statementid');
+        $('#viewPdfIFrame').attr('src', "/Statements-Pdf/" + statementId + ".pdf");
+        $('#pdfModal').modal();
+    })
+
+    $('#orderDiv').on('click', '.payStatementBtn', function () {
+        var customerId = $(this).data('customerid');
+        var orderId = $(this).data('statementid');
+        var balance = $(this).data('balance');
+        $('#sProcessPaymentBtn').attr('data-customerid', customerId);
+        $('#sProcessPaymentBtn').attr('data-statementid', orderId);
+        $('#sProcessPaymentBtn').attr('data-balance', balance);
+        $('#sProcessPaymentBtn').data('customerid', customerId);
+        $('#sProcessPaymentBtn').data('statementid', orderId);
+        $('#sProcessPaymentBtn').data('balance', balance);
+        $('#paymentModal').modal();
+
+    })
+
+    $('#sProcessPaymentBtn').on('click', function () {
+        var customerId = $(this).data('customerid');
+        var statementId = $(this).data('statementid');
+        var amount = $('#amountPay').val();
+        var note = $('#paymentNote').val();
+
+        $.post("/home/AddStatementPayment", { customerId: customerId, statementId: statementId, amount: amount, paymentNote: note }, function () {
+            alert("Thank you for the payment!!!");
+        })
+
+        $('#amountPay').val("");
+        $('#paymentNote').val("");
+        location.reload();
+    })
+
+    $('#sFullAmountCheckbox').change(function () {
+        if (this.checked) {
+            var balance = $('#sProcessPaymentBtn').data('balance');
+            $('#amountPay').val(parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())
+        }
+        else {
+            $('#amountPay').val("");
+        }
+    })
+
+    //$('.printAndEmail').on('click', function () {
+    //    $(this).closest('tr').remove();
+    //});
+
+    function printStatement(statementId) {
+        $('#pdf-iframe').attr("src", "/Statements-Pdf/" + statementId + ".pdf").load(function () {
+            document.getElementById('pdf-iframe').contentWindow.print();
+        });
+    }
+
+
+    //$(".printAndEmail, .emailStatementBtn, .printStatement").on('click', function () {
+    //    $(".printAndEmail, .emailStatementBtn, .printStatement").button('loading');
+    //    setTimeout(function () {
+    //        $(".printAndEmail, .emailStatementBtn, .printStatement").button('reset');
+    //    }, 3000);
+    //})
+
+
+
+    //$('#trigger').on('click', function () {
+    //    printTrigger($('#statementsPdf'));
+    //});
+
+    //$('#printStatementBtn').on('click', function () {
+    //    printTrigger('statementPdf')
+    //})
+
+    //$('#p').on('click', function () {
+    //    printTrigger('#iFramePdf');
+    //})
+
+    //function printTrigger(elementId) {
+    //    var getMyFrame = document.getElementById($('#iFramePdf'));
+    //    getMyFrame.focus();
+    //    getMyFrame.contentWindow.print();
+    //}
 
     $(".categorybtn").on('click', function () {
         var c = $(this).data("category");
@@ -312,10 +491,26 @@ $(function () {
 
     $('#searchHistoryInput').on('input', function () {
         var s = $('#searchHistoryInput').val().toString();
+        var x = $('#filterDate option:selected').val();
+        var opt = $('#filterOpt option:selected').val();
         $('.history').remove();
-        $.post("/home/HistorySearch", { search: s }, function (ordersHistory) {
+        $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
             populateOrders(ordersHistory);
         })
+    })
+
+    $('#filterOpt').on('change', function () {
+        var s = $('#searchHistoryInput').val().toString();
+        var x = $('#filterDate option:selected').val();
+        var opt = $('#filterOpt option:selected').val();
+        $('.history').remove();
+        $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+            populateOrders(ordersHistory);
+        })
+    })
+
+    $('#edit').on('click', function () {
+        location.href = $(this).attr('href');
     })
 
     $('#historyTable').on('click', '.viewDetailsBtn', function () {
@@ -326,10 +521,30 @@ $(function () {
         var caterer = $(this).data('caterer');
         var subtotal = 0;
         var total = 0;
+        var stat = "";
+        if (caterer === true) {
+            $('#emailCheck').html("<label><div class=" + '"' + "form-group" + '"' + "><h2>Email invoice</h2><label class=" + '"' + "switch" + '"' + "><input type=" + '"' + "checkbox" + '"' + "checked id=" + '"' + "emailConfirm" + '"' + "><div class=" + '"' + "slider round" + '"' + "></div></label></div></label>");
+        }
+        else {
+            $('#emailCheck').html("");
+        }
         $('#edit').attr('href', "/home/editOrder?customerId=" + customersId + "&orderId=" + ordersId);
         $('#cancel').attr('data-id', ordersId);
         $('#updateStatusBtn').attr('data-orderid', ordersId);
+        $('#updateStatusBtn').attr('data-customerid', customersId);
+        $('#updateStatusBtn').data('orderid', ordersId);
+        $('#updateStatusBtn').data('customerid', customersId);
         //$('#edit').attr('data-orderid', ordersId);
+
+        $.post("/home/GetOrderStatus", { orderId: ordersId }, function (status) {
+            stat = status.Status1;
+            if (stat === "Delivered" || stat === "Picked up") {
+                $('#edit').prop("disabled", true);
+                $('#cancel').prop("disabled", true);
+                $('#statusBtn').prop("disabled", true);
+            }
+        })
+
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
             if (ordersHistory.order.DeliveryOption === "Delivery") {
                 $('#deliveryPanel').show();
@@ -406,6 +621,12 @@ $(function () {
         $('#orderDetailsModal').modal('show');
     })
 
+
+    $('#orderDetailsModal').on('hidden.bs.modal', function () {
+        $('#edit').prop("disabled", false);
+        $('#cancel').prop("disabled", false);
+        $('#statusBtn').prop("disabled", false);
+    })
     $('#inventoryBtn').on('click', function () {
         var productId = $(this).data('productid')
         var productName = $(this).data('productName')
@@ -426,9 +647,11 @@ $(function () {
     })
 
     $('#filterDate').on('change', function () {
-        var x = $(this).find("option:selected").val();
+        var s = $('#searchHistoryInput').val().toString();
+        var x = $('#filterDate option:selected').val();
+        var opt = $('#filterOpt option:selected').val();
         $('.history').remove();
-        $.post("/Home/OrderHistoryFilter", { x: x }, function (ordersHistory) {
+        $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
             populateOrders(ordersHistory);
         })
     });
@@ -488,6 +711,12 @@ $(function () {
 
 
     function populateOrders(ordersHistory) {
+        if (ordersHistory.length === 0) {
+            $('#ordersAlert').html("No orders for this time period...");
+        }
+        else {
+            $('#ordersAlert').html("");
+        }
         for (var i = 0, l = ordersHistory.length; i < l; i++) {
             var paidHtml = "<td></td>";
             var deliveryHtml = "";
@@ -661,6 +890,7 @@ $(function () {
         window.print();
     });
 
+
     $('#historyTable').on('click', '.paymentBtn', function () {
         var customerId = $(this).data('customerid');
         var orderId = $(this).data('orderid');
@@ -684,10 +914,10 @@ $(function () {
         if ($('#customerIdCheckout').val() === "") {
             $('#alertInvalidCustomer').modal();
         }
-        else if ($('#orderTable tr').length<2) {
+        else if ($('#orderTable tr').length < 2) {
             $('#alertInvalidOrder').modal();
         }
-        else{
+        else {
             $('#checkoutModal').modal();
         }
     })
@@ -740,15 +970,36 @@ $(function () {
     })
 
     $('#updateStatusBtn').on('click', function () {
-        var orderId = $(this).data('orderid');
+        var t = $(this);
+        var ordersId = $('#updateStatusBtn').data('orderid');
+        var customerId = $('#updateStatusBtn').data('customerid');
         var status = $('.status:checked').val();
         if (status == undefined) {
             status = "";
         }
-        $.post("/home/UpdateStatus", { orderId: orderId, status: status }, function () {
-            location.reload();
-            alert("Status updated!!!");
+        //$(t).data('orderid', "");
+        //$(t).data('customerid', "");
+
+        $.post("/home/UpdateStatus", { orderId: ordersId, status: status }, function () {
+            //location.reload();
         })
+
+        $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+            if (customer.Caterer && customer.Email != "" && customer.Email != null && $('#emailConfirm').attr('checked')) {
+                $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: ordersId }, function () {
+                    $('#invoiceAlertMessage').html('An invoice was sent via email to the customer!');
+                    $('#invoiceAlertModal').modal();
+                })
+            }
+            else if (customer.Caterer) {
+                $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+                    $('#invoiceAlertMessage').html("Invoice generated successfuly!\n\n<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>");
+                    $('#invoiceAlertModal').modal();
+                })
+            }
+        })
+        $('.status').prop('checked', false);
+        $('#emailConfirm').prop('checked', true);
     })
 
     $('#fullAmountCheckbox').change(function () {
@@ -769,7 +1020,11 @@ $(function () {
     //    $('#monthSelectionDiv').slideToggle();
     //});
 
-    
+
+    $("#datepicker").datepicker();
+
+
+
     $('#filterBySelect').on('change', function () {
         var x = $(this).find("option:selected").val();
         if (x === "byMonth") {
@@ -780,6 +1035,15 @@ $(function () {
             $('#monthSelectionDiv').hide();
             $('#dateInputDiv').slideToggle();
         }
+    })
+
+    $('#deductFromAcountBtn').on('click', function () {
+        var customerId = $('#processPaymentBtn').data('customerid');
+        var orderId = $('#processPaymentBtn').data('orderid');
+        var amount = $('#amountPay').val();
+
+        $.post("/home/DeductFromAccount", { customerId: customerId, amount: amount }, function () {
+        })
     })
 
     $('#searchDateBtn').on('click', function () {
@@ -805,7 +1069,33 @@ $(function () {
         var phone = $('#searchInput').val();
         $('#phone').val(phone);
     })
-        
+
+    $('#customerSearchInput').on('input', function () {
+        $('#customersDiv #custAlert').remove()
+        $('#customersTable').find("tr:gt(0)").remove();
+        var search = $(this).val();
+        $.post("/home/SearchCustomer", { search: search }, function (c) {
+            if (c.length === 0) {
+                $('#customersDiv').append("<h3 id=custAlert>No matches found...</h3>")
+            }
+            for (i = 0; i < c.length; i++) {
+                var account = 0;
+                if (c[i].Account != null) {
+                    account = c[i].Account;
+                }
+                var accParsed = (parseFloat(account, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                if (account < 0) {
+                    account = "$" + accParsed;
+                }
+                else {
+                    account = "$"+accParsed;
+                }
+      
+                $('#customersTable').append("<tr><td>" + c[i].LastName+" "+c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td>" + account + "</td></tr>")
+            }
+        })
+    })
+
 
     //$('#edit').on('click', function () {
     //    var customerId = $(this).data('customerid');
@@ -925,7 +1215,7 @@ $(function () {
         else {
             if (getDiscount() < 1) {
                 var d = total * getDiscount();
-                $('#total').text("Total: $" + (parseFloat(total-d, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
+                $('#total').text("Total: $" + (parseFloat(total - d, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
             }
             else {
                 $('#total').text("Total: $" + ("Total: $" + (parseFloat((total - getDiscount()), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())));

@@ -8,6 +8,9 @@
     @Styles.Render("~/Content/css")
     @RenderSection("Styles", required: false)
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link href="~/Content/themes/bootstrap-switch.min.css" rel="stylesheet" />
+    <link href="~/Content/themes/base/bootstrap-select.min.css" rel="stylesheet" />
 </head>
 <body>
     <div class="loader"></div>
@@ -29,6 +32,7 @@
                     <li><a href="/home/Statements">Statements </a></li>
                     <li><a href="/home/inventory">Inventory</a></li>
                     <li><a href="/home/delivery">Delivery</a></li>
+                    <li><a href="/home/customers">Customers</a></li>
                 </ul>
                 @if (HttpContext.Current.User.Identity.Name != "")
                 {
@@ -42,7 +46,10 @@
 
     @RenderBody()
     <script src='https://code.jquery.com/jquery-2.2.0.min.js'></script>
+    <script src='https://code.jquery.com/ui/1.11.4/jquery-ui.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/bootstrap-switch.min.js"></script>
+    <script src="~/Scripts/bootstrap-select.min.js"></script>
     <script src="~/Scripts/Vue.js"></script>
     <script src="~/Scripts/myScripts.js"></script>
     @RenderSection("scripts", required: false)

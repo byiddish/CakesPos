@@ -30,6 +30,26 @@
       <Association Name="Order_OrderDetail" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
     </Type>
   </Table>
+  <Table Name="dbo.Payments" Member="Payments">
+    <Type Name="Payment">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="OrderId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Payment" Member="Payment1" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="PaymentNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Association Name="Customer_Payment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
+      <Association Name="Order_Payment" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Status" Member="Status">
+    <Type Name="Status">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="OrderId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Member="Status1" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Association Name="Order_Status" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+    </Type>
+  </Table>
   <Table Name="dbo.Customers" Member="Customers">
     <Type Name="Customer">
       <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -43,7 +63,42 @@
       <Column Name="Cell" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="Caterer" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
       <Column Name="Email" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Account" Type="System.Decimal" DbType="Money" CanBeNull="true" />
       <Association Name="Customer_Payment" Member="Payments" ThisKey="Id" OtherKey="CustomerId" Type="Payment" />
+      <Association Name="Customer_StatementPayment" Member="StatementPayments" ThisKey="Id" OtherKey="CustomerId" Type="StatementPayment" />
+    </Type>
+  </Table>
+  <Table Name="dbo.OrdersStatement" Member="OrdersStatements">
+    <Type Name="OrdersStatement">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="OrderId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StatementId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Statement_OrdersStatement" Member="Statement" ThisKey="StatementId" OtherKey="Id" Type="Statement" IsForeignKey="true" />
+      <Association Name="Order_OrdersStatement" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Statement" Member="Statements">
+    <Type Name="Statement">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Balance" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="Date" Type="System.DateTime" DbType="Date NOT NULL" CanBeNull="false" />
+      <Column Name="FilePath" Type="System.String" DbType="VarChar(100)" CanBeNull="true" />
+      <Column Name="CustomerId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="[Open]" Member="Open" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="Statement_OrdersStatement" Member="OrdersStatements" ThisKey="Id" OtherKey="StatementId" Type="OrdersStatement" />
+      <Association Name="Statement_StatementPayment" Member="StatementPayments" ThisKey="Id" OtherKey="StatementId" Type="StatementPayment" />
+    </Type>
+  </Table>
+  <Table Name="dbo.StatementPayments" Member="StatementPayments">
+    <Type Name="StatementPayment">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CustomerId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="StatementId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Payment" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="PaymentNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Association Name="Customer_StatementPayment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
+      <Association Name="Statement_StatementPayment" Member="Statement" ThisKey="StatementId" OtherKey="Id" Type="Statement" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Orders" Member="Orders">
@@ -69,29 +124,12 @@
       <Column Name="Paid" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Column Name="Greetings" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
       <Column Name="DeliveryNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Invoice" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Statement" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Association Name="Order_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="OrderId" Type="OrderDetail" />
       <Association Name="Order_Payment" Member="Payments" ThisKey="Id" OtherKey="OrderId" Type="Payment" />
       <Association Name="Order_Status" Member="Status" ThisKey="Id" OtherKey="OrderId" Type="Status" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Payments" Member="Payments">
-    <Type Name="Payment">
-      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="OrderId" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="Payment" Member="Payment1" Type="System.Decimal" DbType="Money" CanBeNull="true" />
-      <Column Name="PaymentNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
-      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
-      <Association Name="Customer_Payment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
-      <Association Name="Order_Payment" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Status" Member="Status">
-    <Type Name="Status">
-      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="OrderId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="Status" Member="Status1" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
-      <Association Name="Order_Status" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+      <Association Name="Order_OrdersStatement" Member="OrdersStatements" ThisKey="Id" OtherKey="OrderId" Type="OrdersStatement" />
     </Type>
   </Table>
 </Database>

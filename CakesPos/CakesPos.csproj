@@ -143,12 +143,14 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="StatementManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\themes\base\bootstrap-select.min.css" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
@@ -203,6 +205,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="Content\themes\bootstrap-switch.min.css" />
     <Content Include="Content\themes\Login.css" />
     <Content Include="Content\themes\orderStyles.css" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -221,6 +224,8 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\bootstrap-select.min.js" />
+    <Content Include="Scripts\bootstrap-switch.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
@@ -264,11 +269,13 @@
     <Content Include="Views\Home\EditOrder.cshtml" />
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Home\Statements.cshtml" />
+    <Content Include="Views\Home\Customers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Invoices\" />
     <Folder Include="Models\" />
+    <Folder Include="Statements-Pdf\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

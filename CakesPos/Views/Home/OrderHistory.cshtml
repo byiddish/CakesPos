@@ -7,12 +7,11 @@
 
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
-        <label>Search<input class="form-control" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
+        <label><input class="form-control input input-lg" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
         @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
             <label>To<input class="form-control" id="toInput" type="date" /></label>*@
         <label>
-            Filter Date
-            <select class="form-control" id="filterDate">
+            <select class="form-control input input-lg" id="filterDate">
                 <option value="0">Today</option>
                 <option value="1">Tommorow</option>
                 <option value="7">Next 7 Days</option>
@@ -20,6 +19,15 @@
                 <option value="-1">Yesterday</option>
                 <option value="-7">Last 7 Days</option>
                 <option value="-30">Last 30 Days</option>
+                <option value="8">All</option>
+            </select>
+        </label>
+        <label>
+            <select class="form-control input input-lg" id="filterOpt">
+                <option value="open">Open</option>
+                <option value="delivered">Delivered</option>
+                <option value="paid">Paid</option>
+                <option value="closed">Closed</option>
             </select>
         </label>
         @*<button class="btn btn-success" id="applybtn">Apply</button>*@
@@ -93,6 +101,11 @@
             </tr>
         }
     </table>
+    @if (Model.Count() == 0)
+    {
+        <h3 id="ordersAlert">No orders for this time period...</h3>
+    }
+    
 </div>
 
 <div id="orderDetailsModal" class="modal fade" role="dialog">
@@ -132,7 +145,7 @@
                                 <br />
                                 <br />
                                 <button class="btn btn-success" id="statusBtn" data-toggle="modal" data-target="#statusModal">Update Status</button>
-                                <a class="btn btn-warning" id="edit">Edit</a>
+                                <button class="btn btn-warning" id="edit">Edit</button>
                                 <button class="btn btn-danger" id="cancel">Cancel</button>
                             </div>
                         </div>
@@ -204,6 +217,9 @@
                     <textarea id="paymentNote" placeholder="Notes"></textarea>
                 </div>
                 <div class="form-group" align="center">
+                    <button class="btn btn-danger btn-lg" id="deductFromAcountBtn" data-dismiss="modal">Deduct From Account</button>
+                </div>
+                <div class="form-group" align="center">
                     <button class="btn btn-success btn-lg" id="processPaymentBtn" data-dismiss="modal">Process Payment</button>
                 </div>
             </div>
@@ -237,12 +253,33 @@
                 <div class="form-group" align="center">
                     <h1><input type="checkbox" class="checkbox checkbox-inline status" value="Delivered" /> Delivered</h1>
                 </div>
+                <div id="emailCheck"></div>
                 <div class="form-group" align="center">
                     <button class="btn btn-success btn-lg" id="updateStatusBtn" data-dismiss="modal">Update Status</button>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="invoiceAlertModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Invoice Status</h4>
+            </div>
+            <div class="modal-body" align="center">
+               <h1 id="invoiceAlertMessage"></h1>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
             </div>
         </div>
     </div>

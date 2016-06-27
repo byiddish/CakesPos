@@ -6,92 +6,114 @@
 }
 
 <div class="container well" id="orderDiv">
-    <div class="form-group">
-        <div id="filters">
+    <div>
+        <ul class="nav nav-tabs">
+            <li class="active" id="statementsTab"><a href="/home/statements">Statements</a></li>
+            <li id="billsTab"><a href="#">Bills</a></li>
+        </ul>
+        @*<input type="checkbox" id="billSwitch" data-on-text="Open" data-off-text="Closed" checked>*@
+        <h1 id="statementHeader" style="text-align:center">Statements</h1>
+    </div>
+    <div id="containerDiv">
+        @*<div class="form-group">*@
+        @*<div id="filters">
             <div id="filterByDiv">
                 <label>Filter By</label><select class="form-control" id="filterBySelect">
                     <option value="byMonth">Filter By Month</option>
                     <option value="byDate">Filter By Date</option>
                 </select>
                 @*<label>Search<input class="form-control" id="sea" placeholder="Search" autofocus="autofocus" /><button class="btn btn-default">-</button></label>*@
-                @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
-                    <label>To<input class="form-control" id="toInput" type="date" /></label>*@
-            </div>
-            <div id="monthFilter">
-                @*<label>
-                    Filter By Month @*<button class="btn btn-xs btn-default" id="monthMin"> <span></span> </button>*@
-                @*</label>*@
-                <div id="monthSelectionDiv">
-                    <label>Filter By Month</label><select class="form-control" id="">
-                        <option value="-30">Current Month</option>
-                        <option value="0">Jan</option>
-                        <option value="1">Feb</option>
-                        <option value="7">March</option>
-                        <option value="30">April</option>
-                        <option value="-1">May</option>
-                        <option value="-7">June</option>
-                        <option value="-30">July</option>
-                        <option value="-30">Aug</option>
-                        <option value="-30">Sep</option>
-                        <option value="-30">Nov</option>
-                        <option value="-30">Oct</option>
-                        <option value="-30">Dec</option>
-                    </select>
-                </div>
-            </div>
-            <div id="dateFilter">
+        @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
+            <label>To<input class="form-control" id="toInput" type="date" /></label>*@
+        @*</div>*@
+        @*<div id="monthFilter">*@
+        @*<label>
+            Filter By Month @*<button class="btn btn-xs btn-default" id="monthMin"> <span></span> </button>*@
+        @*</label>*@
+        @*<div id="monthSelectionDiv">
+                <label>Filter By Month</label><select class="form-control" id="">
+                    <option value="-30">Current Month</option>
+                    <option value="0">Jan</option>
+                    <option value="1">Feb</option>
+                    <option value="7">March</option>
+                    <option value="30">April</option>
+                    <option value="-1">May</option>
+                    <option value="-7">June</option>
+                    <option value="-30">July</option>
+                    <option value="-30">Aug</option>
+                    <option value="-30">Sep</option>
+                    <option value="-30">Nov</option>
+                    <option value="-30">Oct</option>
+                    <option value="-30">Dec</option>
+                </select>
+            </div>*@
+        @*</div>*@
+        @*<div id="dateFilter">
 
-                @*<label>
-                    Filter By Date@*<button class="btn btn-xs btn-default" id="dateMin"> - </button>*@
-                @*</label>*@
-                <div id="dateInputDiv" style="display:none">
-                    <lable>From</lable><input class="form-control" id="fromInput" type="date" />
-                    <lable>To</lable><input class="form-control" id="toInput" type="date" />
-                    <button class="btn btn-success" id="searchDateBtn">Search</button>
-                </div>
-            </div>
-            @*<button class="btn btn-success" id="applybtn">Apply</button>*@
-        </div>
-    </div>
-    <table class="table table-bordered table-hover table-responsive table-striped" id="historysTable">
-        <tr>
-            <th>Customer</th>
-            <th>Total</th>
-            <th>Balance</th>
-            <th>Action</th>
-        </tr>
-        @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
-        {
-            var status = "";
-            if (o.status != null)
-            {
-                status = o.status.Status1;
-            }
-            CakesPos.Data.CakesPosRepository cpr = new CakesPos.Data.CakesPosRepository(@"Data Source=.\sqlexpress;Initial Catalog=CakesPos;Integrated Security=True");
-            decimal total = 0;
-            if (o.discount < 1)
-            {
-
-                decimal x = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId);
-                decimal discount = x * o.discount;
-                total = x - discount;
-            }
-            else
-            {
-                total = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId) - o.discount;
-            }
-            <tr class="history">
-                <td>@o.lastName @o.firstName</td>
-                <td>@o.total.ToString("C")</td>
-                <td><span style="color:red">@o.balance.ToString("C")</span></td>
-                <td>
-                    <button class="btn btn-info viewDetailsBtn" data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>Send Statement</button>
-                    <button class="btn btn-success paymentBtn" data-orderid=@o.id data-customerid=@o.customerId data-toggle="modal" data-target="#paymentModal">Payment</button>
-                </td>
+            @*<label>
+                Filter By Date@*<button class="btn btn-xs btn-default" id="dateMin"> - </button>*@
+        @*</label>*@
+        @*<div id="dateInputDiv" style="display:none">
+                <lable>From</lable><input class="form-control" id="fromInput" type="date" />
+                <lable>To</lable><input class="form-control" id="toInput" type="date" />
+                <button class="btn btn-success" id="searchDateBtn">Search</button>
+            </div>*@
+        @*</div>*@
+        @*<button class="btn btn-success" id="applybtn">Apply</button>*@
+        @*</div>
+            </div>*@
+        <table class="table table-bordered table-hover table-responsive table-striped" id="historysTable">
+            <tr>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Balance</th>
+                <th>Action</th>
             </tr>
+            @foreach (CakesPos.Data.OrderHistoryViewModel o in Model)
+            {
+                var status = "";
+                if (o.status != null)
+                {
+                    status = o.status.Status1;
+                }
+                CakesPos.Data.CakesPosRepository cpr = new CakesPos.Data.CakesPosRepository(@"Data Source=.\sqlexpress;Initial Catalog=CakesPos;Integrated Security=True");
+                decimal total = 0;
+                if (o.discount < 1)
+                {
+
+                    decimal x = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId);
+                    decimal discount = x * o.discount;
+                    total = x - discount;
+                }
+                else
+                {
+                    total = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId) - o.discount;
+                }
+                <tr class="history">
+                    <td>@o.lastName @o.firstName</td>
+                    <td>@o.total.ToString("C")</td>
+                    <td><span style="color:red">@o.balance.ToString("C")</span></td>
+                    <td style="text-align:center" class="customPadding">
+                        @*<button class="btn btn-info sendStatementBtn" data-caterer=@o.caterer data-customerid=@o.customerId data-toggle="modal" data-target="#sendStatementModal">Send Statement</button>*@
+                        <button class="btn btn-primary btn-lg btn-group-lg emailStatementBtn" data-loading-text="Loading..." data-caterer=@o.caterer data-customerid=@o.customerId>Email</button>
+                        <button class="btn btn-success btn-lg btn-group-lg printStatement" data-loading-text="Loading..." autocomplete="off" data-customerid=@o.customerId>Print</button>
+                        <button class="btn btn-info btn-lg btn-group-lg printAndEmail" data-loading-text="Loading..." data-caterer=@o.caterer data-customerid=@o.customerId>Print and Email</button>
+                        @*<iframe id="statementPdf" src="file///C:\Users\Barry\Documents\Pdf-Statements\11.pdf" style=" display:none;"></iframe>*@
+                        @*<button class='btn btn-primary' id="foo" data-loading-text="Submiting...">
+                                Submit
+                            </button>*@
+                    </td>
+                </tr>
+            }
+        </table>
+        @if (Model.Count() == 0)
+        {
+            <h1>No statements...</h1>
         }
-    </table>
+    </div>
 </div>
+
+<iframe id="pdf-iframe" style="display:none"></iframe>
 
 <div class="modal fade" id="alertEmptyInput" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -132,3 +154,86 @@
         </div>
     </div>
 </div>
+
+@*<div class="modal fade" id="sendStatementModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Send Statement</h4>
+                </div>
+
+                <div class="modal-body">
+                    <button class="btn btn-primary btn-lg btn-group-lg" id="emailStatementBtn">Email Statement</button>
+                    <button class="btn btn-success btn-lg btn-group-lg">Print Statement</button>
+                    <button class="btn btn-info btn-lg btn-group-lg">Print and Email</button>
+                </div>
+
+                <div class="modal-footer">
+                    <a class="btn btn-default" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+<div id="paymentModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Payment</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h3 id="customerNamePay"></h3>
+                <div class="form-group">
+                    <h2>Full Amount</h2>
+                    <label class="switch">
+                        <input type="checkbox" id="sFullAmountCheckbox">
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
+                </div>
+                <div class="form-group">
+                    <textarea id="paymentNote" placeholder="Notes"></textarea>
+                </div>
+                <div class="form-group" align="center">
+                    <button class="btn btn-danger btn-lg" id="sDeductFromAcountBtn" data-dismiss="modal">Deduct From Account</button>
+                </div>
+                <div class="form-group" align="center">
+                    <button class="btn btn-success btn-lg" id="sProcessPaymentBtn" data-dismiss="modal">Process Payment</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pdfModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" id="pdfModalDialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Statement</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <div id="iFrameDiv">
+                    <iframe id="viewPdfIFrame" style="width:650px; height:750px;" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

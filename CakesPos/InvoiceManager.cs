@@ -50,11 +50,11 @@ namespace CakesPos
             table.AddCell(cell4);
 
             Phrase BillFrom = new Phrase();
-            Chunk a = new Chunk("8888 44 Street \n");
-            Chunk csz = new Chunk("juii MA 0215 \n");
+            Chunk a = new Chunk("Elegant Cakes \n");
+            Chunk csz = new Chunk("922 46th Street \nBrooklyn NY 11219\n");
             Chunk p = new Chunk("Phone: 785-438-8547 \n");
             Chunk f = new Chunk("Fax: 787-854-7785 \n");
-            Chunk e = new Chunk("Email: elegant@gmail.com \n______________________________\n\n");
+            Chunk e = new Chunk("Email: siegelmancake@gmail.com \n______________________________\n\n");
             BillFrom.Add(a);
             BillFrom.Add(csz);
             BillFrom.Add(p);
@@ -78,7 +78,7 @@ namespace CakesPos
             header.Alignment = 2;
 
             Font invoiceFont = FontFactory.GetFont("Verdana", 16);
-            Paragraph title = new Paragraph("Invoice: #" + "102356", invoiceFont);
+            Paragraph title = new Paragraph("Invoice: #" + order.order.Id, invoiceFont);
             title.Alignment = 2;
 
             Paragraph date = new Paragraph("Date: " + DateTime.Today.ToShortDateString(), invoiceFont);
@@ -117,10 +117,10 @@ namespace CakesPos
                 table.AddCell(price);
             }
 
-            string path = @"C:\Users\Barry\Documents\Pdf-Files\";
-           
+            string path = @"C:\Users\Barry\Documents\Pdf-Files\"+order.order.Id+".pdf";
+            
 
-            FileStream fs = new FileStream(path+"lazersOrder.pdf", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            FileStream fs = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
            
             PdfWriter.GetInstance(doc5, fs);
 
@@ -143,10 +143,11 @@ namespace CakesPos
             doc5.Close();
         }
 
-        public void EmailInvoice(string file)
+
+        public void EmailInvoice(string file, string email)
         {
             MailMessage mail = new MailMessage();
-            mail.From = new System.Net.Mail.MailAddress("\"Elegant Cakes\" <elegakkk@gmail.com>");
+            mail.From = new System.Net.Mail.MailAddress("\"Elegant Cakes\" <siegelmancake@gmail.com>");
 
             // The important part -- configuring the SMTP client
             SmtpClient smtp = new SmtpClient();
@@ -154,11 +155,11 @@ namespace CakesPos
             smtp.EnableSsl = true;
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network; // [2] Added this
             smtp.UseDefaultCredentials = false; // [3] Changed this
-            smtp.Credentials = smtp.Credentials = new NetworkCredential("elegenthhhh@gmail.com", "eletty44");  // [4] Added this. 
+            smtp.Credentials = smtp.Credentials = new NetworkCredential("siegelmancake@gmail.com", "cake922t");  // [4] Added this. 
             smtp.Host = "smtp.gmail.com";
 
             //recipient address
-            mail.To.Add(new MailAddress("customer@gmail.com"));
+            mail.To.Add(new MailAddress(email));
 
             //Formatted mail body
             mail.IsBodyHtml = true;
@@ -175,7 +176,7 @@ namespace CakesPos
             mail.Attachments.Add(data);
             
             mail.Body = st;
-            mail.Subject = "Invoice";
+            mail.Subject = "Invoice "+DateTime.Now.Date.ToShortDateString();
             smtp.Send(mail);
         }
     }
