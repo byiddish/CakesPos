@@ -152,7 +152,7 @@ namespace CakesPos.Data
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
-                return context.Customers.ToList().OrderBy(c => c.LastName).OrderBy(c => c.FirstName);
+                return context.Customers.OrderBy(c => c.LastName).ToList();
             }
         }
 
@@ -955,20 +955,25 @@ namespace CakesPos.Data
             return payments;
         }
 
-        public void DeductFromAccount(int customerId, decimal amount)
+        public void DeductFromAccount(int customerId, int orderId, decimal amount)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandText = @"UPDATE Customers
-                                  SET Account -= @amount
-                                  WHERE Id=@customerid";
-                cmd.Parameters.AddWithValue("@amount", amount);
-                cmd.Parameters.AddWithValue("customerid", customerId);
-                connection.Open();
-                cmd.ExecuteScalar();
-            }
+//            using (var connection = new SqlConnection(_connectionString))
+//            using (var cmd = connection.CreateCommand())
+//            {
+//                cmd.CommandText = @"UPDATE Customers
+//                                  SET Account -= @amount
+//                                  WHERE Id=@customerid";
+//                cmd.Parameters.AddWithValue("@amount", amount);
+//                cmd.Parameters.AddWithValue("customerid", customerId);
+//                connection.Open();
+//                cmd.ExecuteScalar();
+//            }
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.MakeAccountTrans(customerId, -amount, "Order payment...");
+            cpr.MakePayment(customerId, orderId, amount, "Account charged...");
         }
+
+
 
         public IEnumerable<OrderHistoryViewModel> GetCatererOrdersForStatements()
         {
@@ -1061,7 +1066,50 @@ namespace CakesPos.Data
             }
         }
 
+        public void MakeAccountTrans(int customerId, decimal amount, string note)
+        {
+            using (var context=new CakesPosDataContext(_connectionString))
+            {
+                AccountTran a = new AccountTran();
+                a.Date = DateTime.Today.Date;
+                a.CustomerId = customerId;
+                a.Amount = amount;
+                a.Note = note;
 
+                var c = context.Customers.Where(x => x.Id == customerId).FirstOrDefault();
+                c.Account += amount;
+                context.AccountTrans.InsertOnSubmit(a);
+                context.SubmitChanges();
+            }
+        }
+
+        public IEnumerable<AccountTran> GetAccountTrans(int customerId)
+        {
+            using (var context=new CakesPosDataContext(_connectionString))
+            {
+                context.DeferredLoadingEnabled = false;
+                return context.AccountTrans.Where(a => a.CustomerId == customerId).OrderByDescending(a => a.Date).ToList();
+            }
+        }
+
+        public void EditCustomer(int customerId, string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer, string email)
+        {
+            using (var context=new CakesPosDataContext(_connectionString))
+            {
+                var c = context.Customers.Where(x => x.Id == customerId).FirstOrDefault();
+                c.FirstName = firstName;
+                c.LastName = lastName;
+                c.Address = address;
+                c.City = city;
+                c.State = state;
+                c.Zip = zip;
+                c.Phone = phone;
+                c.Cell = cell;
+                c.Email = email;
+                c.Caterer = caterer;
+                context.SubmitChanges();
+            }
+        }
 
 
         public IEnumerable<OrderHistoryViewModel> GetCatererOrdersByDate(DateTime min, DateTime max)

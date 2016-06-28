@@ -333,6 +333,11 @@ input:checked + .slider:before {
     float:right;
 }
 
+#accountHistoryDiv{
+    overflow: scroll;
+    height: 300px;
+}
+
 /*#pdfModal{
     width:650px !important;
     height: 1050px !important;

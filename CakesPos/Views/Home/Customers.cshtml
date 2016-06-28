@@ -54,7 +54,8 @@
             <div class="modal-body">
                 <div>
                     <button class="btn btn-warning btn-lg btn-block" id="customerEdit">Edit</button>
-                    <button class="btn btn-success btn-lg btn-block" id="accountPayment">Payment</button>
+                    <button class="btn btn-success btn-lg btn-block" id="accountAjustments">Ajust Account</button>
+                    <button class="btn btn-primary btn-lg btn-block" id="accountHistory">Account History</button>
                 </div>
             </div>
 
@@ -75,13 +76,13 @@
             </div>
             <div class="modal-body" align="center">
                 <h3 id="customerNamePay"></h3>
-                <div class="form-group">
+                @*<div class="form-group">
                     <h2>Full Amount</h2>
                     <label class="switch">
                         <input type="checkbox" id="accountFullAmountCheckbox">
                         <div class="slider round"></div>
                     </label>
-                </div>
+                </div>*@
                 <div class="form-group">
                     <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
                 </div>
@@ -89,12 +90,12 @@
                     <textarea id="paymentNote" placeholder="Notes"></textarea>
                 </div>
                 <div class="form-group" align="center">
-                    <button class="btn btn-success btn-lg" id="accountPaymentBtn" data-dismiss="modal">Process Payment</button>
+                    <button class="btn btn-success btn-lg" id="accountPaymentBtn" data-dismiss="modal">Ajust Account</button>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+                <a class="btn btn-default" data-dismiss="modal">Close</a>
             </div>
         </div>
     </div>
@@ -116,10 +117,10 @@
                     Caterer
                     <div class="form-group">
                         <label class="switch">
-                            <input type="checkbox" name="caterer" id="caterer" value="true">
+                            <input type="checkbox" name="caterer" class="caterer" id="caterer" value="true">
                             <div class="slider round"></div>
                         </label>
-                        <input type="hidden" name="caterer" value="false" />
+                        <input type="hidden" class="caterer" name="caterer" value="false" />
                     </div>
                 </label>
                 <div class="form-group">
@@ -160,10 +161,57 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button @*type="submit"*@ class="btn btn-primary" data-dismiss="modal" id="EditCustomerSubmit">Submit</button>
+                <button @*type="submit"*@ class="btn btn-primary" data-dismiss="modal" id="EditCustomerSubmit">Submit Changes</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
         @*</form>*@
     </div>
 </div>
+
+<div class="modal fade" id="accountHistoryModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Account History</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <div id="accountHistoryDiv">
+                    <table class="table table-striped" id="accountHistoryTable">
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Note</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-default" data-dismiss="modal">Close</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="accountAlertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Payment</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h2 id="accountAlert"></h2>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -60,6 +60,9 @@ namespace CakesPos.Data
     partial void InsertOrder(Order instance);
     partial void UpdateOrder(Order instance);
     partial void DeleteOrder(Order instance);
+    partial void InsertAccountTran(AccountTran instance);
+    partial void UpdateAccountTran(AccountTran instance);
+    partial void DeleteAccountTran(AccountTran instance);
     #endregion
 		
 		public CakesPosDataContext() : 
@@ -169,6 +172,14 @@ namespace CakesPos.Data
 			get
 			{
 				return this.GetTable<Order>();
+			}
+		}
+		
+		public System.Data.Linq.Table<AccountTran> AccountTrans
+		{
+			get
+			{
+				return this.GetTable<AccountTran>();
 			}
 		}
 	}
@@ -1231,6 +1242,8 @@ namespace CakesPos.Data
 		
 		private EntitySet<StatementPayment> _StatementPayments;
 		
+		private EntitySet<AccountTran> _AccountTrans;
+		
     #region Extensibility Method Definitions
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
@@ -1265,6 +1278,7 @@ namespace CakesPos.Data
 		{
 			this._Payments = new EntitySet<Payment>(new Action<Payment>(this.attach_Payments), new Action<Payment>(this.detach_Payments));
 			this._StatementPayments = new EntitySet<StatementPayment>(new Action<StatementPayment>(this.attach_StatementPayments), new Action<StatementPayment>(this.detach_StatementPayments));
+			this._AccountTrans = new EntitySet<AccountTran>(new Action<AccountTran>(this.attach_AccountTrans), new Action<AccountTran>(this.detach_AccountTrans));
 			OnCreated();
 		}
 		
@@ -1534,6 +1548,19 @@ namespace CakesPos.Data
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_AccountTran", Storage="_AccountTrans", ThisKey="Id", OtherKey="CustomerId")]
+		public EntitySet<AccountTran> AccountTrans
+		{
+			get
+			{
+				return this._AccountTrans;
+			}
+			set
+			{
+				this._AccountTrans.Assign(value);
+			}
+		}
+		
 		public event PropertyChangingEventHandler PropertyChanging;
 		
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -1573,6 +1600,18 @@ namespace CakesPos.Data
 		}
 		
 		private void detach_StatementPayments(StatementPayment entity)
+		{
+			this.SendPropertyChanging();
+			entity.Customer = null;
+		}
+		
+		private void attach_AccountTrans(AccountTran entity)
+		{
+			this.SendPropertyChanging();
+			entity.Customer = this;
+		}
+		
+		private void detach_AccountTrans(AccountTran entity)
 		{
 			this.SendPropertyChanging();
 			entity.Customer = null;
@@ -2972,6 +3011,205 @@ namespace CakesPos.Data
 		{
 			this.SendPropertyChanging();
 			entity.Order = null;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.AccountTrans")]
+	public partial class AccountTran : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private int _CustomerId;
+		
+		private System.Nullable<decimal> _Amount;
+		
+		private string _Note;
+		
+		private System.Nullable<System.DateTime> _Date;
+		
+		private EntityRef<Customer> _Customer;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnCustomerIdChanging(int value);
+    partial void OnCustomerIdChanged();
+    partial void OnAmountChanging(System.Nullable<decimal> value);
+    partial void OnAmountChanged();
+    partial void OnNoteChanging(string value);
+    partial void OnNoteChanged();
+    partial void OnDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnDateChanged();
+    #endregion
+		
+		public AccountTran()
+		{
+			this._Customer = default(EntityRef<Customer>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CustomerId", DbType="Int NOT NULL")]
+		public int CustomerId
+		{
+			get
+			{
+				return this._CustomerId;
+			}
+			set
+			{
+				if ((this._CustomerId != value))
+				{
+					if (this._Customer.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnCustomerIdChanging(value);
+					this.SendPropertyChanging();
+					this._CustomerId = value;
+					this.SendPropertyChanged("CustomerId");
+					this.OnCustomerIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Amount", DbType="Money")]
+		public System.Nullable<decimal> Amount
+		{
+			get
+			{
+				return this._Amount;
+			}
+			set
+			{
+				if ((this._Amount != value))
+				{
+					this.OnAmountChanging(value);
+					this.SendPropertyChanging();
+					this._Amount = value;
+					this.SendPropertyChanged("Amount");
+					this.OnAmountChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Note", DbType="VarChar(MAX)")]
+		public string Note
+		{
+			get
+			{
+				return this._Note;
+			}
+			set
+			{
+				if ((this._Note != value))
+				{
+					this.OnNoteChanging(value);
+					this.SendPropertyChanging();
+					this._Note = value;
+					this.SendPropertyChanged("Note");
+					this.OnNoteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Date", DbType="Date")]
+		public System.Nullable<System.DateTime> Date
+		{
+			get
+			{
+				return this._Date;
+			}
+			set
+			{
+				if ((this._Date != value))
+				{
+					this.OnDateChanging(value);
+					this.SendPropertyChanging();
+					this._Date = value;
+					this.SendPropertyChanged("Date");
+					this.OnDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_AccountTran", Storage="_Customer", ThisKey="CustomerId", OtherKey="Id", IsForeignKey=true)]
+		public Customer Customer
+		{
+			get
+			{
+				return this._Customer.Entity;
+			}
+			set
+			{
+				Customer previousValue = this._Customer.Entity;
+				if (((previousValue != value) 
+							|| (this._Customer.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Customer.Entity = null;
+						previousValue.AccountTrans.Remove(this);
+					}
+					this._Customer.Entity = value;
+					if ((value != null))
+					{
+						value.AccountTrans.Add(this);
+						this._CustomerId = value.Id;
+					}
+					else
+					{
+						this._CustomerId = default(int);
+					}
+					this.SendPropertyChanged("Customer");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
 		}
 	}
 }

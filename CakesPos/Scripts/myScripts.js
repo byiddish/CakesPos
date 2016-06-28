@@ -1042,7 +1042,7 @@ $(function () {
         var orderId = $('#processPaymentBtn').data('orderid');
         var amount = $('#amountPay').val();
 
-        $.post("/home/DeductFromAccount", { customerId: customerId, amount: amount }, function () {
+        $.post("/home/DeductFromAccount", { customerId: customerId, orderId: orderId, amount: amount }, function () {
         })
     })
 
@@ -1090,8 +1090,8 @@ $(function () {
                 else {
                     account = "$"+accParsed;
                 }
-      
-                $('#customersTable').append("<tr><td>" + c[i].LastName+" "+c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td>" + account + "</td></tr>")
+                var customerName=c[i].FirstName+" "+c[i].LastName;
+                $('#customersTable').append("<tr data-customerid="+c[i].Id+" data-balance="+c[i].Account+" data-customer="+'"'+customerName+'"'+"><td>" + c[i].LastName+" "+c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td>" + account + "</td></tr>")
             }
         })
     })
@@ -1138,24 +1138,47 @@ $(function () {
     //    })
     //}
 
-    $('#customersTable tr').on('click', function () {
+    $(document).on('click', '#customersTable tr', function () {
         var customerId = $(this).data('customerid');
         var balance = $(this).data('balance');
         var customer = $(this).data('customer');
-        $('#accountPayment').attr('customerid', customerId);
-        $('#accountPayment').attr('balance', balance);
+        $('#accountAjustments').attr('customerid', customerId);
+        $('#accountAjustments').attr('balance', balance);
         $('#customerEdit').attr('customerid', customerId);
         $('#customerEdit').attr('customer', customer);
+        $('#accountHistory').attr('customerid', customerId)
         $('.modal-title').html(customer)
         $('#customerActionModal').modal();
     })
 
-    $('#accountPayment').on('click', function () {
+    $('#accountHistory').on('click', function () {
+        $('#accountHistoryTable').find("tr:gt(0)").remove();
+        var customerId = $(this).attr('customerid');
+        $.post("/home/GetAccountTrans", { customerId: customerId }, function (h) {
+            for (i = 0; i < h.length; i++) {
+                $('#accountHistoryTable').append("<tr><td>" + ConvertJsonDate(h[i].Date) + "</td><td>" + (parseFloat(h[i].Amount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + "</td><td>" + h[i].Note + "</td></tr>")
+            }
+        })
+        $('#accountHistoryModal').modal();
+    })
+
+    $('#accountAjustments').on('click', function () {
         var customerId = $(this).attr('customerid');
         var balance = $(this).attr('balance');
         $('#accountPaymentBtn').attr('customerid', customerId);
         $('#accountPaymentBtn').attr('balance', balance);
         $('#accountPaymentModal').modal();
+    })
+
+    $('#accountPaymentBtn').on('click', function () {
+        var customerId = $(this).attr('customerid');
+        var amount = $('#amountPay').val();
+        var note = $('#paymentNote').val();
+        
+        $.post("/home/MakeAccountTrans", { customerId: customerId, amount: amount, note: note }, function () {
+            $('#accountAlert').html("Account ajusted successfuly...");
+            $('#accountAlertModal').modal();
+        })
     })
 
     $('#accountFullAmountCheckbox').change(function () {
@@ -1171,8 +1194,37 @@ $(function () {
 
     $('#customerEdit').on('click', function () {
         var customer = $(this).attr('customer');
-        $('.modal-title').html(customer)
-        $('#EditCustomerModal').modal();
+        var id = $(this).attr('customerid');
+        $('#EditCustomerSubmit').attr('customerid', id);
+        $.post("/home/GetCustomerById", { id: id }, function (c) {
+            if (c.Caterer===true) {
+                $('#caterer').prop('checked', true);
+            }
+            else {
+                $('#caterer').prop('checked', false);
+            }
+            $('#firstName').val(c.FirstName);
+            $('#lastName').val(c.LastName);
+            $('#address').val(c.Address);
+            $('#city').val(c.City);
+            $('#state').val(c.State);
+            $('#zip').val(c.Zip);
+            $('#phone').val(c.Phone);
+            $('#cell').val(c.Cell);
+            $('#email').val(c.Email);
+            $('#EditCustomerModal').modal();
+        })
+    })
+
+    $('#EditCustomerSubmit').on('click', function () {
+        var caterer = false;
+        if ($('#caterer').is(':checked')) {
+            caterer = true;
+        }
+        $.post("/home/EditCustomer", { customerId: $(this).attr('customerid'), firstName: $('#firstName').val(), lastName: $('#lastName').val(), address: $('#address').val(), city: $('#city').val(), state: $('#state').val(), zip: $('#zip').val(), phone: $('#phone').val(), cell: $('#cell').val(), caterer: caterer, email: $('#email').val() }, function () {
+            $('#accountAlert').html("Customer changes applied...");
+            $('#accountAlertModal').modal();
+        })
     })
 
     function ConvertJsonDate(jsonDate) {

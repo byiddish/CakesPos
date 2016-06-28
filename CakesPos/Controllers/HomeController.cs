@@ -321,6 +321,14 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
+        public ActionResult EditCustomer(int customerId, string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer, string email)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.EditCustomer(customerId, firstName, lastName, address, city, state, zip, phone, cell, caterer, email);
+            return null;
+        }
+
+        [HttpPost]
         public ActionResult MakePayment(int customerId, int orderId, decimal amount, string note)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
@@ -385,10 +393,10 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeductFromAccount(int customerId, decimal amount)
+        public ActionResult DeductFromAccount(int customerId, int orderId, decimal amount)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.DeductFromAccount(customerId, amount);
+            cpr.DeductFromAccount(customerId, orderId, amount);
             return null;
         }
 
@@ -482,6 +490,21 @@ namespace CakesPos.Controllers
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             return Json(cpr.SearchCustomers(search), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult MakeAccountTrans(int customerId, decimal amount, string note)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.MakeAccountTrans(customerId, amount, note);
+            return null;
+        }
+
+        [HttpPost]
+        public ActionResult GetAccountTrans(int customerId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return Json(cpr.GetAccountTrans(customerId), JsonRequestBehavior.AllowGet);
         }
 
     }

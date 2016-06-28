@@ -66,6 +66,7 @@
       <Column Name="Account" Type="System.Decimal" DbType="Money" CanBeNull="true" />
       <Association Name="Customer_Payment" Member="Payments" ThisKey="Id" OtherKey="CustomerId" Type="Payment" />
       <Association Name="Customer_StatementPayment" Member="StatementPayments" ThisKey="Id" OtherKey="CustomerId" Type="StatementPayment" />
+      <Association Name="Customer_AccountTran" Member="AccountTrans" ThisKey="Id" OtherKey="CustomerId" Type="AccountTran" />
     </Type>
   </Table>
   <Table Name="dbo.OrdersStatement" Member="OrdersStatements">
@@ -130,6 +131,16 @@
       <Association Name="Order_Payment" Member="Payments" ThisKey="Id" OtherKey="OrderId" Type="Payment" />
       <Association Name="Order_Status" Member="Status" ThisKey="Id" OtherKey="OrderId" Type="Status" />
       <Association Name="Order_OrdersStatement" Member="OrdersStatements" ThisKey="Id" OtherKey="OrderId" Type="OrdersStatement" />
+    </Type>
+  </Table>
+  <Table Name="dbo.AccountTrans" Member="AccountTrans">
+    <Type Name="AccountTran">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Amount" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="Note" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Association Name="Customer_AccountTran" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
 </Database>
