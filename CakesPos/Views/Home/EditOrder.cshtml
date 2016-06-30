@@ -12,7 +12,7 @@
                 <div id="customerInfoDivInner">
                     <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
                     <button class="btn btn-lg btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
-                    <input type="hidden" id="customerId" name="customerId" value=@Model.orderDetails.customer.Id/>
+                    <input type="hidden" id="customerId" name="customerId" value=@Model.orderDetails.customer.Id />
                     <h3 id="customerHeader">@Model.orderDetails.customer.FirstName @Model.orderDetails.customer.LastName</h3>
                     <h4 id="customerAddress">@Model.orderDetails.customer.Address</h4>
                     <h4 id="customerPhone">@Model.orderDetails.customer.Phone</h4>
@@ -167,157 +167,287 @@
             <div class="modal-body">
                 <input type="hidden" id="customerIdCheckout" name="customerId" value=@Model.orderDetails.customer.Id />
                 <div class="well">
-                    <label>Delivery options</label>
-                    <div>
-                        @if (Model.orderDetails.order.DeliveryOption == "Pickup")
-                        {
-                            <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" checked="checked"/></label>
-                        }
-                        else
-                        {
-                            <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
-                        }
-                    </div>
-                    <div>
-                        @if (Model.orderDetails.order.DeliveryOption == "Delivery")
-                        {
-                            <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" checked="checked"/></label>
-                        }
-                        else
-                        {
-                            <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
-                        }
-                    </div>
-                    <div class="form-group" id="deliveryInfoDiv" style="display: none;">
-                        <div class="checkbox">
+                    @if (Model.orderDetails.order.DeliveryOption == "Pickup")
+                    {
+                        <label>
+                            Pickup
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" checked="checked" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                        @*<label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" checked="checked"/></label>*@
+                    }
+                    else
+                    {
+                        <label>
+                            Pickup
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                        @*<label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>*@
+                    }
+                    @if (Model.orderDetails.order.DeliveryOption == "Delivery")
+                    {
+                        <label>
+                            Delivery
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" checked="checked" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                        @*<label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" checked="checked"/></label>*@
+                    }
+                    else
+                    {
+                        <label>
+                            Delivery
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                        @*<label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>*@
+                    }
+                </div>
+                <div class="form-group" id="deliveryInfoDiv" style="display: none;">
+
+                    @if (Model.orderDetails.order.DeliveryOption == "Delivery")
+                    {
+                        <label>
+                            Customer address
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="checkbox" id="customerAddressCheckbox" checked="checked" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                    }
+                    else
+                    {
+                        <label>
+                            Customer address
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="checkbox" id="customerAddressCheckbox" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                    }
+                    @*<div class="checkbox">
                             <label>
                                 <input type="checkbox" id="customerAddressCheckbox"> Customer address
                             </label>
-                        </div>
-                        <div class="col-xs-4 form-group">
-                            <label>
-                                First Name
-                                <input type="text" class="form-control" name="firstName" id="deliveryFirstName" value="@Model.orderDetails.order.DeliveryFirstName" placeholder="First Name" />
-                            </label>
-                        </div>
-                        <div class="col-xs-4 form-group">
-                            <label>
-                                Last Name
-                                <input type="text" class="form-control" name="lastName" id="deliveryLastName" value="@Model.orderDetails.order.DeliveryLastName" placeholder="Last Name" />
-                            </label>
-                        </div>
-                        <div class="col-xs-4 form-group">
-                            <label>
-                                Address
-                                <input type="text" class="form-control" name="address" id="deliveryAddress" value="@Model.orderDetails.order.DeliveryAddress" placeholder="Address" />
-                            </label>
-                        </div>
-                        <div class="col-xs-3 form-group">
-                            <label>
-                                City
-                                <input type="text" class="form-control" name="city" id="deliveryCity" value="@Model.orderDetails.order.DeliveryCity" placeholder="City" />
-                            </label>
-                        </div>
-                        <div class="col-xs-2 form-group">
-                            <label>
-                                State
-                                <input type="text" class="form-control" name="state" id="deliveryState" value="@Model.orderDetails.order.DeliveryState" placeholder="State" />
-                            </label>
-                        </div>
-                        <div class="col-xs-2 form-group">
-                            <label>
-                                Zip
-                                <input type="text" class="form-control" name="zip" id="deliveryZip" value="@Model.orderDetails.order.DeliveryZip" placeholder="Zip" />
-                            </label>
-                        </div>
-                        <div class="col-xs-4 form-group">
-                            <label for="deliveryPhone">
-                                Phone
-                                <input type="text" class="form-control" name="phone" id="deliveryPhone" value="@Model.orderDetails.order.Phone" placeholder="Phone" />
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                Delivery Note
-                                <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" @*value="@Model.orderDetails.order.DeliveryNote"*@ placeholder="Delivery Note">@Model.orderDetails.order.DeliveryNote</textarea>
-                            </label>
-                        </div>
+                        </div>*@
+                    <div class="col-xs-4 form-group">
+                        <label>
+                            First Name
+                            <input type="text" class="form-control" name="firstName" id="deliveryFirstName" value="@Model.orderDetails.order.DeliveryFirstName" placeholder="First Name" />
+                        </label>
                     </div>
-                </div>
-                <div class="well">
-                    <label>Payment options</label>
-                    <div>
-                        <div class="form-group">
-                            @if (Model.orderDetails.order.PaymentMethod == "DOC")
-                            {
-                                <input type="radio" id="doc" name="paymentMethod" value="DOC" checked="checked"/><label>DOC</label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="doc" name="paymentMethod" value="DOC" /><label>DOC</label>
-                            }
-                            @if (Model.orderDetails.order.PaymentMethod == "Credit Card")
-                            {
-                                <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" checked="checked"/><label>Credit Card </label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>
-                            }
-                            @if (Model.orderDetails.order.PaymentMethod == "Cash")
-                            {
-                                <input type="radio" id="cash" name="paymentMethod" value="Cash" checked="checked"/><label>Cash </label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>
-                            }
-                            @if (Model.orderDetails.order.PaymentMethod == "Check")
-                            {
-                                <input type="radio" id="check" name="paymentMethod" value="Check" checked="checked"/><label>Check </label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>
-                            }
-                        </div>
-                        <div class="form-group" id="creditCardInfoDiv" style="display: none;">
-                            <div class="form-group">
-                                <label>Credit Card</label>
-                                <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
-                            </div>
-                            <div class="col-xs-3 form-group">
-                                <label>Expiration</label>
-                                <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
-                            </div>
-                            <div class="col-xs-2 form-group">
-                                <label>Security Code</label>
-                                <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
-                            </div>
-                        </div>
+                    <div class="col-xs-4 form-group">
+                        <label>
+                            Last Name
+                            <input type="text" class="form-control" name="lastName" id="deliveryLastName" value="@Model.orderDetails.order.DeliveryLastName" placeholder="Last Name" />
+                        </label>
                     </div>
-                    <br />
-                    <div class="form-group">
-                        <label>Required Date</label>
-                        <input type="date" class="form-control" name="requiredDate" id="requiredDate" value="@Model.orderDetails.order.RequiredDate.Value.ToString("yyyy-MM-dd")">
+                    <div class="col-xs-4 form-group">
+                        <label>
+                            Address
+                            <input type="text" class="form-control" name="address" id="deliveryAddress" value="@Model.orderDetails.order.DeliveryAddress" placeholder="Address" />
+                        </label>
+                    </div>
+                    <div class="col-xs-3 form-group">
+                        <label>
+                            City
+                            <input type="text" class="form-control" name="city" id="deliveryCity" value="@Model.orderDetails.order.DeliveryCity" placeholder="City" />
+                        </label>
+                    </div>
+                    <div class="col-xs-2 form-group">
+                        <label>
+                            State
+                            <input type="text" class="form-control" name="state" id="deliveryState" value="@Model.orderDetails.order.DeliveryState" placeholder="State" />
+                        </label>
+                    </div>
+                    <div class="col-xs-2 form-group">
+                        <label>
+                            Zip
+                            <input type="text" class="form-control" name="zip" id="deliveryZip" value="@Model.orderDetails.order.DeliveryZip" placeholder="Zip" />
+                        </label>
+                    </div>
+                    <div class="col-xs-4 form-group">
+                        <label for="deliveryPhone">
+                            Phone
+                            <input type="text" class="form-control" name="phone" id="deliveryPhone" value="@Model.orderDetails.order.Phone" placeholder="Phone" />
+                        </label>
                     </div>
                     <div class="form-group">
-                        <label>Greetings</label>
-                        <textarea type="text" class="form-control" name="greetings" id="greetings" @*value="@Model.orderDetails.order.Greetings"*@ placeholder="Greetings">@Model.orderDetails.order.Greetings</textarea>
+                        <label>
+                            Delivery Note
+                            <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" @*value="@Model.orderDetails.order.DeliveryNote"*@ placeholder="Delivery Note">@Model.orderDetails.order.DeliveryNote</textarea>
+                        </label>
                     </div>
-                    <div class="form-group">
-                        <label>Notes</label>
-                        <textarea type="text" class="form-control" name="notes" id="notes" @*value="@Model.orderDetails.order.Notes"*@ placeholder="Notes">@Model.orderDetails.order.Notes</textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-success" id="EditOrderSubmitBtn" data-orderId=@Model.orderDetails.order.Id type="submit" data-dismiss="modal">Submit</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
-            @*</form>*@
+            <div class="well">
+                <label>Payment options</label>
+                <div>
+                    <div class="form-group">
+                        @if (Model.orderDetails.order.PaymentMethod == "COD")
+                        {
+                            <label>
+                                COD
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="cod" name="paymentMethod" value="COD" checked="checked" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+
+                            @*<input type="radio" id="doc" name="paymentMethod" value="DOC" checked="checked"/><label>DOC</label>*@
+                        }
+                        else
+                        {
+                            <label>
+                                COD
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="cod" name="paymentMethod" value="COD" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="doc" name="paymentMethod" value="DOC" /><label>DOC</label>*@
+                        }
+                        @if (Model.orderDetails.order.PaymentMethod == "Cash")
+                        {
+                            <label>
+                                Cash
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="cash" name="paymentMethod" value="Cash" checked="checked" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="cash" name="paymentMethod" value="Cash" checked="checked"/><label>Cash </label>*@
+                        }
+                        else
+                        {
+                            <label>
+                                Cash
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="cash" name="paymentMethod" value="Cash" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>*@
+                        }
+                        @if (Model.orderDetails.order.PaymentMethod == "Check")
+                        {
+                            <label>
+                                Check
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="check" name="paymentMethod" value="Check" checked="checked" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="check" name="paymentMethod" value="Check" checked="checked"/><label>Check </label>*@
+                        }
+                        else
+                        {
+                            <label>
+                                Check
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="check" name="paymentMethod" value="Check" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>*@
+                        }
+                        @if (Model.orderDetails.order.PaymentMethod == "Credit Card")
+                        {
+                            <label>
+                                Credit Card
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" checked="checked" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" checked="checked"/><label>Credit Card </label>*@
+                        }
+                        else
+                        {
+                            <label>
+                                Credit Card
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                            @*<input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>*@
+                        }
+                    </div>
+                    <div class="form-group" id="creditCardInfoDiv" style="display: none;">
+                        <div class="form-group">
+                            <label>Credit Card</label>
+                            <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
+                        </div>
+                        <div class="col-xs-3 form-group">
+                            <label>Expiration</label>
+                            <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
+                        </div>
+                        <div class="col-xs-2 form-group">
+                            <label>Security Code</label>
+                            <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="form-group">
+                    <label>Required Date</label>
+                    <input type="date" class="form-control" name="requiredDate" id="requiredDate" value="@Model.orderDetails.order.RequiredDate.Value.ToString("yyyy-MM-dd")">
+                </div>
+                <div class="form-group">
+                    <label>Greetings</label>
+                    <textarea type="text" class="form-control" name="greetings" id="greetings" @*value="@Model.orderDetails.order.Greetings"*@ placeholder="Greetings">@Model.orderDetails.order.Greetings</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea type="text" class="form-control" name="notes" id="notes" @*value="@Model.orderDetails.order.Notes"*@ placeholder="Notes">@Model.orderDetails.order.Notes</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" id="EditOrderSubmitBtn" data-orderid=@Model.orderDetails.order.Id type="submit" data-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
+        @*</form>*@
     </div>
+</div>
 </div>
 
 
@@ -379,5 +509,26 @@
                 </div>
             </div>
         </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="alertOrderChanges" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close e" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">New Order</h4>
+            </div>
+
+            <div class="modal-body">
+                <h2>Order changes where saved!</h2>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok e" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
     </div>
 </div>

@@ -58,6 +58,7 @@ namespace CakesPos.Data
             c.Cell = cell;
             c.Caterer = caterer;
             c.Email = email;
+            c.Account = 0;
 
             using (var context = new CakesPosDataContext(_connectionString))
             {
@@ -195,7 +196,7 @@ namespace CakesPos.Data
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
-                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList().OrderBy(c => c.LastName).OrderBy(c => c.FirstName);
+                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList().OrderBy(c => c.LastName).ToList();
             }
         }
 
@@ -934,6 +935,7 @@ namespace CakesPos.Data
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
+                
                 StatementPayment p = new StatementPayment();
                 p.CustomerId = customerId;
                 p.StatementId = statementId;
@@ -941,6 +943,11 @@ namespace CakesPos.Data
                 p.PaymentNote = paymentNote;
                 p.Date = DateTime.Now.Date;
                 context.StatementPayments.InsertOnSubmit(p);
+                var s = context.Statements.Where(x => x.Id == statementId).FirstOrDefault();
+                if ((GetStatementPayments(statementId).Sum(y=>y.Payment)+amount)>=(s.Balance) || amount>= s.Balance)
+                {
+                    s.Open = false;
+                }
                 context.SubmitChanges();
             }
         }
@@ -969,8 +976,15 @@ namespace CakesPos.Data
 //                cmd.ExecuteScalar();
 //            }
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.MakeAccountTrans(customerId, -amount, "Order payment...");
+            cpr.MakeAccountTrans(customerId, -amount, "Order #"+orderId+" payment...");
             cpr.MakePayment(customerId, orderId, amount, "Account charged...");
+        }
+
+        public void sDeductFromAccount(int customerId, int statementId, decimal amount, string note)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.MakeAccountTrans(customerId, -amount, "Statement #"+statementId+" payment...");
+            cpr.AddStatementPayment(customerId, statementId, amount, note);
         }
 
 

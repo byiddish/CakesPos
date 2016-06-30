@@ -25,14 +25,6 @@ $(function () {
 
     })
 
-    $("#creditCard").on('click', function () {
-        $("#creditCardInfoDiv").show();
-        $("#cash").on('click', function () {
-            $("#creditCardInfoDiv").hide();
-        })
-
-    })
-
     $('#pickup').on('click', function () {
         deliveryMethod = "Pickup";
     })
@@ -108,6 +100,8 @@ $(function () {
                         unitPrice: price,
                         quantity: quantity
                     }, function () {
+                        $('#alertOrderAdded').modal();
+                        //location.href = location.href;
                     });
                 })
                 //$.post("/home/GetCustomerById", { id: customerId }, function (customer) {
@@ -120,10 +114,14 @@ $(function () {
             })
     });
 
+    $('.o').on('click', function () {
+        location.href = location.href;
+    });
+
     $("#EditOrderSubmitBtn").on('click', function () {
         var orderId = $(this).data('orderid');
         var discount = parseFloat($('.discount').val());
-        if ($('input[name=paymentMethod]:checked').val() === "DOC") {
+        if ($('input[name=paymentMethod]:checked').val() === "COD") {
             paid = false;
         }
         else {
@@ -168,7 +166,7 @@ $(function () {
                     }, function () { });
                 })
             })
-        alert("Order #" + orderId + " updated successfuly!");
+        $('#alertOrderChanges').modal();
     });
 
     $('.sendStatementBtn').on('click', function () {
@@ -242,7 +240,7 @@ $(function () {
             //$('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
             $.each(bills, function (i, v) {
                 var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
-                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td>" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + '"' + balance + '"' + ">Payment</button></td></tr>");
+                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + balance + ">Payment</button></td></tr>");
 
             })
         })
@@ -261,7 +259,7 @@ $(function () {
             //$('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
             $.each(bills, function (i, v) {
                 var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
-                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td>" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + '"' + balance + '"' + ">Payment</button></td></tr>");
+                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + balance + ">Payment</button></td></tr>");
 
             })
         })
@@ -274,6 +272,7 @@ $(function () {
     })
 
     $('#orderDiv').on('click', '.payStatementBtn', function () {
+        var rowIndex = $(this).closest('tr').index();
         var customerId = $(this).data('customerid');
         var orderId = $(this).data('statementid');
         var balance = $(this).data('balance');
@@ -283,33 +282,67 @@ $(function () {
         $('#sProcessPaymentBtn').data('customerid', customerId);
         $('#sProcessPaymentBtn').data('statementid', orderId);
         $('#sProcessPaymentBtn').data('balance', balance);
-        $('#paymentModal').modal();
+        $('#sProcessPaymentBtn').attr('row', rowIndex);
+        $('#sDeductFromAcountBtn').attr('data-customerid', customerId);
+        $('#sDeductFromAcountBtn').attr('data-statementid', orderId);
+        $('#sDeductFromAcountBtn').attr('data-balance', balance);
+        $('#sDeductFromAcountBtn').data('customerid', customerId);
+        $('#sDeductFromAcountBtn').data('statementid', orderId);
+        $('#sDeductFromAcountBtn').data('balance', balance);
+        $('#sDeductFromAcountBtn').attr('row', rowIndex);
+        $('#sPaymentModal').modal();
 
     })
 
     $('#sProcessPaymentBtn').on('click', function () {
         var customerId = $(this).data('customerid');
         var statementId = $(this).data('statementid');
-        var amount = $('#amountPay').val();
+        var rowIndex = $(this).attr('row');
+        var balance = parseFloat($(this).data('balance'));
+        var amount = parseFloat($('#amountPay').val());
         var note = $('#paymentNote').val();
 
         $.post("/home/AddStatementPayment", { customerId: customerId, statementId: statementId, amount: amount, paymentNote: note }, function () {
+            $('#orderDiv tr:eq(' + rowIndex + ')').find('.payStatementBtn').data('balance', balance - amount);
+            $('#orderDiv tr:eq(' + rowIndex + ') td:eq(4)').html(parseFloat(balance-amount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             alert("Thank you for the payment!!!");
         })
 
         $('#amountPay').val("");
         $('#paymentNote').val("");
-        location.reload();
+    })
+
+    $('#sDeductFromAcountBtn').on('click', function () {
+        var customerId = $(this).data('customerid');
+        var statementId = $(this).data('statementid');
+        var rowIndex = $(this).attr('row');
+        var balance = parseFloat($(this).data('balance'));
+        var amount = parseFloat($('#amountPay').val());
+        var note = $('#paymentNote').val();
+
+        $.post("/home/StatementDeductFromAccount", { customerId: customerId, statementId: statementId, amount: amount, note: note }, function () {
+            $('#orderDiv tr:eq(' + rowIndex + ')').find('.payStatementBtn').data('balance', balance - amount);
+            $('#orderDiv tr:eq(' + rowIndex + ') td:eq(4)').html(parseFloat(balance - amount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+        })
+        $('#amountPay').val("");
+        $('#paymentNote').val("");
     })
 
     $('#sFullAmountCheckbox').change(function () {
         if (this.checked) {
             var balance = $('#sProcessPaymentBtn').data('balance');
-            $('#amountPay').val(parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())
+            balance = parseFloat(balance);
+            $('#amountPay').val(balance)
         }
         else {
             $('#amountPay').val("");
         }
+    })
+
+    $('#sPaymentModal').on('hidden.bs.modal', function () {
+        $('#amountPay').val("");
+        $('#sFullAmountCheckbox').attr('checked', false);
+        $('#paymentNote').val("");
     })
 
     //$('.printAndEmail').on('click', function () {
@@ -593,10 +626,10 @@ $(function () {
                         total += (t - catererDiscount * orderedProducts.quantity);
                     }
                     if (orderedProducts.caterer === true || caterer === "True" && orderedProducts.categoryId === 2) {
-                        catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + catererDiscount + ")</span>");
+                        catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + parseFloat(catererDiscount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + ")</span>");
                     }
                     else {
-                        catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + catererDiscount * orderedProducts.quantity + ")</span>");
+                        catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + parseFloat(catererDiscount * orderedProducts.quantity, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + ")</span>");
                     }
                 }
                 else {
@@ -610,12 +643,12 @@ $(function () {
                 //subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
             })
             $('#odDiscount').html("Discount: " + discount);
-            $('#odSubtotal').html("Subtotal: $" + total);
+            $('#odSubtotal').html("Subtotal: $" +  parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             if (discount >= 1) {
-                $('#odTotal').html("Total: $" + (total - discount));
+                $('#odTotal').html("Total: $" + parseFloat((total - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             }
             else {
-                $('#odTotal').html("Total: $" + (total - (total * discount)));
+                $('#odTotal').html("Total: $" + parseFloat((total - (total * discount)), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             }
         })
         $('#orderDetailsModal').modal('show');
@@ -1080,18 +1113,20 @@ $(function () {
             }
             for (i = 0; i < c.length; i++) {
                 var account = 0;
+                var balance = 0;
                 if (c[i].Account != null) {
                     account = c[i].Account;
+                    balance = c[i].Account;
                 }
                 var accParsed = (parseFloat(account, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
                 if (account < 0) {
                     account = "$" + accParsed;
                 }
                 else {
-                    account = "$"+accParsed;
+                    account = "$" + accParsed;
                 }
-                var customerName=c[i].FirstName+" "+c[i].LastName;
-                $('#customersTable').append("<tr data-customerid="+c[i].Id+" data-balance="+c[i].Account+" data-customer="+'"'+customerName+'"'+"><td>" + c[i].LastName+" "+c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td>" + account + "</td></tr>")
+                var customerName = c[i].FirstName + " " + c[i].LastName;
+                $('#customersTable').append("<tr data-customerid=" + c[i].Id + " data-balance=" + balance + " data-customer=" + '"' + customerName + '"' + "><td>" + c[i].LastName + " " + c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td class="+'"'+"account"+'"'+">" + account + "</td></tr>")
             }
         })
     })
@@ -1139,13 +1174,17 @@ $(function () {
     //}
 
     $(document).on('click', '#customersTable tr', function () {
+        var rowIndex= $(this).index();
         var customerId = $(this).data('customerid');
         var balance = $(this).data('balance');
         var customer = $(this).data('customer');
         $('#accountAjustments').attr('customerid', customerId);
         $('#accountAjustments').attr('balance', balance);
+        $('#accountAjustments').attr('row', rowIndex);
         $('#customerEdit').attr('customerid', customerId);
         $('#customerEdit').attr('customer', customer);
+        $('#customerEdit').attr('row', rowIndex);
+        $('#customerEdit').attr('balance', balance);
         $('#accountHistory').attr('customerid', customerId)
         $('.modal-title').html(customer)
         $('#customerActionModal').modal();
@@ -1165,18 +1204,27 @@ $(function () {
     $('#accountAjustments').on('click', function () {
         var customerId = $(this).attr('customerid');
         var balance = $(this).attr('balance');
+        var rowIndex = $(this).attr('row');
         $('#accountPaymentBtn').attr('customerid', customerId);
         $('#accountPaymentBtn').attr('balance', balance);
+        $('#accountPaymentBtn').attr('row', rowIndex);
         $('#accountPaymentModal').modal();
     })
 
     $('#accountPaymentBtn').on('click', function () {
+        var rowIndex = $(this).attr('row');
         var customerId = $(this).attr('customerid');
-        var amount = $('#amountPay').val();
+        var balance = parseFloat($(this).attr('balance'));
+        var amount = parseFloat($('#amountPay').val());
         var note = $('#paymentNote').val();
-        
+        var balance = balance += amount;
+        $('#accountAjustments').attr('balance', balance);
+        $('#customerEdit').attr('balance', balance);
+        $('#customersTable tr:eq(' + rowIndex + ')').data('balance', balance);
+
         $.post("/home/MakeAccountTrans", { customerId: customerId, amount: amount, note: note }, function () {
             $('#accountAlert').html("Account ajusted successfuly...");
+            $('#customersTable tr:eq(' + rowIndex + ') .account').html((parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
             $('#accountAlertModal').modal();
         })
     })
@@ -1192,12 +1240,20 @@ $(function () {
         }
     })
 
+    $('#accountPaymentModal').on('hidden.bs.modal', function () {
+        $('#amountPay').val("");
+    })
+
     $('#customerEdit').on('click', function () {
         var customer = $(this).attr('customer');
+        var rowIndex = $(this).attr('row');
         var id = $(this).attr('customerid');
+        var balance = $(this).attr('balance');
         $('#EditCustomerSubmit').attr('customerid', id);
+        $('#EditCustomerSubmit').attr('row', rowIndex);
+        $('#EditCustomerSubmit').attr('balance', balance);
         $.post("/home/GetCustomerById", { id: id }, function (c) {
-            if (c.Caterer===true) {
+            if (c.Caterer === true) {
                 $('#caterer').prop('checked', true);
             }
             else {
@@ -1217,14 +1273,22 @@ $(function () {
     })
 
     $('#EditCustomerSubmit').on('click', function () {
+        var rowIndex = $(this).attr('row');
+        var id = $('#EditCustomerSubmit').attr('customerid', id);
         var caterer = false;
+        var balance = $(this).attr('balance');
         if ($('#caterer').is(':checked')) {
             caterer = true;
         }
         $.post("/home/EditCustomer", { customerId: $(this).attr('customerid'), firstName: $('#firstName').val(), lastName: $('#lastName').val(), address: $('#address').val(), city: $('#city').val(), state: $('#state').val(), zip: $('#zip').val(), phone: $('#phone').val(), cell: $('#cell').val(), caterer: caterer, email: $('#email').val() }, function () {
             $('#accountAlert').html("Customer changes applied...");
             $('#accountAlertModal').modal();
+            $('#customersTable tr:eq(' + rowIndex + ')').html("<td>" + $('#lastName').val() + " " + $('#firstName').val() + "</td><td>" + $('#address').val() + " " + $('#city').val() + " " + $('#state').val() + " " + $('#zip').val() + "</td><td>" + $('#phone').val() + "</td><td>" + $('#cell').val() + "</td><td>" + $('#email').val() + "</td><td class="+'"'+"account"+'"'+">" + (parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + "</td>")
         })
+    })
+
+    $('.e').on('click', function () {
+        location.href = "/home/order";
     })
 
     function ConvertJsonDate(jsonDate) {
@@ -1307,7 +1371,7 @@ $(function () {
                 $('#total').text("Total: $" + (parseFloat(total - d, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
             }
             else {
-                $('#total').text("Total: $" + ("Total: $" + (parseFloat((total - getDiscount()), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())));
+                $('#total').text("Total: $" + ((parseFloat((total - getDiscount()), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())));
             }
         }
     }

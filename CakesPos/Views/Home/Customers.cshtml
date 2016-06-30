@@ -28,13 +28,13 @@
                     {
                         account = (decimal)c.Account;
                     }
-                    <tr data-customerid=@c.Id data-balance="@c.Account" data-customer="@c.FirstName @c.LastName">
+                    <tr data-customerid=@c.Id data-balance=@account data-customer="@c.FirstName @c.LastName">
                         <td>@c.LastName @c.FirstName</td>
                         <td>@c.Address @c.City @c.State @c.Zip</td>
                         <td>@c.Phone</td>
                         <td>@c.Cell</td>
                         <td>@c.Email</td>
-                        <td>@account.ToString("C")</td>
+                        <td class="account">@account.ToString("C")</td>
                     </tr>
                 }
             </table>
@@ -53,8 +53,8 @@
 
             <div class="modal-body">
                 <div>
-                    <button class="btn btn-warning btn-lg btn-block" id="customerEdit">Edit</button>
-                    <button class="btn btn-success btn-lg btn-block" id="accountAjustments">Ajust Account</button>
+                    <button class="btn btn-warning btn-lg btn-block" id="customerEdit">Edit Profile</button>
+                    <button class="btn btn-success btn-lg btn-block" id="accountAjustments">Account Ajustments</button>
                     <button class="btn btn-primary btn-lg btn-block" id="accountHistory">Account History</button>
                 </div>
             </div>

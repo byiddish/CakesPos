@@ -400,6 +400,14 @@ namespace CakesPos.Controllers
             return null;
         }
 
+        [HttpPost]
+        public ActionResult StatementDeductFromAccount(int customerId, int statementId, decimal amount, string note)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.sDeductFromAccount(customerId, statementId, amount, note);
+            return null;
+        }
+
         public ActionResult Statements()
         {
             //DateTime min = DateTime.Now.AddMonths(-1).Date;
