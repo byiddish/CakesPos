@@ -50,11 +50,11 @@ namespace CakesPos
             table.AddCell(cell4);
 
             Phrase BillFrom = new Phrase();
-            Chunk a = new Chunk("Company Name \n");
-            Chunk csz = new Chunk("Address \nCity State Zip\n");
+            Chunk a = new Chunk("Elegant Cakes \n");
+            Chunk csz = new Chunk("922 46th Street \nBrooklyn NY 11219\n");
             Chunk p = new Chunk("Phone: 785-438-8547 \n");
             Chunk f = new Chunk("Fax: 787-854-7785 \n");
-            Chunk e = new Chunk("Email: company@gmail.com \n______________________________\n\n");
+            Chunk e = new Chunk("Email: siegelmancake@gmail.com \n______________________________\n\n");
             BillFrom.Add(a);
             BillFrom.Add(csz);
             BillFrom.Add(p);
@@ -99,7 +99,7 @@ namespace CakesPos
             Font greetingFont = FontFactory.GetFont("Ariel",18);
             Paragraph greeting1 = new Paragraph("Thank you for your bussiness!",greetingFont);
 
-            Paragraph greeting2 = new Paragraph("If you have any questions with this invoice, please contact\nSamson 917-654-8899 jjjjjkk@gmail.com");
+            Paragraph greeting2 = new Paragraph("If you have any questions with this invoice, please contact\nSamson 917-654-8899 siegelmancake@gmail.com");
 
             Font hFont = FontFactory.GetFont("Verdana", 20, BaseColor.LIGHT_GRAY);
             Paragraph companyName = new Paragraph("Elegant Cakes", hFont);
@@ -147,7 +147,7 @@ namespace CakesPos
         public void EmailInvoice(string file, string email)
         {
             MailMessage mail = new MailMessage();
-            mail.From = new System.Net.Mail.MailAddress("\"Company Name\" <company@gmail.com>");
+            mail.From = new System.Net.Mail.MailAddress("\"Elegant Cakes\" <siegelmancake@gmail.com>");
 
             // The important part -- configuring the SMTP client
             SmtpClient smtp = new SmtpClient();
@@ -155,7 +155,7 @@ namespace CakesPos
             smtp.EnableSsl = true;
             smtp.DeliveryMethod = SmtpDeliveryMethod.Network; // [2] Added this
             smtp.UseDefaultCredentials = false; // [3] Changed this
-            smtp.Credentials = smtp.Credentials = new NetworkCredential("company@gmail.com", "companyPassword");  // [4] Added this. 
+            smtp.Credentials = smtp.Credentials = new NetworkCredential("siegelmancake@gmail.com", "cake922t");  // [4] Added this. 
             smtp.Host = "smtp.gmail.com";
 
             //recipient address

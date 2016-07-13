@@ -1,6 +1,5 @@
-﻿body
-{
-    background: url('https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRoOCCavyGkAhPWyRy2IzATaoA1g0wNGA9YupAX-vdHadBh_c1XLA') fixed;
+﻿body {
+    background-image: url('/Uploads/Bells.jpg');
     background-size: cover;
     padding: 0;
     margin: 0;

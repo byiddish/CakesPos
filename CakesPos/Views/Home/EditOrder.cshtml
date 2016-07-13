@@ -79,24 +79,24 @@
                         }
                         else
                         {
-                            total += od.unitPrice * od.quantity - (decimal)catererDiscount;
+                            total += od.unitPrice * od.quantity;
                             <td class="price">@price.ToString("C")</td>
                         }
                         @{itemCount += od.quantity;}
                     </tr>
-                        if (discount < 1)
-                        {
-                            discount = total * discount;
-                        }
-                        total = total - discount;
                 }
+                @if (discount < 1)
+                {
+                discount = total * discount;
+                }
+                @{total = total - discount;}
             </table>
         </div>
         <div id="totalDiv">
             <div id="totalDivInner">
                 <h3>Discount  <input class="input-sm discount" id="discountInput" value="@Model.orderDetails.order.Discount" /> <button id="refresh" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button></h3>
                 <h3 id="totalItems">Total items: @itemCount</h3>
-                <h1 id="total">Total: @total.ToString("C")</h1>
+                <h1 data-total=@total id="total">Total: @total.ToString("C")</h1>
                 <button class="btn btn-block btn-lg btn-success" data-toggle="modal" data-target="#checkoutModal">Place Order</button>
             </div>
         </div>
@@ -305,6 +305,7 @@
                 <label>Payment options</label>
                 <div>
                     <div class="form-group">
+                        <input id="paymentMethodIndicator" hidden value=@Model.orderDetails.order.PaymentMethod />
                         @if (Model.orderDetails.order.PaymentMethod == "COD")
                         {
                             <label>

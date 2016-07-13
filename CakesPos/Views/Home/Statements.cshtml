@@ -76,19 +76,19 @@
                 {
                     status = o.status.Status1;
                 }
-                CakesPos.Data.CakesPosRepository cpr = new CakesPos.Data.CakesPosRepository(@"Data Source=.\sqlexpress;Initial Catalog=CakesPos;Integrated Security=True");
-                decimal total = 0;
-                if (o.discount < 1)
-                {
+                //CakesPos.Data.CakesPosRepository cpr = new CakesPos.Data.CakesPosRepository(@"Data Source=.\sqlexpress;Initial Catalog=CakesPos;Integrated Security=True");
+                //decimal total = 0;
+                //if (o.discount < 1)
+                //{
 
-                    decimal x = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId);
-                    decimal discount = x * o.discount;
-                    total = x - discount;
-                }
-                else
-                {
-                    total = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId) - o.discount;
-                }
+                //    decimal x = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId);
+                //    decimal discount = x * o.discount;
+                //    total = x - discount;
+                //}
+                //else
+                //{
+                //    total = (decimal)cpr.GetTotalByOrderId(o.id, o.customerId) - o.discount;
+                //}
                 <tr class="history">
                     <td>@o.lastName @o.firstName</td>
                     <td>@o.total.ToString("C")</td>
@@ -231,6 +231,46 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="statementAlertModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Statement Status</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h1 id="statementAlertMessage"></h1>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="paymentAlertModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Payment Status</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h1>Payment processed!</h1>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
             </div>
         </div>
     </div>

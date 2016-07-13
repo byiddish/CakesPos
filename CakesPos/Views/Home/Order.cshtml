@@ -37,7 +37,7 @@
             <div id="totalDivInner">
                 <h3>Discount  <input class="input-sm discount" id="discountInput" /> <button id="refresh" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span></button></h3>
                 <h3 id="totalItems">Total items: 0</h3>
-                <h1 id="total">Total: $0.00</h1>
+                <h1 data-total="0" id="total">Total: $0.00</h1>
                 <button class="btn btn-block btn-lg btn-success" id="placeOrderBtn">Place Order</button>
             </div>
         </div>
@@ -48,14 +48,14 @@
             {
                 <btn class="btn btn-lg btn-success categorybtn" data-category=@category.Id>@category.CategoryName</btn>
             }
-
+            <btn class="btn btn-lg btn-info customizeBtn">Customize Product</btn>
         </div>
         <div id="cakesDiv">
             <div id="productsInnerDiv">
                 @foreach (CakesPos.Data.Product product in Model.products)
                 {
                     string productName = product.ProductName.ToString();
-                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryid=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="/Uploads/@product.Image.ToString()" /><br />@product.ProductName @product.Price.ToString("C")</button>
+                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryid=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="~/Uploads/@product.Image.ToString()" /><br />@product.ProductName @product.Price.ToString("C")</button>
                 }
             </div>
         </div>
@@ -117,7 +117,7 @@
                         Pickup
                         <div class="form-group">
                             <label class="switch">
-                                <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" />
+                                <input type="radio" id="pickup" checked name="deliveryOpt" value="Pickup" />
                                 <div class="slider round"></div>
                             </label>
                         </div>
@@ -135,12 +135,12 @@
                     </label>
 
                     @*<label>Delivery options</label>
-                    <div>
-                        <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
-                    </div>
-                    <div>
-                        <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
-                    </div>*@
+                        <div>
+                            <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
+                        </div>
+                        <div>
+                            <label>Delivery <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" /></label>
+                        </div>*@
 
 
 
@@ -158,10 +158,10 @@
 
 
                         @*<div class="checkbox">
-                            <label>
-                                <input type="checkbox" id="customerAddressCheckbox"> Customer address
-                            </label>
-                        </div>*@
+                                <label>
+                                    <input type="checkbox" id="customerAddressCheckbox"> Customer address
+                                </label>
+                            </div>*@
                         <div class="col-xs-4 form-group">
                             <label>
                                 First Name
@@ -221,7 +221,7 @@
                                 COD
                                 <div class="form-group">
                                     <label class="switch">
-                                        <input type="radio" id="cod" name="paymentMethod" value="COD" />
+                                        <input type="radio" id="cod" checked name="paymentMethod" value="COD" />
                                         <div class="slider round"></div>
                                     </label>
                                 </div>
@@ -259,7 +259,7 @@
 
 
                             @*<input type="radio" id="cod" name="paymentMethod" value="COD" /><label>COD</label>
-                            @*</div>*@
+                                @*</div>*@
                             @*<div class="form-group">*@
                             @*<input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>*@
                             @*</div>
@@ -271,19 +271,19 @@
                             @*</div>*@
                         </div>
                         @*<div class="form-group" id="creditCardInfoDiv" style="display: none;">
-                            <div class="form-group">
-                                <label>Credit Card</label>
-                                <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
-                            </div>
-                            <div class="col-xs-3 form-group">
-                                <label>Expiration</label>
-                                <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
-                            </div>
-                            <div class="col-xs-2 form-group">
-                                <label>Security Code</label>
-                                <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
-                            </div>
-                        </div>*@
+                                <div class="form-group">
+                                    <label>Credit Card</label>
+                                    <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
+                                </div>
+                                <div class="col-xs-3 form-group">
+                                    <label>Expiration</label>
+                                    <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
+                                </div>
+                                <div class="col-xs-2 form-group">
+                                    <label>Security Code</label>
+                                    <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
+                                </div>
+                            </div>*@
                     </div>
                     <br />
                     <div class="form-group">
@@ -300,7 +300,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success" id="orderSubmitBtn" type="submit" data-dismiss="modal">Submit</button>
+                    <button class="btn btn-success" id="orderSubmitBtn" type="submit">Submit</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -321,7 +321,8 @@
                 <h4 class="modal-title">New Customer</h4>
             </div>
             <div class="modal-body">
-                <label>Caterer
+                <label>
+                    Caterer
                     <div class="form-group">
                         <label class="switch">
                             <input type="checkbox" name="caterer" id="caterer" value="true">
@@ -368,7 +369,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button @*type="submit"*@ class="btn btn-primary" data-dismiss="modal" id="newCustomerSubmit">Submit</button>
+                <button @*type="submit"*@ class="btn btn-primary" id="newCustomerSubmit">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -387,7 +388,7 @@
             </div>
 
             <div class="modal-body">
-                <p>Please select a customer before placing the order!</p>
+                <h1>Please select a customer before placing the order!</h1>
             </div>
 
             <div class="modal-footer">
@@ -407,7 +408,7 @@
             </div>
 
             <div class="modal-body">
-                <p>Please select at least one item!</p>
+                <h1>Please select at least one item!</h1>
             </div>
 
             <div class="modal-footer">
@@ -427,7 +428,85 @@
             </div>
 
             <div class="modal-body">
-                <p>New customer was added to the system!</p>
+                <h1>New customer was added to the system!</h1>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="alertInvalidSubmit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">New Customer</h4>
+            </div>
+
+            <div class="modal-body">
+                <h1><span style="color:red">Please provide a contact number!</span></h1>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="customizeProductModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Custom Product</h4>
+            </div>
+            <div class="modal-body">
+                <form id="formCustom" enctype="multipart/form-data">
+                    <div class="well">
+                        <h1>Custom Product</h1>
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" class="form-control" name="productName" id="productName" placeholder="Product Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="text" class="form-control" name="price" id="price" placeholder="Price">
+                        </div>
+                        <div class="form-group">
+                            <label>In Stock</label>
+                            <input type="number" class="form-control" name="inStock" id="inStock" placeholder="In Stock">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="customProductSubmit">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="alertInvalidSubmitModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close o" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Invalid Submission</h4>
+            </div>
+
+            <div class="modal-body">
+                <h1 id="invalidSubmitAlert"></h1>
             </div>
 
             <div class="modal-footer">
@@ -443,16 +522,18 @@
 
             <div class="modal-header">
                 <button type="button" class="close o" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">New Order</h4>
+                <h4 class="modal-title" id="myModalLabel">Order Status</h4>
             </div>
 
             <div class="modal-body">
-                <h2>Order processed successfully!</h2>
+                <h1>Order submitted!</h1>
             </div>
 
             <div class="modal-footer">
-                <a class="btn btn-danger btn-ok o" data-dismiss="modal">Ok</a>
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
             </div>
         </div>
     </div>
 </div>
+
+

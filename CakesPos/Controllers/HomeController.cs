@@ -154,10 +154,10 @@ namespace CakesPos.Controllers
         //    return Json(orders, JsonRequestBehavior.AllowGet);
         //}
 
-        [AllowAnonymous]
         public ActionResult Admin()
         {
-            return View();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            return View(cpr.GetAllCategories());
         }
 
         public ActionResult Inventory()
@@ -169,6 +169,14 @@ namespace CakesPos.Controllers
             ibcm.inventory = cpr.GetInventory(min, max);
             ibcm.categories = cpr.GetAllCategories();
             return View(ibcm);
+        }
+
+        [HttpPost]
+        public ActionResult AddCustomProduct(string productName, decimal price, int inStock)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.AddProduct(productName, price, inStock, "default.jpg", 1005);
+            return null;
         }
 
         [HttpPost]
@@ -223,13 +231,22 @@ namespace CakesPos.Controllers
 
         public ActionResult AddNewProduct(string productName, decimal price, int inStock, HttpPostedFileBase image, int categoryId)
         {
-            Guid g = Guid.NewGuid();
+            if (image == null)
+            {
+                CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+                cpr.AddProduct(productName, price, inStock, "default.jpg", categoryId);
+                return RedirectToAction("Admin");
+            }
+            else
+            {
+                Guid g = Guid.NewGuid();
 
-            image.SaveAs(Server.MapPath("~/Uploads/" + g + ".jpg"));
+                image.SaveAs(Server.MapPath("~/Uploads/" + g + ".jpg"));
 
-            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddProduct(productName, price, inStock, g + ".jpg", categoryId);
-            return RedirectToAction("Admin");
+                CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+                cpr.AddProduct(productName, price, inStock, g + ".jpg", categoryId);
+                return RedirectToAction("Admin");
+            }
         }
 
         [HttpPost]
@@ -244,8 +261,7 @@ namespace CakesPos.Controllers
         public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer, string email)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, cell, caterer, email);
-            return null;
+            return Json(cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone, cell, caterer, email),JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -337,12 +353,28 @@ namespace CakesPos.Controllers
         }
 
         [HttpPost]
+        public ActionResult UpdateInvoicesPaid(int statementId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.UpdateInvoicesPaid(statementId);
+            return null;
+        }
+
+        [HttpPost]
         public ActionResult UpdateOrderById(int orderId, int customerId, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid)
         {
             DateTime dateTime = DateTime.Now;
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             cpr.DeleteOrderDetailsById(orderId);
             cpr.UpdateOrderById(orderId, customerId, dateTime, requiredDate, deliveryOpt, deliveryFirstName, deliveryLastName, deliveryAddress, deliveryCity, deliveryState, deliveryZip, phone, creditCard, expiration, securityCode, paymentMethod, discount, notes, greetings, deliveryNote, paid);
+            return null;
+        }
+
+        [HttpPost]
+        public ActionResult DeletePayments(int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            cpr.DeletePaymentsById(orderId);
             return null;
         }
 
@@ -427,12 +459,7 @@ namespace CakesPos.Controllers
             StatementManager sm = new StatementManager();
             sm.CreateStatementPDF(s, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
             cpr.AddStatementFilePath(s.Statement.Id, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
-            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
-            //Statement s=cpr.GetStatementByCustomerId(customerId);
-            //StatementManager sm = new StatementManager();
-            //sm.CreateStatementPDF(s, @"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf");
-            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.StatementDate.ToShortDateString());
-            //cpr.AddStatementsFilePath()
+            sm.EmailStatement(@"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
             return null;
         }
 
@@ -443,8 +470,27 @@ namespace CakesPos.Controllers
             int id = cpr.GenerateStatement(customerId);
             StatementsModel s = cpr.GetStatementsForPdf(id, customerId);
             StatementManager sm = new StatementManager();
+            sm.CreateStatementPDF(s, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\StatementsPdf\" + s.Statement.Id + ".pdf");
+            cpr.AddStatementFilePath(s.Statement.Id, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\StatementsPdf\" + s.Statement.Id + ".pdf");
+            return Json(id, JsonRequestBehavior.AllowGet);
+            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
+            //Statement s=cpr.GetStatementByCustomerId(customerId);
+            //StatementManager sm = new StatementManager();
+            //sm.CreateStatementPDF(s, @"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf");
+            //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.StatementNumber + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.StatementDate.ToShortDateString());
+            //cpr.AddStatementsFilePath()
+        }
+
+        [HttpPost]
+        public ActionResult GenerateStatementPrintEmail(int customerId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            int id = cpr.GenerateStatement(customerId);
+            StatementsModel s = cpr.GetStatementsForPdf(id, customerId);
+            StatementManager sm = new StatementManager();
             sm.CreateStatementPDF(s, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
             cpr.AddStatementFilePath(s.Statement.Id, @"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf");
+            sm.EmailStatement(@"C:\Users\Barry\documents\visual studio 2013\Projects\CakesPos\CakesPos\Statements-Pdf\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
             return Json(id, JsonRequestBehavior.AllowGet);
             //sm.EmailStatement(@"C:\Users\Barry\Documents\Pdf-Statements\" + s.Statement.Id + ".pdf", s.Orders.FirstOrDefault().customer.Email, s.Statement.Date.ToShortDateString());
             //Statement s=cpr.GetStatementByCustomerId(customerId);

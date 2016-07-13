@@ -23,6 +23,8 @@ namespace CakesPos.Data
         public Status status { get; set; }
         public decimal total { get; set; }
         public decimal balance { get; set; }
+        public bool invoice { get; set; }
+        public bool statement { get; set; }
         public IEnumerable<Payment> payments { get; set; }
     }
 }

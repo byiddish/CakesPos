@@ -15,7 +15,7 @@
                 <option value="0">Today</option>
                 <option value="1">Tommorow</option>
                 <option value="7">Next 7 Days</option>
-                <option value="30">Next 30</option>
+                <option value="30">Next 30 Days</option>
                 <option value="-1">Yesterday</option>
                 <option value="-7">Last 7 Days</option>
                 <option value="-30">Last 30 Days</option>
@@ -28,6 +28,7 @@
                 <option value="delivered">Delivered</option>
                 <option value="paid">Paid</option>
                 <option value="closed">Closed</option>
+                <option value="all">All</option>
             </select>
         </label>
         @*<button class="btn btn-success" id="applybtn">Apply</button>*@
@@ -39,6 +40,7 @@
             <th>Requested Date</th>
             <th>Delivery Option</th>
             <th>Total</th>
+            <th>Payment Method</th>
             <th>Status</th>
             <th>Balance</th>
             <th>Action</th>
@@ -77,6 +79,7 @@
                 }
                 <td>@total.ToString("C")</td>
 
+                <td>@o.paymentMethod</td>
                 <td>@status</td>
                 @{decimal balance = 0;}
                 @{decimal? payment = 0;}
@@ -93,10 +96,22 @@
                 {
                     <td class="balance"><span style="color:red">@balance.ToString("C")</span></td>
                 }
-
                 <td>
-                    <button class="btn btn-info viewDetailsBtn" data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>View Details</button>
-                    <button class="btn btn-success paymentBtn" data-balance=@balance data-orderid=@o.id data-customerid=@o.customerId @*data-toggle="modal" data-target="#paymentModal"*@>Payment</button>
+                    @*@if (o.invoice)
+                    {
+                        <button class="btn btn-info viewPdfBtn" data-orderid=@o.id>View Pdf</button>
+                    }*@
+
+                    <button class="btn btn-info viewDetailsBtn" data-deliveryopt=@o.deliveryOpt data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>View Details</button>
+                    @if (o.paid || balance <= 0 || o.statement)
+                    {
+                        <button class="btn btn-success paymentBtn" data-balance=@balance data-orderid=@o.id data-customerid=@o.customerId disabled @*data-toggle="modal" data-target="#paymentModal"*@>Payment</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-success paymentBtn" data-balance=@balance data-orderid=@o.id data-customerid=@o.customerId @*data-toggle="modal" data-target="#paymentModal"*@>Payment</button>
+                    }
+                   
                 </td>
             </tr>
         }
@@ -105,7 +120,7 @@
     {
         <h3 id="ordersAlert">No orders for this time period...</h3>
     }
-    
+
 </div>
 
 <div id="orderDetailsModal" class="modal fade" role="dialog">
@@ -248,10 +263,10 @@
                         <textarea id="paymentNote" placeholder="Notes"></textarea>
                     </div>*@
                 <div class="form-group" align="center">
-                    <h1><input type="checkbox" class="checkbox checkbox-inline status" value="Picked up" /> Picked up</h1>
+                    <h1><input type="radio" id="pickedupCheck" name="status" class="checkbox checkbox-inline status" value="Picked up" /> Picked up</h1>
                 </div>
                 <div class="form-group" align="center">
-                    <h1><input type="checkbox" class="checkbox checkbox-inline status" value="Delivered" /> Delivered</h1>
+                    <h1><input type="radio" id="deliveryCheck" name="status" class="checkbox checkbox-inline status" value="Delivered" /> Delivered</h1>
                 </div>
                 <div id="emailCheck"></div>
                 <div class="form-group" align="center">
@@ -276,10 +291,49 @@
                 <h4 class="modal-title">Invoice Status</h4>
             </div>
             <div class="modal-body" align="center">
-               <h1 id="invoiceAlertMessage"></h1>
+                <h1 id="invoiceAlertMessage"></h1>
             </div>
             <div class="modal-footer">
                 <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="cancelStatusModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Cancel Confirmation</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h1>Order was canceled!</h1>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="cancelAlertModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Cancel Confirmation</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h1>Are you sure you want to cancel this order?</h1>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-success" id="cancelYesBtn" data-dismiss="modal">Yes</a>
+                <a class="btn btn-danger" data-dismiss="modal">No</a>
             </div>
         </div>
     </div>

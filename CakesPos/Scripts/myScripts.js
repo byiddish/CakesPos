@@ -1,21 +1,18 @@
-﻿
-//$(window).load(function () {
-//    $(".loader").fadeOut("slow");
-//})
-
-//$(document).ajaxStart(function () {
-//    $(".loader").fadeOut("slow");
-//});
-//$(document).ajaxComplete(function () {
-//    $(".loader").css("display", "none");
-//});
-
-
-$(function () {
+﻿$(function () {
     var deliveryMethod = "";
     var paymentMethod = "";
     var paid = false;
 
+    $(function () {
+        $('a').on('click', function (e) {
+            localStorage.setItem('lastTab', $(this).attr('href'));
+        });
+    });
+
+    var lastTab = localStorage.getItem('lastTab');
+    if (lastTab) {
+        $('a[href="' + lastTab + '"]').closest('li').addClass('active').siblings().removeClass('active');
+    }
 
     $("#delivery").on('click', function () {
         $("#deliveryInfoDiv").show();
@@ -53,66 +50,108 @@ $(function () {
         paid = false;
     })
 
-    $("#orderSubmitBtn").on('click', function () {
-        var discount = parseFloat($('.discount').val());
-        var customerId = $('#customerIdCheckout').val();
-        var ordersId;
-        if ($('input[name=paymentMethod]:checked').val() === "COD") {
-            paid = false;
+    $('.customizeBtn').on('click', function () {
+        $('#customizeProductModal').modal();
+    })
+
+    $('#customProductSubmit').on('click', function () {
+        var productName = $('#productName').val();
+        var price = $('#price').val();
+        var inStock = $('#inStock').val();
+        if (productName == "" || price == "" || inStock == "") {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">All inputs are necessary!</span>")
+            $('#alertInvalidSubmitModal').modal();
         }
         else {
-            paid = true;
+            $.post("/home/AddCustomProduct", { productName: productName, price: price, inStock: inStock, }, function () {
+                $('#customizeProductModal').modal('toggle');
+                $('#productName').val("");
+                $('#price').val("");
+                $('#inStock').val("");
+            });
+        }
+    });
+
+    $("#orderSubmitBtn").on('click', function () {
+        if ($('.requiredDate').datepicker("getDate") === null) {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please select a required date to continue!</span>")
+            $('#alertInvalidSubmitModal').modal();
+        }
+        else if ($('#delivery').prop('checked') == true && $('#deliveryAddress').val() === "") {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please enter a delivery address to continue!</span>")
+            $('#alertInvalidSubmitModal').modal();
+        }
+        else {
+            var discount = parseFloat($('.discount').val());
+            var customerId = $('#customerIdCheckout').val();
+            var ordersId;
+            if ($('input[name=paymentMethod]:checked').val() === "COD") {
+                paid = false;
+            }
+            else {
+                paid = true;
+            }
+
+            discount = discount || 0;
+            $.post("/home/AddOrder", {
+                customerId: $('#customerIdCheckout').val(),
+                requiredDate: $('.requiredDate').val(),
+                deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
+                deliveryFirstName: $('#deliveryFirstName').val(),
+                deliveryLastName: $('#deliveryLastName').val(),
+                deliveryAddress: $('#deliveryAddress').val(),
+                deliveryCity: $('#deliveryCity').val(),
+                deliveryState: $('#deliveryState').val(),
+                deliveryZip: $('#deliveryZip').val(),
+                phone: $('#deliveryPhone').val(),
+                creditCard: $('#creditCardNumber').val(),
+                expiration: $('#expiration').val(),
+                securityCode: $('#securityCode').val(),
+                paymentMethod: $('input[name=paymentMethod]:checked').val(),
+                discount: discount,
+                notes: $('#notes').val(),
+                greetings: $('#greetings').val(),
+                deliveryNote: $('#orderDeliveryNote').val(),
+                paid: paid
+            },
+                function (orderId) {
+                    if (paid) {
+                        amount = parseFloat($('#total').data('total'));
+                        $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount }, function () {
+                        })
+                    }
+                    ordersId = orderId;
+                    $('#orderTable').find('tr').not(':first').each(function () {
+                        var product = $(this);
+                        var productId = product.data('id');
+                        var price = product.data('price');
+                        var quantity = $(this).find('input.q').val();
+
+                        $.post("/home/AddOrderDetails", {
+                            orderId: orderId,
+                            productId: productId,
+                            unitPrice: price,
+                            quantity: quantity
+                        }, function () {
+                            $('#alertOrderAdded').modal();
+                            //location.href = location.href;
+                        });
+                    })
+                    //$.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+                    //    if (customer.Caterer && customer.Email != "") {
+                    //        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+
+                    //        })
+                    //    }
+                    //})
+                })
         }
 
-        discount = discount || 0;
-        $.post("/home/AddOrder", {
-            customerId: $('#customerIdCheckout').val(),
-            requiredDate: $('.requiredDate').val(),
-            deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
-            deliveryFirstName: $('#deliveryFirstName').val(),
-            deliveryLastName: $('#deliveryLastName').val(),
-            deliveryAddress: $('#deliveryAddress').val(),
-            deliveryCity: $('#deliveryCity').val(),
-            deliveryState: $('#deliveryState').val(),
-            deliveryZip: $('#deliveryZip').val(),
-            phone: $('#deliveryPhone').val(),
-            creditCard: $('#creditCardNumber').val(),
-            expiration: $('#expiration').val(),
-            securityCode: $('#securityCode').val(),
-            paymentMethod: $('input[name=paymentMethod]:checked').val(),
-            discount: discount,
-            notes: $('#notes').val(),
-            greetings: $('#greetings').val(),
-            deliveryNote: $('#orderDeliveryNote').val(),
-            paid: paid
-        },
-            function (orderId) {
-                ordersId = orderId;
-                $('#orderTable').find('tr').not(':first').each(function () {
-                    var product = $(this);
-                    var productId = product.data('id');
-                    var price = product.data('price');
-                    var quantity = $(this).find('input.q').val();
-
-                    $.post("/home/AddOrderDetails", {
-                        orderId: orderId,
-                        productId: productId,
-                        unitPrice: price,
-                        quantity: quantity
-                    }, function () {
-                        $('#alertOrderAdded').modal();
-                        //location.href = location.href;
-                    });
-                })
-                //$.post("/home/GetCustomerById", { id: customerId }, function (customer) {
-                //    if (customer.Caterer && customer.Email != "") {
-                //        $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
-
-                //        })
-                //    }
-                //})
-            })
     });
+
+    $('#alertOrderAdded').on('hidden.bs.modal', function () {
+        location.href = location.href;
+    })
 
     $('.o').on('click', function () {
         location.href = location.href;
@@ -152,6 +191,15 @@ $(function () {
             paid: paid
         },
             function () {
+                if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() == "COD") {
+                    $.post("/home/DeletePayments", { orderId: orderId }, function () {
+                    })
+                }
+                else if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() != "COD") {
+                    var amount = parseFloat($('#total').data('total'));
+                    $.post("/home/MakePayment", { customerId: $('#customerIdCheckout').val(), orderId: orderId, amount: amount }, function () {
+                    })
+                }
                 $('#orderTable').find('tr').not(':first').each(function () {
                     var product = $(this);
                     var productId = product.data('id');
@@ -174,10 +222,46 @@ $(function () {
         $('#emailStatementBtn').data('customerid', customerId);
     })
 
-    $('#emailStatementBtn').on('click', function () {
+    $('.emailStatementBtn').on('click', function () {
+        var $btn = $(this).button('loading')
         var customerId = $(this).data('customerid');
-        $.post("/home/GenerateStatement", { customerId: customerId }, function () {
-            alert("Statement generated!!!");
+        var tr = $(this);
+        $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+            if (customer.Caterer && customer.Email != "" && customer.Email != null) {
+                $.post("/home/GenerateStatementEmail", { customerId: customerId }, function () {
+                    $btn.button('reset')
+                    tr.closest('tr').remove();
+                    $('#statementAlertMessage').html('A statement was sent via email to the customer!');
+                    $('#statementAlertModal').modal();
+                })
+            }
+            else {
+                $btn.button('reset')
+                $('#statementAlertMessage').html("<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>")
+                $('#statementAlertModal').modal();
+            }
+        })
+    })
+
+    $('.printAndEmail').on('click', function () {
+        var $btn = $(this).button('loading')
+        var customerId = $(this).data('customerid');
+        var tr = $(this);
+        $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+            if (customer.Caterer && customer.Email != "" && customer.Email != null) {
+                $.post("/home/GenerateStatementPrintEmail", { customerId: customerId }, function (id) {
+                    $btn.button('reset')
+                    tr.closest('tr').remove();
+                    $('#statementAlertMessage').html('A statement was sent via email to the customer!');
+                    $('#statementAlertModal').modal();
+                    printStatement(id);
+                })
+            }
+            else {
+                $btn.button('reset')
+                $('#statementAlertMessage').html("<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>")
+                $('#statementAlertModal').modal();
+            }
         })
     })
 
@@ -187,9 +271,9 @@ $(function () {
         var tr = $(this);
         $.post("/home/GenerateStatementPrint", { customerId: customerId }, function (id) {
             printStatement(id);
+            $btn.button('reset')
+            tr.closest('tr').remove();
         })
-        $btn.button('reset')
-        tr.closest('tr').remove();
     });
 
     $('#billsTab').on('click', function () {
@@ -240,8 +324,12 @@ $(function () {
             //$('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
             $.each(bills, function (i, v) {
                 var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
-                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + balance + ">Payment</button></td></tr>");
-
+                if (balance <= 0) {
+                    $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button></td></tr>");
+                }
+                else {
+                    $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + balance + ">Payment</button></td></tr>");
+                }
             })
         })
     })
@@ -249,17 +337,22 @@ $(function () {
     $('#orderDiv').on('input', '#customerSearch', function () {
         var filter = $('#orderDiv #filterBills option:selected').val().toString();
         var search = $('#orderDiv #customerSearch').val().toString();
-        $('.billsTable').find("tr:gt(0)").remove();
         $('#billsAlert').remove();
         $('#statementHeader').html("Bills");
         $.post("/home/GetStatementsFiltered", { search: search, filter: filter }, function (bills) {
+            $('.billsTable').find("tr:gt(0)").remove();
             if (bills.length === 0) {
                 $('#containerDiv').append("<h3 id=billsAlert>No matches found...</h3>")
             }
             //$('#containerDiv').append("<div><table class=" + '"' + "table table-hover table-responsive table-striped billsTable" + '"' + "><tr><th>Date</th><th>Customer</th><th>Statement #</th><th>Amount</th><th>Balance</th><th>Action</th></tr></table></div>")
             $.each(bills, function (i, v) {
                 var balance = v.Statement.Balance - getTotalStatementPayments(v.Payments);
-                $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + balance + ">Payment</button></td></tr>");
+                if (balance <= 0) {
+                    $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button></td></tr>");
+                }
+                else {
+                    $('.billsTable').append("<tr><td>" + ConvertJsonDate(v.Statement.Date) + "</td><td>" + v.Orders[0].customer.LastName.toString() + " " + v.Orders[0].customer.FirstName.toString() + "</td><td>" + v.Statement.Id + "</td><td>" + parseFloat((v.Statement.Balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td class=" + '"' + "balance" + '"' + ">" + parseFloat((balance), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</td><td><button class=" + '"' + "btn btn-info viewPdfBtn" + '"' + " style=" + '"' + "margin-right:5px" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + ">View PDF</button><button class=" + '"' + "btn btn-success payStatementBtn" + '"' + " data-statementid=" + '"' + v.Statement.Id + '"' + " data-customerid=" + '"' + v.Orders[0].customer.Id + '"' + " data-balance=" + balance + ">Payment</button></td></tr>");
+                }
 
             })
         })
@@ -304,8 +397,13 @@ $(function () {
 
         $.post("/home/AddStatementPayment", { customerId: customerId, statementId: statementId, amount: amount, paymentNote: note }, function () {
             $('#orderDiv tr:eq(' + rowIndex + ')').find('.payStatementBtn').data('balance', balance - amount);
-            $('#orderDiv tr:eq(' + rowIndex + ') td:eq(4)').html(parseFloat(balance-amount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
-            alert("Thank you for the payment!!!");
+            $('#orderDiv tr:eq(' + rowIndex + ') td:eq(4)').html(parseFloat(balance - amount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+            $('#paymentAlertModal').modal();
+            if (balance - amount <= 0) {
+                $.post("/home/UpdateInvoicesPaid", { statementId: statementId }, function () {
+
+                })
+            }
         })
 
         $('#amountPay').val("");
@@ -548,15 +646,26 @@ $(function () {
 
     $('#historyTable').on('click', '.viewDetailsBtn', function () {
         $("#table").find("tr:gt(0)").remove();
+        $('#deliveryPanel').hide();
         $('#paymentDiv').html("");
+        $('#odDeliveryInfo').html("");
         var ordersId = $(this).data('orderid');
         var customersId = $(this).data('customerid');
         var caterer = $(this).data('caterer');
         var subtotal = 0;
         var total = 0;
         var stat = "";
-        if (caterer === true) {
-            $('#emailCheck').html("<label><div class=" + '"' + "form-group" + '"' + "><h2>Email invoice</h2><label class=" + '"' + "switch" + '"' + "><input type=" + '"' + "checkbox" + '"' + "checked id=" + '"' + "emailConfirm" + '"' + "><div class=" + '"' + "slider round" + '"' + "></div></label></div></label>");
+        var deliveryOpt = $(this).data('deliveryopt');
+        if (deliveryOpt == "Pickup") {
+            $('#pickedupCheck').prop('checked', true);
+            $('#deliveryCheck').prop('checked', false);
+        }
+        else if (deliveryOpt == "Delivery") {
+            $('#deliveryCheck').prop('checked', true);
+            $('#pickedupCheck').prop('checked', false);
+        }
+        if (caterer === true || caterer == "True") {
+            $('#emailCheck').html("<label><div class=" + '"' + "form-group" + '"' + "><h2>Email invoice</h2><label class=" + '"' + "switch" + '"' + "><input type=" + '"' + "checkbox" + '"' + "checked=" + '"' + "checked" + '"' + " id=" + '"' + "emailConfirm" + '"' + "><div class=" + '"' + "slider round" + '"' + "></div></label></div></label>");
         }
         else {
             $('#emailCheck').html("");
@@ -643,7 +752,7 @@ $(function () {
                 //subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
             })
             $('#odDiscount').html("Discount: " + discount);
-            $('#odSubtotal').html("Subtotal: $" +  parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+            $('#odSubtotal').html("Subtotal: $" + parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             if (discount >= 1) {
                 $('#odTotal').html("Total: $" + parseFloat((total - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             }
@@ -755,6 +864,7 @@ $(function () {
             var deliveryHtml = "";
             var requiredDate = ConvertJsonDate(ordersHistory[i].requiredDate);
             var discount = ordersHistory[i].discount;
+            var invoice = ordersHistory[i].invoice;
             var id = ordersHistory[i].id;
             var deliveryOption = ordersHistory[i].deliveryOpt;
             var firstName = ordersHistory[i].firstName;
@@ -763,6 +873,7 @@ $(function () {
             var payments = ordersHistory[i].payments;
             var caterer = ordersHistory[i].caterer;
             var status = "";
+            var paymentMethod = ordersHistory[i].paymentMethod;
             if (ordersHistory[i].status != null) {
                 status = ordersHistory[i].status.Status1;
             }
@@ -801,8 +912,15 @@ $(function () {
             if (deliveryOption === "Delivery") {
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
+            var paymentBtnHtml = "";
+            if (ordersHistory[i].paid || ordersHistory[i].statement) {
+                paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + " disabled >Payment</button>";
+            }
+            else {
+                paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + ">Payment</button>";
+            }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button><button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + ">Payment</button></td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + paymentMethod + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-deliveryopt=" + '"' + deliveryOption + '"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button>"+paymentBtnHtml+"</td></tr>");
         }
     }
 
@@ -835,47 +953,50 @@ $(function () {
     });
 
     $('#newCustomerSubmit').on('click', function () {
-        var caterer = false;
-        if ($('#caterer').is(":checked")) {
-            caterer = true;
+        if ($('#phone').val() == "" && $('#cell').val()== ""){
+            $('#alertInvalidSubmit').modal();
         }
-        var firstName = $('#firstName').val();
-        var lastName = $('#lastName').val();
-        var address = $('#address').val();
-        var city = $('#city').val();
-        var state = $('#state').val();
-        var zip = $('#zip').val();
-        var phone = $('#phone').val();
-        var cell = $('#cell').val();
-        var email = $('#email').val();
+        else {
+            var caterer = false;
+            if ($('#caterer').is(":checked")) {
+                caterer = true;
+            }
+            var firstName = $('#firstName').val();
+            var lastName = $('#lastName').val();
+            var address = $('#address').val();
+            var city = $('#city').val();
+            var state = $('#state').val();
+            var zip = $('#zip').val();
+            var phone = $('#phone').val();
+            var cell = $('#cell').val();
+            var email = $('#email').val();
+            $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone: phone, cell: cell, caterer: caterer, email: email }, function (id) {
+                $('#customerId').val(id);
+                $('#customerIdCheckout').val(id);
+                $('#alertNewCustomerAdded').modal();
+            })
 
-        $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone: phone, cell: cell, caterer: caterer, email: email }, function () {
-            $('#alertNewCustomerAdded').modal();
-        })
+            $('#customerHeader').text("");
+            $('#customerAddress').text("");
+            $('#customerPhone').text("");
+            $('#discountInput').val("");
+            $('#catererIndicator').html("");
+            $('#customerEmail').text("");
 
-        $('#customerHeader').text("");
-        $('#customerAddress').text("");
-        $('#customerPhone').text("");
-        $('#customerId').val("");
-        $('#customerIdCheckout').val("");
-        $('#discountInput').val("");
-        $('#catererIndicator').html("");
-        $('#customerEmail').text("");
-
-        $('#customerHeader').append(firstName + " " + lastName);
-        $('#customerAddress').append(address);
-        $('#customerPhone').append(phone);
-        $('#customerId').val(customerId);
-        //$('#searchCustomerModal').modal('toggle');
-        $('.customers').remove();
-        $('#searchInput').val("");
-        $('#customerIdCheckout').val(customerId);
-        $('#catererDiscount').val(caterer);
-        if (caterer == true) {
-            $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
+            $('#customerHeader').append(firstName + " " + lastName);
+            $('#customerAddress').append(address);
+            $('#customerPhone').append(phone);
+            $('.customers').remove();
+            $('#searchInput').val("");
+            $('#catererDiscount').val(caterer);
+            if (caterer == true) {
+                $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
+            }
+            $('#customerEmail').append(email);
+            $('#newCustomerModal').modal('toggle');
         }
-        $('#customerEmail').append(email);
     })
+
 
     //$("#homeLink").on('click', function () {
     //    window.location.href = "/home/order";
@@ -996,11 +1117,25 @@ $(function () {
 
     $('#cancel').on('click', function () {
         var id = $(this).data('id');
-        $.post("/home/DeleteOrder", { id: id }, function () {
-            window.location.href = ('/home/orderHistory');
-            alert("Order #" + id + " was cancelled!");
-        })
+        $('#cancelYesBtn').attr('id', id);
+
+        $('#cancelAlertModal').modal();
+        //$.post("/home/DeleteOrder", { id: id }, function () {
+        //    window.location.href = ('/home/orderHistory');
+        //    alert("Order #" + id + " was cancelled!");
+        //})
     })
+
+    $('#cancelYesBtn').on('click', function () {
+        var id = $(this).attr('id');
+        $.post("/home/DeleteOrder", { id: id }, function () {
+            $('#cancelStatusModal').modal();
+        })
+    });
+
+    $('#cancelStatusModal').on('hidden.bs.modal', function () {
+        window.location.href = ('/home/orderHistory');
+    });
 
     $('#updateStatusBtn').on('click', function () {
         var t = $(this);
@@ -1018,21 +1153,52 @@ $(function () {
         })
 
         $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
-            if (customer.Caterer && customer.Email != "" && customer.Email != null && $('#emailConfirm').attr('checked')) {
+            if (customer.Caterer && customer.Email != "" && customer.Email != null && $('#emailCheck').find('#emailConfirm').prop('checked')) {
                 $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: ordersId }, function () {
                     $('#invoiceAlertMessage').html('An invoice was sent via email to the customer!');
                     $('#invoiceAlertModal').modal();
+                    $('#orderDetailsModal').modal('toggle');
+                    var s = $('#searchHistoryInput').val().toString();
+                    var x = $('#filterDate option:selected').val();
+                    var opt = $('#filterOpt option:selected').val();
+                    $('.history').remove();
+                    $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+                        populateOrders(ordersHistory);
+                    })
                 })
             }
-            else if (customer.Caterer) {
+            else if (customer.Caterer && customer.Email == null) {
                 $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
                     $('#invoiceAlertMessage').html("Invoice generated successfuly!\n\n<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>");
                     $('#invoiceAlertModal').modal();
+                    $('#orderDetailsModal').modal('toggle');
+                    var s = $('#searchHistoryInput').val().toString();
+                    var x = $('#filterDate option:selected').val();
+                    var opt = $('#filterOpt option:selected').val();
+                    $('.history').remove();
+                    $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+                        populateOrders(ordersHistory);
+                    })
+                })
+            }
+
+            else {
+                $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+                    $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+                    $('#invoiceAlertModal').modal();
+                    $('#orderDetailsModal').modal('toggle');
+                    var s = $('#searchHistoryInput').val().toString();
+                    var x = $('#filterDate option:selected').val();
+                    var opt = $('#filterOpt option:selected').val();
+                    $('.history').remove();
+                    $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+                        populateOrders(ordersHistory);
+                    })
                 })
             }
         })
         $('.status').prop('checked', false);
-        $('#emailConfirm').prop('checked', true);
+        //$('#emailConfirm').prop('checked', true);
     })
 
     $('#fullAmountCheckbox').change(function () {
@@ -1126,7 +1292,7 @@ $(function () {
                     account = "$" + accParsed;
                 }
                 var customerName = c[i].FirstName + " " + c[i].LastName;
-                $('#customersTable').append("<tr data-customerid=" + c[i].Id + " data-balance=" + balance + " data-customer=" + '"' + customerName + '"' + "><td>" + c[i].LastName + " " + c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td class="+'"'+"account"+'"'+">" + account + "</td></tr>")
+                $('#customersTable').append("<tr data-customerid=" + c[i].Id + " data-balance=" + balance + " data-customer=" + '"' + customerName + '"' + "><td>" + c[i].LastName + " " + c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td class=" + '"' + "account" + '"' + ">" + account + "</td></tr>")
             }
         })
     })
@@ -1174,7 +1340,7 @@ $(function () {
     //}
 
     $(document).on('click', '#customersTable tr', function () {
-        var rowIndex= $(this).index();
+        var rowIndex = $(this).index();
         var customerId = $(this).data('customerid');
         var balance = $(this).data('balance');
         var customer = $(this).data('customer');
@@ -1283,7 +1449,7 @@ $(function () {
         $.post("/home/EditCustomer", { customerId: $(this).attr('customerid'), firstName: $('#firstName').val(), lastName: $('#lastName').val(), address: $('#address').val(), city: $('#city').val(), state: $('#state').val(), zip: $('#zip').val(), phone: $('#phone').val(), cell: $('#cell').val(), caterer: caterer, email: $('#email').val() }, function () {
             $('#accountAlert').html("Customer changes applied...");
             $('#accountAlertModal').modal();
-            $('#customersTable tr:eq(' + rowIndex + ')').html("<td>" + $('#lastName').val() + " " + $('#firstName').val() + "</td><td>" + $('#address').val() + " " + $('#city').val() + " " + $('#state').val() + " " + $('#zip').val() + "</td><td>" + $('#phone').val() + "</td><td>" + $('#cell').val() + "</td><td>" + $('#email').val() + "</td><td class="+'"'+"account"+'"'+">" + (parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + "</td>")
+            $('#customersTable tr:eq(' + rowIndex + ')').html("<td>" + $('#lastName').val() + " " + $('#firstName').val() + "</td><td>" + $('#address').val() + " " + $('#city').val() + " " + $('#state').val() + " " + $('#zip').val() + "</td><td>" + $('#phone').val() + "</td><td>" + $('#cell').val() + "</td><td>" + $('#email').val() + "</td><td class=" + '"' + "account" + '"' + ">" + (parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + "</td>")
         })
     })
 
@@ -1333,6 +1499,9 @@ $(function () {
                     catererDiscount = 2.5;
                     total += (t - catererDiscount * quantity);
                 }
+                else {
+                    total += t;
+                }
                 if (caterer === "true" && category === 2) {
                     $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + (parseFloat(catererDiscount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + ")</span>");
                 }
@@ -1364,14 +1533,17 @@ $(function () {
         });
         if (total === NaN) {
             $('#total').text("Total: $" + (parseFloat(0, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
+            $('#total').data('total', 0);
         }
         else {
             if (getDiscount() < 1) {
                 var d = total * getDiscount();
                 $('#total').text("Total: $" + (parseFloat(total - d, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()));
+                $('#total').data('total', total - d);
             }
             else {
                 $('#total').text("Total: $" + ((parseFloat((total - getDiscount()), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString())));
+                $('#total').data('total', total - getDiscount());
             }
         }
     }
