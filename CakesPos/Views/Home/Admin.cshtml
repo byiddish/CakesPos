@@ -28,10 +28,18 @@
             </div>
             <div class="form-group">
                 <label>Price</label>
-                <input type="number" class="form-control" name="price" id="price" min="0.01" step="0.01" required placeholder="Price">
+                <input type="number" class="form-control" name="price" id="price" min="0.00" step="0.01" required placeholder="Price">
             </div>
             <div class="form-group">
-                <label>In Stock</label>
+                <label>Caterer Discount</label>
+                <input type="number" class="form-control" name="catererDiscount" id="catererDiscount" min="0.00" step="0.01" required placeholder="Caterer Discount">
+            </div>
+            <div class="form-group">
+                <label>Restock Amount</label>
+                <input type="number" class="form-control" name="restockAmount" required id="restockAmount" placeholder="Restock Amount">
+            </div>
+            <div class="form-group">
+                <label>Initial Stock</label>
                 <input type="number" class="form-control" name="inStock" required id="inStock" placeholder="In Stock">
             </div>
             <div class="form-group">
@@ -63,7 +71,7 @@
         <h1>Add User</h1>
         <form action="/home/addUser" method="POST">
             <div class="form-group">
-                <label>User Name</label>
+                <label>Name</label>
                 <input type="text" class="form-control" name="name" id="name" required placeholder="Name">
             </div>
             <div class="form-group">

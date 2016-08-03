@@ -17,12 +17,14 @@ namespace CakesPos.Data
             _connectionString = connectionString;
         }
 
-        public void AddProduct(string productName, decimal price, int inStock, string image, int categoryId)
+        public void AddProduct(string productName, decimal price, decimal catererDiscount, int restockAmount, int inStock, string image, int categoryId)
         {
             Product p = new Product();
             p.CategoryId = categoryId;
             p.ProductName = productName;
             p.Price = price;
+            p.CatererDiscount = catererDiscount;
+            p.RestockAmount = restockAmount;
             p.InStock = inStock;
             p.Image = image;
 
@@ -45,7 +47,30 @@ namespace CakesPos.Data
             }
         }
 
-        public int AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer, string email)
+        public void AddCharge(string description, decimal price, int orderId)
+        {
+            Charge c = new Charge();
+            c.Description = description;
+            c.Price = price;
+            c.OrderId = orderId;
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                context.Charges.InsertOnSubmit(c);
+                context.SubmitChanges();
+            }
+        }
+
+        public IEnumerable<Charge> GetCharges(int orderId)
+        {
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                return context.Charges.Where(c => c.OrderId == orderId).ToList();
+            }
+        }
+
+        //public void EditProduct()
+
+        public int AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone1, string phone2, string cell1, string cell2, bool caterer, string email)
         {
             Customer c = new Customer();
             c.FirstName = firstName;
@@ -54,8 +79,10 @@ namespace CakesPos.Data
             c.City = city;
             c.State = state;
             c.Zip = zip;
-            c.Phone = phone;
-            c.Cell = cell;
+            c.Phone1 = phone1;
+            c.Cell1 = cell1;
+            c.Phone2 = phone2;
+            c.Cell2 = cell2;
             c.Caterer = caterer;
             c.Email = email;
             c.Account = 0;
@@ -69,7 +96,21 @@ namespace CakesPos.Data
             }
         }
 
-        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid)
+        public void UpdateStock(int orderId)
+        {
+            IEnumerable<OrderDetail> od = GetOrderDetailsById(orderId);
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                foreach (OrderDetail o in od)
+                {
+                    var p = context.Products.Where(product => product.Id == o.ProductId).FirstOrDefault();
+                    p.InStock -= o.Quantity;
+                    context.SubmitChanges();
+                }
+            }
+        }
+
+        public int AddOrder(int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone1, string phone2, string cell1, string cell2, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid, decimal deliveryCharge)
         {
             int orderId = 0;
 
@@ -83,7 +124,10 @@ namespace CakesPos.Data
             o.DeliveryCity = deliveryCity;
             o.DeliveryState = deliveryState;
             o.DeliveryZip = deliveryZip;
-            o.Phone = phone;
+            o.Phone1 = phone1;
+            o.Phone2 = phone2;
+            o.Cell1 = cell1;
+            o.Cell2 = cell2;
             o.CreditCard = creditCard;
             o.Expiration = expiration;
             o.SecurityCode = securityCode;
@@ -96,6 +140,7 @@ namespace CakesPos.Data
             o.DeliveryNote = deliveryNote;
             o.Statement = false;
             o.Invoice = false;
+            o.DeliveryCharge = deliveryCharge;
             //Payment p = new Payment();
             //p.CustomerId = customerId;
             //p.PaymentMethod = paymentMethod;
@@ -185,7 +230,7 @@ namespace CakesPos.Data
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
-                    oh.caterer = c.Caterer;
+                    oh.caterer = (bool)c.Caterer;
 
                     orders.Add(oh);
                 }
@@ -199,7 +244,7 @@ namespace CakesPos.Data
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
-                return context.Customers.Where(c => c.FirstName.Contains(search) || c.LastName.Contains(search) || c.Phone.Contains(search) || c.Cell.Contains(search)).ToList().OrderBy(c => c.LastName).ToList();
+                return context.Customers.Where(c => c.FirstName.StartsWith(search) || c.LastName.StartsWith(search) || c.Phone1.StartsWith(search) || c.Phone2.StartsWith(search) || c.Cell1.StartsWith(search) || c.Cell2.StartsWith(search)).ToList().OrderBy(c => c.LastName).ToList();
             }
         }
 
@@ -213,35 +258,15 @@ namespace CakesPos.Data
         //    }
         //}
 
-        public IEnumerable<OrderHistoryViewModel> SearchOrders(string search, int x, string opt)
+        public IEnumerable<OrderHistoryViewModel> SearchOrders(string search, string opt, DateTime date, bool all)
         {
-            DateTime today = DateTime.Now.Date;
-            string com = "";
-            string option = "";
-            if (x == 8)
+            string com = "o.requiredDate = '" + date.ToShortDateString() + "' AND";
+            if (all)
             {
                 com = "";
             }
-            else if (x == -1)
-            {
-                com = "o.requiredDate >= " + "'" + today.AddDays(x).ToShortDateString() + "'" + " AND o.requiredDate < " + "'" + today.ToShortDateString() + "'" + "AND";
-            }
-            else if (x <= 0)
-            {
-                com = "o.requiredDate >= " + "'" + today.AddDays(x).ToShortDateString() + "'" + " AND o.requiredDate <= " + "'" + today.ToShortDateString() + "'" + "AND";
-            }
-            else if (x == 1)
-            {
-                com = "o.requiredDate =" + "'" + today.AddDays(x).ToShortDateString() + "'" + "AND";
-            }
-            else if (x == 0)
-            {
-                com = "o.requiredDate = " + "'" + today.ToShortDateString() + "'" + "AND";
-            }
-            else
-            {
-                com = "o.requiredDate <= " + "'" + today.AddDays(x).ToShortDateString() + "'" + " AND o.requiredDate >= " + "'" + today.ToShortDateString() + "'" + "AND";
-            }
+            string option = "";
+
             if (opt == "open")
             {
                 option = "((o.paid=0 AND o.Invoice=1) OR (o.paid=1 AND o.Invoice=0) OR (o.paid=0 AND o.Invoice=0)) AND";
@@ -262,17 +287,16 @@ namespace CakesPos.Data
             {
                 option = "";
             }
+            string q = "'" + search + "%'";
             List<OrderHistoryViewModel> orders = new List<OrderHistoryViewModel>();
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = connection.CreateCommand())
             {
-                cmd.CommandText = @"Select o.CreditCard,o.CustomerId,o.DeliveryAddress,o.DeliveryCity,o.DeliveryFirstName,o.DeliveryLastName,o.DeliveryNote,o.DeliveryOption,o.DeliveryState,o.DeliveryZip,o.Discount,o.Expiration,o.Greetings,o.Id AS orderId,o.Notes,o.OrderDate,o.Paid,o.PaymentMethod,o.Phone,o.RequiredDate,o.SecurityCode,o.[Statement],o.[Invoice],c.Address,c.Caterer,c.Cell,c.City,c.Email,c.FirstName,c.Id,c.LastName,c.Phone,c.State,c.Zip
+                cmd.CommandText = @"Select o.CreditCard,o.CustomerId,o.DeliveryAddress,o.DeliveryCity,o.DeliveryFirstName,o.DeliveryLastName,o.DeliveryNote,o.DeliveryOption,o.DeliveryState,o.DeliveryZip,o.Discount,o.Expiration,o.Greetings,o.Id AS orderId,o.Notes,o.OrderDate,o.Paid,o.PaymentMethod,o.Phone1,o.Phone2,o.Cell1,o.Cell2,o.RequiredDate,o.SecurityCode,o.[Statement],o.[Invoice],c.Address,c.Caterer,c.City,c.Email,c.FirstName,c.Id,c.LastName,c.State,c.Zip
                                     FROM Customers AS c
                                     JOIN Orders AS o
                                     ON  o.CustomerId= c.Id
-                                    WHERE " + option + " " + com + @" (c.FirstName LIKE '%' + @query + '%'  OR c.LastName LIKE '%' + @query + '%' OR c.Phone LIKE '%' + @query + '%' OR c.Cell LIKE '%' + @query + '%' OR o.DeliveryOption LIKE '%' + @query + '%')
-                                    ORDER BY c.LastName ASC, c.FirstName ASC, o.RequiredDate DESC";
-                cmd.Parameters.AddWithValue("@query", search);
+                                    WHERE " + option + " " + com + @" (c.FirstName LIKE '" + search + "%' OR c.LastName LIKE '" + search + "%' OR c.Phone1 LIKE '" + search + "%' OR c.Phone2 LIKE '" + search + "%' OR c.Cell1 LIKE '" + search + "%' OR c.Cell2 LIKE '" + search + "%')ORDER BY c.LastName ASC, c.FirstName ASC, o.RequiredDate DESC";
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -293,7 +317,7 @@ namespace CakesPos.Data
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
-                    oh.caterer = c.Caterer;
+                    oh.caterer = (bool)c.Caterer;
 
                     orders.Add(oh);
                 }
@@ -363,6 +387,7 @@ namespace CakesPos.Data
                     pm.productName = p.ProductName;
                     pm.quantity = od.Quantity;
                     pm.unitPrice = p.Price;
+                    pm.catererDiscount = (decimal)p.CatererDiscount;
 
                     products.Add(pm);
                 }
@@ -379,43 +404,63 @@ namespace CakesPos.Data
             }
         }
 
-        public double GetTotalByOrderId(int orderId, int customerId)
+        public decimal GetTotalByOrderId(int orderId, int customerId)
         {
             Customer c = GetCustomerById(customerId);
-            double total = 0;
+            decimal total = 0;
+            decimal discount = 0;
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
                 IEnumerable<OrderDetail> orderDetails = context.OrderDetails.Where(od => od.OrderId == orderId).ToList();
+                Order o = context.Orders.Where(order => order.Id == orderId).FirstOrDefault();
+                discount = (decimal)o.Discount;
+                if (o.DeliveryCharge != null)
+                {
+                    total += (decimal)o.DeliveryCharge;
+                }
                 foreach (OrderDetail od in orderDetails)
                 {
-                    double catererDiscount = 0;
-                    if (c.Caterer)
+                    decimal catererDiscount = 0;
+                    if ((bool)c.Caterer)
                     {
                         Product p = GetProductById(od.ProductId);
-                        if (p.CategoryId == 1)
+                        if (p.CatererDiscount < 1)
                         {
-                            catererDiscount = 5;
-                            total += (double)od.UnitPrice * (double)od.Quantity - (double)od.Quantity * catererDiscount;
+                            catererDiscount = od.UnitPrice * od.Quantity * (decimal)p.CatererDiscount;
+                            total += (od.Quantity * od.UnitPrice - catererDiscount);
                         }
-                        else if (p.CategoryId == 2)
+                        else
                         {
-                            catererDiscount = (double)od.UnitPrice * (double)od.Quantity * 0.1;
-                            total += ((double)od.Quantity * (double)od.UnitPrice - catererDiscount);
+                            catererDiscount = (decimal)p.CatererDiscount;
+                            total += (od.UnitPrice * od.Quantity) - (od.Quantity * catererDiscount);
                         }
-                        else if (p.CategoryId == 5)
-                        {
-                            catererDiscount = 2.5;
-                            total += (double)od.UnitPrice * (double)od.Quantity - (double)od.Quantity * catererDiscount;
-                        }
+                        //else if (p.CategoryId == 2 || p.CategoryId == 3)
+                        //{
+                        //    catererDiscount = (double)od.UnitPrice * (double)od.Quantity * 0.1;
+                        //    total += ((double)od.Quantity * (double)od.UnitPrice - catererDiscount);
+                        //}
+                        //else if (p.CategoryId == 4)
+                        //{
+                        //    catererDiscount = 2.5;
+                        //    total += (double)od.UnitPrice * (double)od.Quantity - (double)od.Quantity * catererDiscount;
+                        //}
+                        //else
+                        //{
+                        //    total += (double)od.UnitPrice * (double)od.Quantity;
+                        //}
                     }
                     else
                     {
-                        total += (double)od.UnitPrice * od.Quantity;
+                        total += od.UnitPrice * od.Quantity;
                     }
                 }
             }
-            return total;
+            if (discount < 1)
+            {
+                discount = discount * total;
+            }
+            return total - discount;
         }
 
         public IEnumerable<InventoryViewModel> GetInventory(DateTime min, DateTime max)
@@ -426,8 +471,8 @@ namespace CakesPos.Data
             List<Product> products = new List<Product>();
             using (var context = new CakesPosDataContext(_connectionString))
             {
-                products = context.Products.ToList();
-                orders = context.Orders.Where(o => o.RequiredDate > min && o.RequiredDate < max).ToList();
+                products = context.Products.OrderBy(p => p.ProductName).ToList();
+                orders = context.Orders.Where(o => o.RequiredDate >= min && o.RequiredDate <= max && o.Invoice == false).ToList();
 
                 foreach (Order o in orders)
                 {
@@ -456,6 +501,74 @@ namespace CakesPos.Data
             return ivm;
         }
 
+        public IEnumerable<InventoryViewModel> GetProductAvailability(DateTime min, DateTime max, int category)
+        {
+            List<OrderDetail> orderDetails = new List<OrderDetail>();
+            List<Order> orders = new List<Order>();
+            List<InventoryViewModel> ivm = new List<InventoryViewModel>();
+            List<Product> products = new List<Product>();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                products = context.Products.Where(p => p.CategoryId == category).OrderBy(p => p.ProductName).ToList();
+                orders = context.Orders.Where(o => o.RequiredDate >= min && o.RequiredDate <= max && o.Invoice == false).ToList();
+
+                foreach (Order o in orders)
+                {
+                    List<OrderDetail> oDetails = new List<OrderDetail>();
+                    oDetails = context.OrderDetails.Where(od => od.OrderId == o.Id).ToList();
+                    foreach (OrderDetail od in oDetails)
+                    {
+                        orderDetails.Add(od);
+                    }
+                }
+            }
+
+            foreach (Product p in products)
+            {
+                int quantity = 0;
+                InventoryViewModel i = new InventoryViewModel();
+                IEnumerable<OrderDetail> oDetail = orderDetails.FindAll(o => o.ProductId == p.Id).ToList();
+                foreach (OrderDetail od in oDetail)
+                {
+                    quantity += od.Quantity;
+                }
+                i.product = p;
+                i.requestedAmount = quantity;
+                ivm.Add(i);
+            }
+            return ivm;
+        }
+
+        public int GetProductAvailabilityByProductId(DateTime min, DateTime max, int productId)
+        {
+            List<OrderDetail> orderDetails = new List<OrderDetail>();
+            List<Order> orders = new List<Order>();
+            Product product = new Product();
+            using (var context = new CakesPosDataContext(_connectionString))
+            {
+                product = context.Products.Where(p => p.Id == productId).FirstOrDefault();
+                orders = context.Orders.Where(o => o.RequiredDate >= min && o.RequiredDate <= max && o.Invoice == false).ToList();
+
+                foreach (Order o in orders)
+                {
+                    List<OrderDetail> oDetails = new List<OrderDetail>();
+                    oDetails = context.OrderDetails.Where(od => od.OrderId == o.Id).ToList();
+                    foreach (OrderDetail od in oDetails)
+                    {
+                        orderDetails.Add(od);
+                    }
+                }
+            }
+
+            int quantity = 0;
+            IEnumerable<OrderDetail> oDetail = orderDetails.FindAll(o => o.ProductId == productId).ToList();
+            foreach (OrderDetail od in oDetail)
+            {
+                quantity += od.Quantity;
+            }
+            return quantity;
+        }
+
         public void UpdateInventory(int id, int amount)
         {
             using (var context = new CakesPosDataContext(_connectionString))
@@ -482,41 +595,14 @@ namespace CakesPos.Data
         }
 
 
-        public void UpdateOrderById(int orderId, int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid)
+        public void UpdateOrderById(int orderId, int customerId, DateTime orderDate, DateTime requiredDate, string deliveryOpt, string deliveryFirstName, string deliveryLastName, string deliveryAddress, string deliveryCity, string deliveryState, string deliveryZip, string phone1, string phone2, string cell1, string cell2, string creditCard, string expiration, string securityCode, string paymentMethod, decimal discount, string notes, string greetings, string deliveryNote, bool paid, decimal deliveryCharge)
         {
-            ////int orderId = o;
-
-            //Order o = new Order();
-            //o.Id = orderId;
-            //o.CustomerId = customerId;
-            //o.OrderDate = orderDate;
-            //o.RequiredDate = requiredDate;
-            //o.DeliveryFirstName = deliveryFirstName;
-            //o.DeliveryLastName = deliveryLastName;
-            //o.DeliveryAddress = deliveryAddress;
-            //o.DeliveryCity = deliveryCity;
-            //o.DeliveryState = deliveryState;
-            //o.DeliveryZip = deliveryZip;
-            //o.Phone = phone;
-            //o.CreditCard = creditCard;
-            //o.Expiration = expiration;
-            //o.SecurityCode = securityCode;
-            //o.Discount = discount;
-            //o.DeliveryOption = deliveryOpt;
-            //o.PaymentMethod = paymentMethod;
-            //o.Paid = paid;
-            //o.Notes = notes;
-            //o.Greetings = greetings;
-            //o.DeliveryNote = deliveryNote;
-            //Payment p = new Payment();
-            //p.CustomerId = customerId;
-            //p.PaymentMethod = paymentMethod;
 
             using (var connection = new SqlConnection(_connectionString))
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandText = @"UPDATE Orders
-                                  SET customerId=@customerId, orderDate=@orderDate, requiredDate=@requiredDate, deliveryFirstName=@deliveryFirstName, deliveryLastName=@deliveryLastName, deliveryAddress=@deliveryAddress, deliveryCity=@deliveryCity, deliveryState=@deliveryState, deliveryZip=@deliveryZip, phone=@phone, creditCard=@creditCard, expiration=@expiration, securityCode=@securityCode, discount=@discount, deliveryOption=@deliveryOpt, paymentMethod=@paymentMethod, paid=@paid, notes=@notes, greetings=@greetings, deliveryNote=@deliveryNote
+                                  SET customerId=@customerId, orderDate=@orderDate, requiredDate=@requiredDate, deliveryFirstName=@deliveryFirstName, deliveryLastName=@deliveryLastName, deliveryAddress=@deliveryAddress, deliveryCity=@deliveryCity, deliveryState=@deliveryState, deliveryZip=@deliveryZip, phone1=@phone1, phone2=@phone2, cell1=@cell1, cell2=@cell2, creditCard=@creditCard, expiration=@expiration, securityCode=@securityCode, discount=@discount, deliveryOption=@deliveryOpt, paymentMethod=@paymentMethod, paid=@paid, notes=@notes, greetings=@greetings, deliveryNote=@deliveryNote, deliveryCharge=@deliveryCharge
                                   WHERE Id=@id";
                 cmd.Parameters.AddWithValue("@id", orderId);
                 cmd.Parameters.AddWithValue("@customerId", customerId);
@@ -528,7 +614,10 @@ namespace CakesPos.Data
                 cmd.Parameters.AddWithValue("@deliveryCity", deliveryCity);
                 cmd.Parameters.AddWithValue("@deliveryState", deliveryState);
                 cmd.Parameters.AddWithValue("@deliveryZip", deliveryZip);
-                cmd.Parameters.AddWithValue("@phone", phone);
+                cmd.Parameters.AddWithValue("@phone1", phone1);
+                cmd.Parameters.AddWithValue("@phone2", phone2);
+                cmd.Parameters.AddWithValue("@cell1", cell1);
+                cmd.Parameters.AddWithValue("@cell2", cell2);
                 cmd.Parameters.AddWithValue("@creditCard", creditCard);
                 cmd.Parameters.AddWithValue("@expiration", expiration);
                 cmd.Parameters.AddWithValue("@securityCode", securityCode);
@@ -539,7 +628,7 @@ namespace CakesPos.Data
                 cmd.Parameters.AddWithValue("@notes", notes);
                 cmd.Parameters.AddWithValue("@greetings", greetings);
                 cmd.Parameters.AddWithValue("@deliveryNote", deliveryNote);
-
+                cmd.Parameters.AddWithValue("@deliveryCharge", deliveryCharge);
                 connection.Open();
                 cmd.ExecuteNonQuery();
             }
@@ -631,7 +720,7 @@ namespace CakesPos.Data
             {
                 c = context.Customers.Where(cust => cust.Id == customerId).FirstOrDefault();
             }
-            return c.Caterer;
+            return (bool)c.Caterer;
         }
 
         public void SetOrderInvoiced(int orderId)
@@ -655,6 +744,7 @@ namespace CakesPos.Data
                 context.SubmitChanges();
             }
             SetOrderInvoiced(orderId);
+            UpdateStock(orderId);
         }
 
         public Status GetLatestStatusById(int orderId)
@@ -677,7 +767,7 @@ namespace CakesPos.Data
             }
             foreach (Order o in orders)
             {
-                total += GetTotalDiscount((decimal)GetTotalByOrderId(o.Id, customerId), (decimal)o.Discount);
+                total += (decimal)GetTotalByOrderId(o.Id, customerId);
                 IEnumerable<Payment> p = GetPaymentsByOrderId(o.Id);
                 payments += (decimal)p.Sum(x => x.Payment1);
             }
@@ -793,8 +883,7 @@ namespace CakesPos.Data
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandText = @"SELECT * FROM Customers 
-                                WHERE FirstName LIKE '%' + @query + '%'  OR LastName LIKE '%' + @query + '%'";
-                cmd.Parameters.AddWithValue("@query", search);
+                                WHERE FirstName LIKE '"+search+"%'  OR LastName LIKE '"+search+"%'";
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -963,7 +1052,7 @@ namespace CakesPos.Data
 
         public Order GetOrdersById(int orderId)
         {
-            using (var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 return context.Orders.Where(o => o.Id == orderId).FirstOrDefault();
             }
@@ -971,7 +1060,7 @@ namespace CakesPos.Data
 
         public IEnumerable<OrdersStatement> GetStatementOrderIds(int statementId)
         {
-            using(var context=new CakesPosDataContext(_connectionString))
+            using (var context = new CakesPosDataContext(_connectionString))
             {
                 return context.OrdersStatements.Where(o => o.StatementId == statementId).ToList();
             }
@@ -979,16 +1068,16 @@ namespace CakesPos.Data
 
         public void UpdateInvoicesPaid(int statementId)
         {
-            IEnumerable<OrdersStatement> statementOrders= GetStatementOrderIds(statementId);
+            IEnumerable<OrdersStatement> statementOrders = GetStatementOrderIds(statementId);
             List<Order> orders = new List<Order>();
-            foreach(OrdersStatement os in statementOrders)
+            foreach (OrdersStatement os in statementOrders)
             {
                 orders.Add(GetOrdersById(os.OrderId));
             }
 
-            foreach(Order o in orders)
+            foreach (Order o in orders)
             {
-                using(var context=new CakesPosDataContext(_connectionString))
+                using (var context = new CakesPosDataContext(_connectionString))
                 {
                     var order = context.Orders.Where(x => x.Id == o.Id).FirstOrDefault();
                     order.Paid = true;
@@ -1043,7 +1132,7 @@ namespace CakesPos.Data
                 cmd.CommandText = @"SELECT * From Orders
                                   JOIN Customers
                                   ON Orders.CustomerId=Customers.Id
-                                  WHERE Customers.Caterer=1 AND Orders.[Statement]!=1";
+                                  WHERE Customers.Caterer=1 AND Orders.Invoice=1 AND Orders.[Statement]!=1";
                 connection.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -1163,7 +1252,7 @@ namespace CakesPos.Data
             }
         }
 
-        public void EditCustomer(int customerId, string firstName, string lastName, string address, string city, string state, string zip, string phone, string cell, bool caterer, string email)
+        public void EditCustomer(int customerId, string firstName, string lastName, string address, string city, string state, string zip, string phone1, string phone2, string cell1, string cell2, bool caterer, string email)
         {
             using (var context = new CakesPosDataContext(_connectionString))
             {
@@ -1174,8 +1263,10 @@ namespace CakesPos.Data
                 c.City = city;
                 c.State = state;
                 c.Zip = zip;
-                c.Phone = phone;
-                c.Cell = cell;
+                c.Phone1 = phone1;
+                c.Cell1 = cell1;
+                c.Phone2 = phone2;
+                c.Cell2 = cell2;
                 c.Email = email;
                 c.Caterer = caterer;
                 context.SubmitChanges();
@@ -1210,7 +1301,7 @@ namespace CakesPos.Data
                     Customer c = GetCustomerById(oh.customerId);
                     oh.firstName = c.FirstName;
                     oh.lastName = c.LastName;
-                    oh.caterer = c.Caterer;
+                    oh.caterer = (bool)c.Caterer;
 
                     oh.total = (decimal)GetTotalByOrderId(oh.id, oh.customerId);
                     oh.balance = oh.total - (decimal)oh.payments.Sum(p => p.Payment1);

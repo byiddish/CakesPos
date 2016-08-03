@@ -31,8 +31,8 @@
                     <tr data-customerid=@c.Id data-balance=@account data-customer="@c.FirstName @c.LastName">
                         <td>@c.LastName @c.FirstName</td>
                         <td>@c.Address @c.City @c.State @c.Zip</td>
-                        <td>@c.Phone</td>
-                        <td>@c.Cell</td>
+                        <td>@c.Phone1 @c.Phone2</td>
+                        <td>@c.Cell1 @c.Cell2</td>
                         <td>@c.Email</td>
                         <td class="account">@account.ToString("C")</td>
                     </tr>
@@ -148,12 +148,20 @@
                     <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
                 </div>
                 <div class="form-group">
-                    <label>Phone</label>
-                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
+                    <label>Phone 1</label>
+                    <input type="text" class="input input-md" name="phone1" id="phone1" placeholder="Phone 1">
+                    @*</div>
+            <div class="form-group">*@
+                    <label>Phone 2</label>
+                    <input type="text" class="input input-md" name="phone2" id="phone2" placeholder="Phone 2">
                 </div>
                 <div class="form-group">
-                    <label>Cell</label>
-                    <input type="text" class="form-control" name="cell" id="cell" placeholder="Cell">
+                    <label>Cell 1</label>
+                    <input type="text" class="input input-md" name="cell1" id="cell1" placeholder="Cell 1">
+                    @*</div>
+            <div class="form-group">*@
+                    <label>Cell 2</label>
+                    <input type="text" class="input input-md" name="cell2" id="cell2" placeholder="Cell 2">
                 </div>
                 <div class="form-group">
                     <label>Email</label>

@@ -25,6 +25,7 @@ namespace CakesPos.Data
         public decimal balance { get; set; }
         public bool invoice { get; set; }
         public bool statement { get; set; }
+        public decimal deliveryCharge { get; set; }
         public IEnumerable<Payment> payments { get; set; }
     }
 }

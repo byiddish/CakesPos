@@ -16,8 +16,8 @@
                     <label>
                         Enter the email you signed up with
                     </label>
-                    <input type="email" placeholder="Email" />
-                    <input type="submit" value="Submit" class="pass-reset-submit btn btn-success btn-sm" />
+                    @*<input type="email" class="form-control" placeholder="Email" />
+                    <input type="submit" class="form-control" value="Submit" class="pass-reset-submit btn btn-success btn-md" />*@
                 </div>
             </div>
             <div class="wrap">
@@ -31,9 +31,9 @@
                     {
                         username = Model.Name;
                     }
-                    <input class="input-group input-lg" type="text" value="@username" name="username" placeholder="User Name" />
-                    <input class="input-group input-lg" type="password" name="password" placeholder="Password" />
-                    <button type="submit" class="btn btn-success btn-block" >Sign in</button>
+                    <input class="input-group form-control input-lg" type="text" value="@username" name="username" placeholder="User Name" />
+                    <input class="input-group form-control input-lg" type="password" name="password" placeholder="Password" />
+                    <button type="submit" class="btn btn-success form-control btn-block">Sign in</button>
                     <div class="remember-forgot">
                         <div class="row">
                             @*<div class="col-md-6">

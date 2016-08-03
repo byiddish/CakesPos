@@ -60,15 +60,15 @@ namespace CakesPos
             table.AddCell(cell6);
 
             Phrase BillFrom = new Phrase();
-            Chunk a = new Chunk("Elegant Cakes \n");
+            Chunk a = new Chunk("Siegelman Cakes \n");
             Chunk csz = new Chunk("922 46th Street \nBrooklyn NY 11219\n");
-            Chunk p = new Chunk("Phone: 785-438-8547 \n");
-            Chunk f = new Chunk("Fax: 787-854-7785 \n");
+            Chunk p = new Chunk("Phone: 718-438-0772 \n");
+            //Chunk f = new Chunk("Fax: 787-854-7785 \n");
             Chunk e = new Chunk("Email: siegelmancake@gmail.com \n______________________________\n\n");
             BillFrom.Add(a);
             BillFrom.Add(csz);
             BillFrom.Add(p);
-            BillFrom.Add(f);
+            //BillFrom.Add(f);
             BillFrom.Add(e);
 
             Phrase BillTo = new Phrase();
@@ -99,26 +99,23 @@ namespace CakesPos
             //subTotal.Alignment = 2;
             //Paragraph discount = new Paragraph("Discount: " + "$0.00");
             //discount.Alignment = 2;
-            Paragraph total = new Paragraph("_________________\nTotal Due: " + s.Statement.Balance.ToString("C"));
-            total.Alignment = 2;
 
-
-            Paragraph paymentMessage = new Paragraph("\nMake all checks payable to\nElegant Cakes");
+            Paragraph paymentMessage = new Paragraph("\nMake all checks payable to\nSiegelman Cakes");
             paymentMessage.Alignment = 2;
 
             Font greetingFont = FontFactory.GetFont("Ariel", 18);
-            Paragraph greeting1 = new Paragraph("Thank you for your bussiness!", greetingFont);
+            Paragraph greeting1 = new Paragraph("Thank you for your business!", greetingFont);
 
-            Paragraph greeting2 = new Paragraph("If you have any questions with this invoice, please contact\nSamson 917-654-8899 siegelmancake@gmail.com");
+            Paragraph greeting2 = new Paragraph("If you have any questions with this invoice, please contact\n718-438-0772");
 
             Font hFont = FontFactory.GetFont("Verdana", 20, BaseColor.LIGHT_GRAY);
-            Paragraph companyName = new Paragraph("Elegant Cakes", hFont);
+            Paragraph companyName = new Paragraph("Siegelman Cakes", hFont);
 
             Paragraph billToHeader = new Paragraph("Bill To:\n", hFont);
 
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            double balance = 0;
-            double discount = 0;
+            decimal balance = 0;
+            decimal discount = 0;
             foreach (OrderDetailsViewModel o in s.Orders)
             {
                 var orderDate = o.order.OrderDate.ToShortDateString();
@@ -141,8 +138,8 @@ namespace CakesPos
                     var invoiceBlank = "Payment";
                     var pDescripton = "Thank you for your payment!";
                     //var payment = "";
-                    var pAmount = (double)payment.Payment1;
-                    balance -= pAmount;
+                    var pAmount = (decimal)payment.Payment1;
+                    balance -= (decimal)pAmount;
                     table.AddCell(paymentDate.ToShortDateString());
                     table.AddCell(invoiceBlank);
                     table.AddCell(pDescripton);
@@ -152,17 +149,17 @@ namespace CakesPos
                 }
             }
 
-            discount = balance - (double)s.Statement.Balance;
+            discount = balance - s.Statement.Balance;
 
-            Paragraph disc = new Paragraph("Discount: " + discount.ToString("C"));
-            disc.Alignment = 2;
+            //Paragraph disc = new Paragraph("Discount: " + discount.ToString("C"));
+            //disc.Alignment = 2;
 
 
-            Paragraph balanceDue = new Paragraph("Balance Due: " + s.Statement.Balance.ToString("C"));
+            Paragraph balanceDue = new Paragraph("Balance Due: " + balance.ToString("C"));
             balanceDue.Alignment = 2;
 
-
-
+            Paragraph total = new Paragraph("_________________\nTotal Due: " + balance.ToString("C"));
+            total.Alignment = 2;
 
             FileStream fs = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
 
@@ -181,7 +178,7 @@ namespace CakesPos
             doc5.Add(table);
             //doc5.Add(subTotal);
             //doc5.Add(discount);
-            doc5.Add(disc);
+            //doc5.Add(disc);
             doc5.Add(total);
             doc5.Add(paymentMessage);
             doc5.Add(greeting2);
@@ -193,7 +190,7 @@ namespace CakesPos
         public void EmailStatement(string file, string email, string date)
         {
             MailMessage mail = new MailMessage();
-            mail.From = new System.Net.Mail.MailAddress("\"Elegant Cakes\" <siegelmancake@gmail.com>");
+            mail.From = new System.Net.Mail.MailAddress("\"Siegelman Cakes\" <siegelmancake@gmail.com>");
 
             // The important part -- configuring the SMTP client
             SmtpClient smtp = new SmtpClient();

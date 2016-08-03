@@ -12,6 +12,7 @@ namespace CakesPos.Data
         public int productId { get; set; }
         public string productName { get; set; }
         public decimal unitPrice { get; set; }
+        public decimal catererDiscount { get; set; }
         public int quantity { get; set; }
     }
 }

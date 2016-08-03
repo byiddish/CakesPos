@@ -9,6 +9,10 @@
         });
     });
 
+    function setTwoNumberDecimal(event) {
+        this.value = parseFloat(this.value).toFixed(2);
+    }
+
     var lastTab = localStorage.getItem('lastTab');
     if (lastTab) {
         $('a[href="' + lastTab + '"]').closest('li').addClass('active').siblings().removeClass('active');
@@ -16,10 +20,10 @@
 
     $("#delivery").on('click', function () {
         $("#deliveryInfoDiv").show();
-        $("#pickup").on('click', function () {
-            $("#deliveryInfoDiv").hide();
-        })
+    })
 
+    $("#pickup").on('click', function () {
+        $("#deliveryInfoDiv").hide();
     })
 
     $('#pickup').on('click', function () {
@@ -50,6 +54,16 @@
         paid = false;
     })
 
+    $('#atPickup').on('click', function () {
+        paymentMethod = "At Pickup";
+        paid = false;
+    })
+
+    $('#onAccount').on('click', function () {
+        paymentMethod = "On Account";
+        paid = false;
+    })
+
     $('.customizeBtn').on('click', function () {
         $('#customizeProductModal').modal();
     })
@@ -57,13 +71,15 @@
     $('#customProductSubmit').on('click', function () {
         var productName = $('#productName').val();
         var price = $('#price').val();
+        var catererDiscount = $('#catererDiscount').val();
         var inStock = $('#inStock').val();
-        if (productName == "" || price == "" || inStock == "") {
+        var restockAmount = $('#restockAmount').val();
+        if (productName == "" || price == "" || inStock == "" || catererDiscount == "") {
             $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">All inputs are necessary!</span>")
             $('#alertInvalidSubmitModal').modal();
         }
         else {
-            $.post("/home/AddCustomProduct", { productName: productName, price: price, inStock: inStock, }, function () {
+            $.post("/home/AddCustomProduct", { productName: productName, price: price, catererDiscount: catererDiscount, restockAmount: restockAmount, inStock: inStock, }, function () {
                 $('#customizeProductModal').modal('toggle');
                 $('#productName').val("");
                 $('#price').val("");
@@ -71,6 +87,13 @@
             });
         }
     });
+
+
+    $('#historyTable').on('click', '.viewInvoiceBtn', function () {
+        var invoiceId = $(this).data('orderid');
+        $('#viewPdfIFrame').attr('src', "/home/GetInvoice?invoiceId=" + invoiceId);
+        $('#pdfModal').modal();
+    })
 
     $("#orderSubmitBtn").on('click', function () {
         if ($('.requiredDate').datepicker("getDate") === null) {
@@ -81,11 +104,15 @@
             $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please enter a delivery address to continue!</span>")
             $('#alertInvalidSubmitModal').modal();
         }
+        else if ($('#delivery').prop('checked') == true && $('#deliveryCharge').val() === "") {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please enter a delivery charge to continue!</span>")
+            $('#alertInvalidSubmitModal').modal();
+        }
         else {
             var discount = parseFloat($('.discount').val());
             var customerId = $('#customerIdCheckout').val();
             var ordersId;
-            if ($('input[name=paymentMethod]:checked').val() === "COD") {
+            if ($('input[name=paymentMethod]:checked').val() === "COD" || $('input[name=paymentMethod]:checked').val() === "On Account" || $('input[name=paymentMethod]:checked').val() === "At Pickup") {
                 paid = false;
             }
             else {
@@ -93,6 +120,10 @@
             }
 
             discount = discount || 0;
+            var deliveryCharge = 0;
+            if ($('input[name=deliveryOpt]:checked').val() === "Delivery") {
+                deliveryCharge = $('#deliveryCharge').val();
+            }
             $.post("/home/AddOrder", {
                 customerId: $('#customerIdCheckout').val(),
                 requiredDate: $('.requiredDate').val(),
@@ -103,7 +134,10 @@
                 deliveryCity: $('#deliveryCity').val(),
                 deliveryState: $('#deliveryState').val(),
                 deliveryZip: $('#deliveryZip').val(),
-                phone: $('#deliveryPhone').val(),
+                phone1: $('#deliveryPhone1').val(),
+                phone2: $('#deliveryPhone2').val(),
+                cell1: $('#deliveryCell1').val(),
+                cell2: $('#deliveryCell2').val(),
                 creditCard: $('#creditCardNumber').val(),
                 expiration: $('#expiration').val(),
                 securityCode: $('#securityCode').val(),
@@ -112,12 +146,14 @@
                 notes: $('#notes').val(),
                 greetings: $('#greetings').val(),
                 deliveryNote: $('#orderDeliveryNote').val(),
-                paid: paid
+                paid: paid,
+                deliveryCharge: deliveryCharge
             },
                 function (orderId) {
                     if (paid) {
                         amount = parseFloat($('#total').data('total'));
-                        $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount }, function () {
+                        amount += parseFloat(deliveryCharge);
+                        $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount, note: paymentMethod }, function () {
                         })
                     }
                     ordersId = orderId;
@@ -158,63 +194,88 @@
     });
 
     $("#EditOrderSubmitBtn").on('click', function () {
-        var orderId = $(this).data('orderid');
-        var discount = parseFloat($('.discount').val());
-        if ($('input[name=paymentMethod]:checked').val() === "COD") {
-            paid = false;
+        if ($('.requiredDate').datepicker("getDate") === null) {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please select a required date to continue!</span>")
+            $('#alertInvalidSubmitModal').modal();
+        }
+        else if ($('#delivery').prop('checked') == true && $('#deliveryAddress').val() === "") {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please enter a delivery address to continue!</span>")
+            $('#alertInvalidSubmitModal').modal();
+        }
+        else if ($('#delivery').prop('checked') == true && $('#deliveryCharge').val() === "") {
+            $('#invalidSubmitAlert').html("<span style=" + '"color:red"' + ">Please enter a delivery charge to continue!</span>")
+            $('#alertInvalidSubmitModal').modal();
         }
         else {
-            paid = true;
-        }
+            var orderId = $(this).data('orderid');
+            var discount = parseFloat($('.discount').val());
+            var deliveryCharge = $('#deliveryCharge').val();
+            if ($('input[name=deliveryOpt]:checked').val() === "Pickup") {
+                deliveryCharge = 0;
+            }
+            if ($('input[name=paymentMethod]:checked').val() === "COD" || $('input[name=paymentMethod]:checked').val() === "On Account" || $('input[name=paymentMethod]:checked').val() === "At Pickup") {
+                paid = false;
+            }
+            else {
+                paid = true;
+            }
 
-        discount = discount || 0;
-        $.post("/home/UpdateOrderById", {
-            orderId: orderId,
-            customerId: $('#customerIdCheckout').val(),
-            requiredDate: $('#requiredDate').val(),
-            deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
-            deliveryFirstName: $('#deliveryFirstName').val(),
-            deliveryLastName: $('#deliveryLastName').val(),
-            deliveryAddress: $('#deliveryAddress').val(),
-            deliveryCity: $('#deliveryCity').val(),
-            deliveryState: $('#deliveryState').val(),
-            deliveryZip: $('#deliveryZip').val(),
-            phone: $('#deliveryPhone').val(),
-            creditCard: $('#creditCardNumber').val(),
-            expiration: $('#expiration').val(),
-            securityCode: $('#securityCode').val(),
-            paymentMethod: $('input[name=paymentMethod]:checked').val(),
-            discount: discount,
-            notes: $('#notes').val(),
-            greetings: $('#greetings').val(),
-            deliveryNote: $('#orderDeliveryNote').val(),
-            paid: paid
-        },
-            function () {
-                if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() == "COD") {
-                    $.post("/home/DeletePayments", { orderId: orderId }, function () {
-                    })
-                }
-                else if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() != "COD") {
-                    var amount = parseFloat($('#total').data('total'));
-                    $.post("/home/MakePayment", { customerId: $('#customerIdCheckout').val(), orderId: orderId, amount: amount }, function () {
-                    })
-                }
-                $('#orderTable').find('tr').not(':first').each(function () {
-                    var product = $(this);
-                    var productId = product.data('id');
-                    var price = product.data('price');
-                    var quantity = $(this).find('input.q').val();
+            discount = discount || 0;
+            $.post("/home/UpdateOrderById", {
+                orderId: orderId,
+                customerId: $('#customerIdCheckout').val(),
+                requiredDate: $('#requiredDate').val(),
+                deliveryOpt: $('input[name=deliveryOpt]:checked').val(),
+                deliveryFirstName: $('#deliveryFirstName').val(),
+                deliveryLastName: $('#deliveryLastName').val(),
+                deliveryAddress: $('#deliveryAddress').val(),
+                deliveryCity: $('#deliveryCity').val(),
+                deliveryState: $('#deliveryState').val(),
+                deliveryZip: $('#deliveryZip').val(),
+                phone1: $('#deliveryPhone1').val(),
+                phone2: $('#deliveryPhone2').val(),
+                cell1: $('#deliveryCell1').val(),
+                cell2: $('#deliveryCell2').val(),
+                creditCard: $('#creditCardNumber').val(),
+                expiration: $('#expiration').val(),
+                securityCode: $('#securityCode').val(),
+                paymentMethod: $('input[name=paymentMethod]:checked').val(),
+                discount: discount,
+                notes: $('#notes').val(),
+                greetings: $('#greetings').val(),
+                deliveryNote: $('#orderDeliveryNote').val(),
+                paid: paid,
+                deliveryCharge: deliveryCharge
+            },
+                function () {
+                    if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() == "COD" || $('input[name=paymentMethod]:checked').val() == "On Account" || $('input[name=paymentMethod]:checked').val() == "At Pickup") {
+                        $.post("/home/DeletePayments", { orderId: orderId }, function () {
+                        })
+                    }
+                    else if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() != "COD" || $('input[name=paymentMethod]:checked').val() != "On Account" || $('input[name=paymentMethod]:checked').val() != "At Pickup") {
+                        var amount = parseFloat($('#total').data('total'));
+                        amount += parseFloat(deliveryCharge);
+                        $.post("/home/DeletePayments", { orderId: orderId }, function () {
+                        })
+                        $.post("/home/MakePayment", { customerId: $('#customerIdCheckout').val(), orderId: orderId, amount: amount, note: paymentMethod }, function () {
+                        })
+                    }
+                    $('#orderTable').find('tr').not(':first').each(function () {
+                        var product = $(this);
+                        var productId = product.data('id');
+                        var price = product.data('price');
+                        var quantity = $(this).find('input.q').val();
 
-                    $.post("/home/AddOrderDetails", {
-                        orderId: orderId,
-                        productId: productId,
-                        unitPrice: price,
-                        quantity: quantity
-                    }, function () { });
+                        $.post("/home/AddOrderDetails", {
+                            orderId: orderId,
+                            productId: productId,
+                            unitPrice: price,
+                            quantity: quantity
+                        }, function () { });
+                    })
                 })
-            })
-        $('#alertOrderChanges').modal();
+            $('#alertOrderChanges').modal();
+        }
     });
 
     $('.sendStatementBtn').on('click', function () {
@@ -360,7 +421,7 @@
 
     $('#orderDiv').on('click', '.viewPdfBtn', function () {
         var statementId = $(this).data('statementid');
-        $('#viewPdfIFrame').attr('src', "/Statements-Pdf/" + statementId + ".pdf");
+        $('#viewPdfIFrame').attr('src', "/home/GetPDF?statementId=" + statementId);
         $('#pdfModal').modal();
     })
 
@@ -437,6 +498,18 @@
         }
     })
 
+    $('#allDates').change(function () {
+        $('#filterDate').prop('disabled', function (i, v) { return !v; });
+        var s = $('#searchHistoryInput').val().toString();
+        var date = $('#filterDate').val();
+        var opt = $('#filterOpt option:selected').val();
+        var all = $('input[name=allDates]').is(':checked')
+        $('.history').remove();
+        $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+            populateOrders(ordersHistory);
+        })
+    })
+
     $('#sPaymentModal').on('hidden.bs.modal', function () {
         $('#amountPay').val("");
         $('#sFullAmountCheckbox').attr('checked', false);
@@ -448,7 +521,7 @@
     //});
 
     function printStatement(statementId) {
-        $('#pdf-iframe').attr("src", "/Statements-Pdf/" + statementId + ".pdf").load(function () {
+        $('#pdf-iframe').attr("src", "/home/GetPDF?statementId=" + statementId).load(function () {
             document.getElementById('pdf-iframe').contentWindow.print();
         });
     }
@@ -480,15 +553,21 @@
     //    getMyFrame.focus();
     //    getMyFrame.contentWindow.print();
     //}
+    $('#editProduct').on('click', function () {
+        var productId = $(this).data('id');
+    })
 
     $(".categorybtn").on('click', function () {
         var c = $(this).data("category");
         $.post("/home/GetProductsByCategory", { categoryId: c }, function (products) {
             $(".productbtn").remove();
             products.forEach(function (product) {
-                var productName = product.ProductName.toString();
-                $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + "data-id=" + product.Id + " data-categoryId=" + product.CategoryId + " data-content=" + '"' + productName + '"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + "><img src=" + "/Uploads/" + product.Image + "><br/>" + product.ProductName + " $" + product.Price + "</button>")
-            });
+                $.post("/home/GetProductAvailabilityByProductId", { productId: product.Id }, function (requestedAmount) {
+                    var productName = product.ProductName.toString();
+                    var availabeAmount = product.InStock - requestedAmount;
+                    $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + " data-id=" + product.Id + " data-catererDiscount=" + product.CatererDiscount + " data-categoryId=" + product.CategoryId + " data-content=" + '"' + productName + '"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + ">" + availabeAmount + "<br/ ><img src=" + "/Uploads/" + product.Image + "><br/>" + product.ProductName + " $" + product.Price + "</button>")
+                });
+            })
         })
     })
 
@@ -501,10 +580,11 @@
         var productName = p.data("content");
         var inStock = p.data("inStock");
         var price = p.data("price");
+        var catererDiscount = p.data("catererdiscount");
         var categoryId = p.data("categoryid");
         var caterer = $('#catererDiscount').val();
 
-        var row = "<tr data-price=" + price + " data-categoryid=" + categoryId + " data-id=" + id + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
+        var row = "<tr data-price=" + price + " data-categoryid=" + categoryId + " data-id=" + id + " data-catererdiscount=" + catererDiscount + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
         $('#orderTable').find('tr').not(':first').each(function () {
             if ($(this).data('id') == id) {
                 var quantity = $(this).find('input.q').val();
@@ -518,6 +598,13 @@
 
         RefreshOrder();
     })
+
+    //$('#applyChargesBtn').on('click', function () {
+    //    var row = "<tr class="+'"charge"'+" data-price=" + price + " data-categoryid=" + categoryId + " data-id=" + id + " data-catererdiscount=" + catererDiscount + "><td><button class=" + '"btn btn-danger delete"' + ">X</button></td><td>" + productName + "</td><td><input class=" + '"input input-sm q"' + "v-model=" + '"quantity"' + " type=" + '"number"' + " value=" + '"1"' + "min=" + '"1"' + " /></td><td class=" + '"price"' + ">$" + price + "</td></tr>";
+    //    $("#orderTable").append(row);
+
+    //    RefreshOrder();
+    //})
 
     $("#orderTable").on('click', '.delete', function () {
         var i = $(this).closest('tr').index();
@@ -546,11 +633,17 @@
             }
             else {
                 customers.forEach(function (customer) {
-                    if (customer.Phone == null) {
-                        customer.Phone = "";
+                    if (customer.Phone1 == null) {
+                        customer.Phone1 = "";
                     }
-                    if (customer.Cell == null) {
-                        customer.Cell = "";
+                    if (customer.Phone2 == null) {
+                        customer.Phone2 = "";
+                    }
+                    if (customer.Cell1 == null) {
+                        customer.Cell1 = "";
+                    }
+                    if (customer.Cell2 == null) {
+                        customer.Cell2 = "";
                     }
                     if (customer.Address == null) {
                         customer.Address = "";
@@ -569,7 +662,7 @@
                     }
 
 
-                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.LastName + " " + customer.FirstName + "</td><td>" + customer.Address + " " + customer.City + " " + customer.State + " " + customer.Zip + "</td><td>" + customer.Phone + "</td><td>" + customer.Cell + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone=" + '"' + customer.Phone + '"' + " data-id=" + '"' + customer.Id + '"' + " data-cell=" + '"' + customer.Cell + '"' + " data-caterer=" + '"' + customer.Caterer + '"' + " data-email=" + '"' + customer.Email + '"' + " >" + "Select" + "</button></td></tr>");
+                    $('#searchTable').append("<tr class=" + '"customers"' + "><td>" + customer.LastName + " " + customer.FirstName + "</td><td>" + customer.Address + " " + customer.City + " " + customer.State + " " + customer.Zip + "</td><td>" + customer.Phone1 + " " + customer.Phone2 + "</td><td>" + customer.Cell1 + " " + customer.Cell2 + "</td><td><button class=" + '"' + "btn btn-info select" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone1=" + '"' + customer.Phone1 + '"' + "  data-phone2=" + '"' + customer.Phone2 + '"' + " data-id=" + '"' + customer.Id + '"' + " data-cell1=" + '"' + customer.Cell1 + '"' + " data-cell2=" + '"' + customer.Cell2 + '"' + " data-caterer=" + '"' + customer.Caterer + '"' + " data-email=" + '"' + customer.Email + '"' + " >" + "Select" + "</button></td></tr>");
                 })
             }
         })
@@ -579,7 +672,10 @@
         var fistName = $(this).data('first');
         var lastName = $(this).data('last');
         var address = $(this).data('add');
-        var phone = $(this).data('phone');
+        var phone1 = $(this).data('phone1');
+        var phone2 = $(this).data('phone2');
+        var cell1 = $(this).data('cell1');
+        var cell2 = $(this).data('cell2');
         var customerId = $(this).data('id');
         var caterer = $(this).data('caterer');
         var email = $(this).data('email');
@@ -592,10 +688,13 @@
         $('#discountInput').val("");
         $('#catererIndicator').html("");
         $('#customerEmail').text("");
+        $('#customerPhone').append("");
+        $('#customerCell').append("");
 
         $('#customerHeader').append(fistName + " " + lastName);
         $('#customerAddress').append(address);
-        $('#customerPhone').append(phone);
+        $('#customerPhone').append(phone1 + " " + phone2);
+        $('#customerCell').append(cell1 + " " + cell2);
         $('#customerId').val(customerId);
         $('#searchCustomerModal').modal('toggle');
         $('.customers').remove();
@@ -622,20 +721,33 @@
 
     $('#searchHistoryInput').on('input', function () {
         var s = $('#searchHistoryInput').val().toString();
-        var x = $('#filterDate option:selected').val();
+        var date = $('#filterDate').val();
         var opt = $('#filterOpt option:selected').val();
+        var all = $('input[name=allDates]').is(':checked')
         $('.history').remove();
-        $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+        $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
             populateOrders(ordersHistory);
         })
     })
 
     $('#filterOpt').on('change', function () {
         var s = $('#searchHistoryInput').val().toString();
-        var x = $('#filterDate option:selected').val();
+        var date = $('#filterDate').val();
         var opt = $('#filterOpt option:selected').val();
+        var all = $('input[name=allDates]').is(':checked')
         $('.history').remove();
-        $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+        $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+            populateOrders(ordersHistory);
+        })
+    })
+
+    $('#filterDate').on('change', function () {
+        var s = $('#searchHistoryInput').val().toString();
+        var date = $('#filterDate').val();
+        var opt = $('#filterOpt option:selected').val();
+        var all = $('input[name=allDates]').is(':checked');
+        $('.history').remove();
+        $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
             populateOrders(ordersHistory);
         })
     })
@@ -654,6 +766,7 @@
         var caterer = $(this).data('caterer');
         var subtotal = 0;
         var total = 0;
+        var catererDiscount = 0;
         var stat = "";
         var deliveryOpt = $(this).data('deliveryopt');
         if (deliveryOpt == "Pickup") {
@@ -668,7 +781,7 @@
             $('#emailCheck').html("<label><div class=" + '"' + "form-group" + '"' + "><h2>Email invoice</h2><label class=" + '"' + "switch" + '"' + "><input type=" + '"' + "checkbox" + '"' + "checked=" + '"' + "checked" + '"' + " id=" + '"' + "emailConfirm" + '"' + "><div class=" + '"' + "slider round" + '"' + "></div></label></div></label>");
         }
         else {
-            $('#emailCheck').html("");
+            $('#emailCheck').html("<label><div class=" + '"' + "form-group" + '"' + "><h2>Email invoice</h2><label class=" + '"' + "switch" + '"' + "><input type=" + '"' + "checkbox" + '"' + " id=" + '"' + "emailConfirm" + '"' + "><div class=" + '"' + "slider round" + '"' + "></div></label></div></label>");
         }
         $('#edit').attr('href', "/home/editOrder?customerId=" + customersId + "&orderId=" + ordersId);
         $('#cancel').attr('data-id', ordersId);
@@ -686,11 +799,15 @@
                 $('#statusBtn').prop("disabled", true);
             }
         })
-
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
             if (ordersHistory.order.DeliveryOption === "Delivery") {
                 $('#deliveryPanel').show();
-                $('#odDeliveryInfo').html("<h4>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h4><h4>" + ordersHistory.order.DeliveryAddress + "</h4><h4>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h4><h4>" + ordersHistory.order.Phone + "</h4>");
+                $('#odDeliveryInfo').html("<h4>" + ordersHistory.order.DeliveryFirstName + " " + ordersHistory.order.DeliveryLastName + "</h4><h4>" + ordersHistory.order.DeliveryAddress + "</h4><h4>" + ordersHistory.order.DeliveryCity + " " + ordersHistory.order.DeliveryState + " " + ordersHistory.order.DeliveryZip + "</h4><h4>" + ordersHistory.order.Phone1 + " " + ordersHistory.order.Phone2 + "</h4><h4>" + ordersHistory.order.Cell1 + " " + ordersHistory.order.Cell2 + "</h4>");
+                $('#deliveryCharge').html("Delivery Charge: " + parseFloat(ordersHistory.order.DeliveryCharge, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                catererDiscount = ordersHistory.order.DeliveryCharge;
+            }
+            else {
+                $('#deliveryCharge').html("");
             }
             if (ordersHistory.payments != null) {
                 ordersHistory.payments.forEach(function (p) {
@@ -702,10 +819,12 @@
                     $('#paymentDiv').append("<h5>Payment of: $" + p.Payment1 + " on " + date + " " + note + "</h5>");
                 })
             }
+            var totalExludingDis = 0;
             var discount = ordersHistory.order.Discount;
+
             $('#notesBody').html("<h5>" + ordersHistory.order.Notes + "</h5>");
             $('#greetingsBody').html("<h5>" + ordersHistory.order.Greetings + "</h5>")
-            $('#odCustomerInfo').html("<h4>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h4><h4>" + ordersHistory.customer.Address + "</h4><h4>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h4><h4>Phone: " + ordersHistory.customer.Phone + "</h4><h4>Cell: " + ordersHistory.customer.Cell + "</h4><h5>" + ordersHistory.customer.Email + "</h5>");
+            $('#odCustomerInfo').html("<h4>" + ordersHistory.customer.FirstName + " " + ordersHistory.customer.LastName + "</h4><h4>" + ordersHistory.customer.Address + "</h4><h4>" + ordersHistory.customer.City + " " + ordersHistory.customer.State + " " + ordersHistory.customer.Zip + "</h4><h4>Phone: " + ordersHistory.customer.Phone1 + " " + ordersHistory.customer.Phone2 + "</h4><h4>Cell: " + ordersHistory.customer.Cell1 + " " + ordersHistory.customer.Cell2 + "</h4><h5>" + ordersHistory.customer.Email + "</h5>");
             ordersHistory.orderedProducts.forEach(function (orderedProducts) {
                 var catererDiscount = 0;
                 var catererHtml = "";
@@ -722,19 +841,31 @@
 
                 if (caterer === true || caterer === "True") {
                     var t = (parseFloat(orderedProducts.quantity) * parseFloat(orderedProducts.unitPrice));
-                    if (orderedProducts.categoryId === 1) {
-                        catererDiscount = 5;
-                        total += (t - catererDiscount * orderedProducts.quantity);
-                    }
-                    else if (orderedProducts.categoryId === 2) {
-                        catererDiscount = t * 0.1;
+                    totalExludingDis += t;
+                    if (orderedProducts.catererDiscount < 1) {
+                        catererDiscount = t * orderedProducts.catererDiscount;
                         total += (t - catererDiscount);
                     }
-                    else if (orderedProducts.categoryId === 5) {
-                        catererDiscount = 2.5;
+                    else {
+                        catererDiscount = orderedProducts.catererDiscount;
                         total += (t - catererDiscount * orderedProducts.quantity);
                     }
-                    if (orderedProducts.caterer === true || caterer === "True" && orderedProducts.categoryId === 2) {
+
+                    //}
+                    //else if (orderedProducts.categoryId === 2 || orderedProducts.categoryId === 3) {
+                    //    catererDiscount = t * 0.1;
+                    //    total += (t - catererDiscount);
+
+                    //}
+                    //else if (orderedProducts.categoryId === 4) {
+                    //    catererDiscount = 2.5;
+                    //    total += (t - catererDiscount * orderedProducts.quantity);
+
+                    //}
+                    //else {
+                    //    total += t;
+                    //}
+                    if (orderedProducts.caterer === true || caterer === "True" && (orderedProducts.catererDiscount < 1)) {
                         catererHtml = (t + "<span style=" + '"color: red"' + "> (-" + parseFloat(catererDiscount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + ")</span>");
                     }
                     else {
@@ -745,20 +876,31 @@
                     var t = (parseFloat(orderedProducts.quantity) * parseFloat(orderedProducts.unitPrice));
                     total += t;
                     catererHtml = t;
+
                 }
 
 
                 $('#table').append("<tr><td>" + orderedProducts.productName + "</td><td>" + orderedProducts.unitPrice + "</td><td>" + orderedProducts.quantity + "</td><td>" + catererHtml + "</td></tr>")
                 //subtotal += orderedProducts.quantity * orderedProducts.unitPrice;
             })
-            $('#odDiscount').html("Discount: " + discount);
-            $('#odSubtotal').html("Subtotal: $" + parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
-            if (discount >= 1) {
-                $('#odTotal').html("Total: $" + parseFloat((total - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+            if (discount < 1) {
+                discount = discount * total;
+            }
+            if (caterer === "True") {
+                $('#odDiscount').html("Discount: " + parseFloat(totalExludingDis - total + discount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $('#odSubtotal').html("Subtotal: $" + parseFloat(totalExludingDis, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             }
             else {
-                $('#odTotal').html("Total: $" + parseFloat((total - (total * discount)), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $('#odDiscount').html("Discount: " + parseFloat(discount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+                $('#odSubtotal').html("Subtotal: $" + parseFloat(total, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
             }
+            //if (discount >= 1) {
+
+            $('#odTotal').html("Total: $" + parseFloat((total + catererDiscount - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+            //}
+            //else {
+            //$('#odTotal').html("Total: $" + parseFloat((total - (total * discount)), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString());
+            //}
         })
         $('#orderDetailsModal').modal('show');
     })
@@ -815,13 +957,20 @@
             var requiredDate = ConvertJsonDate(deliveries[i].order.RequiredDate);
             var firstName = deliveries[i].customer.FirstName;
             var lastName = deliveries[i].customer.LastName;
+            var phone1 = deliveries[i].customer.Phone1;
+            var phone2 = deliveries[i].customer.Phone2;
+            var cell1 = deliveries[i].customer.Cell1;
+            var cell2 = deliveries[i].customer.Cell2;
             var deliveryFirstName = deliveries[i].order.DeliveryFirstName;
             var deliveryLastName = deliveries[i].order.DeliveryLastName;
             var deliveryAddress = deliveries[i].order.DeliveryAddress;
             var deliveryCity = deliveries[i].order.DeliveryCity;
             var deliveryState = deliveries[i].order.DeliveryState;
             var deliveryZip = deliveries[i].order.DeliveryZip;
-            var deliveryPhone = deliveries[i].order.Phone;
+            var deliveryPhone1 = deliveries[i].order.Phone1;
+            var deliveryPhone2 = deliveries[i].order.Phone2;
+            var deliveryCell1 = deliveries[i].order.Cell1;
+            var deliveryCell2 = deliveries[i].order.Cell2;
             var deliveryNote = deliveries[i].order.DeliveryNote;
 
 
@@ -834,7 +983,7 @@
                 productsHtml = "No products for this order..."
             }
             else {
-                for (var j = 0, l = deliveries[i].orderedProducts.length; j < l; j++) {
+                for (var j = 0, d = deliveries[i].orderedProducts.length; j < d; j++) {
                     quantity = "";
                     if (deliveries[i].orderedProducts != null) {
                         quantity = deliveries[i].orderedProducts[j].quantity;
@@ -847,7 +996,7 @@
                 }
             }
 
-            $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "<button class=" + '"' + "btn btn-group-xs btn-default pull-right min" + '"' + ">-</button></div><div class=" + '"' + "panel-body body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br />" + deliveryPhone + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + ">" + productsHtml + "</div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><textarea class=" + '"' + "form-control" + '"' + " rows=" + '"' + "3" + '"' + " id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</textarea></div></div></div></div></div>");
+            $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "&nbsp&nbsp&nbsp&nbsp" + phone1 + "&nbsp&nbsp&nbsp&nbsp" + phone2 + "&nbsp&nbsp&nbsp&nbsp" + cell1 + "&nbsp&nbsp&nbsp&nbsp" + cell2 + " " + "</div><div class=" + '"' + "panel-body body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br /><br />" + deliveryPhone1 + " " + deliveryPhone2 + "<br />" + deliveryCell1 + " " + deliveryCell2 + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + ">" + productsHtml + "</div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><textarea class=" + '"' + "form-control" + '"' + " rows=" + '"' + "3" + '"' + " id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</textarea></div></div></div></div></div>");
         }
     }
 
@@ -880,13 +1029,14 @@
             var p = 0;
             var total = 0;
             var orderTotal = getTotal(id, customerId);
-            if (discount < 1) {
-                discount = (orderTotal * discount);
-                total = parseFloat((orderTotal - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
-            }
-            else {
-                total = parseFloat((orderTotal - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
-            }
+            //if (discount < 1) {
+            //    discount = (orderTotal * discount);
+            //    total = parseFloat((orderTotal - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+            //}
+            //else {
+            //    total = parseFloat((orderTotal - discount), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+            //}
+            total = parseFloat((orderTotal), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
 
             payments.forEach(function (payment) {
                 p += payment.Payment1;
@@ -919,8 +1069,15 @@
             else {
                 paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + ">Payment</button>";
             }
+            var viewInvoiceHtml = "";
+            if (ordersHistory[i].invoice) {
+                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + " data-orderid=" + id + ">View Invoice</button>"
+            }
+            else {
+                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + "disabled data-orderid=" + id + ">View Invoice</button>"
+            }
 
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + paymentMethod + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-deliveryopt=" + '"' + deliveryOption + '"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button>"+paymentBtnHtml+"</td></tr>");
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + paymentMethod + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-deliveryopt=" + '"' + deliveryOption + '"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button>" + viewInvoiceHtml + paymentBtnHtml + "</td></tr>");
         }
     }
 
@@ -953,7 +1110,7 @@
     });
 
     $('#newCustomerSubmit').on('click', function () {
-        if ($('#phone').val() == "" && $('#cell').val()== ""){
+        if ($('#phone').val() == "" && $('#cell').val() == "") {
             $('#alertInvalidSubmit').modal();
         }
         else {
@@ -967,10 +1124,12 @@
             var city = $('#city').val();
             var state = $('#state').val();
             var zip = $('#zip').val();
-            var phone = $('#phone').val();
-            var cell = $('#cell').val();
+            var phone1 = $('#phone1').val();
+            var phone2 = $('#phone2').val();
+            var cell1 = $('#cell1').val();
+            var cell2 = $('#cell2').val();
             var email = $('#email').val();
-            $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone: phone, cell: cell, caterer: caterer, email: email }, function (id) {
+            $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone1: phone1, phone2: phone2, cell1: cell1, cell2: cell2, caterer: caterer, email: email }, function (id) {
                 $('#customerId').val(id);
                 $('#customerIdCheckout').val(id);
                 $('#alertNewCustomerAdded').modal();
@@ -979,13 +1138,15 @@
             $('#customerHeader').text("");
             $('#customerAddress').text("");
             $('#customerPhone').text("");
+            $('#customerCell').text("");
             $('#discountInput').val("");
             $('#catererIndicator').html("");
             $('#customerEmail').text("");
 
             $('#customerHeader').append(firstName + " " + lastName);
             $('#customerAddress').append(address);
-            $('#customerPhone').append(phone);
+            $('#customerPhone').append(phone1 + " " + phone2);
+            $('#customerCell').append(cell1 + " " + cell2);
             $('.customers').remove();
             $('#searchInput').val("");
             $('#catererDiscount').val(caterer);
@@ -993,6 +1154,7 @@
                 $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
             }
             $('#customerEmail').append(email);
+            $('#searchCustomerModal').modal('toggle');
             $('#newCustomerModal').modal('toggle');
         }
     })
@@ -1044,6 +1206,10 @@
         window.print();
     });
 
+    $('#addCharge').on('click', function () {
+        $('#addChargeModal').modal();
+    })
+
 
     $('#historyTable').on('click', '.paymentBtn', function () {
         var customerId = $(this).data('customerid');
@@ -1083,11 +1249,14 @@
         var note = $('#paymentNote').val();
 
         $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount, note: note }, function () {
-            alert("Thank you for the payment!!!");
+            $('#paymentAlertModal').modal();
         })
 
         $('#amountPay').val("");
         $('#paymentNote').val("");
+    })
+
+    $('#paymentAlertModal').on('hidden.bs.modal', function () {
         location.reload();
     })
 
@@ -1101,7 +1270,10 @@
                 $('#deliveryCity').val(customer.City)
                 $('#deliveryState').val(customer.State)
                 $('#deliveryZip').val(customer.Zip)
-                $('#deliveryPhone').val(customer.Phone)
+                $('#deliveryPhone1').val(customer.Phone1)
+                $('#deliveryPhone2').val(customer.Phone2)
+                $('#deliveryCell1').val(customer.Cell1)
+                $('#deliveryCell2').val(customer.Cell2)
             })
         }
         else {
@@ -1111,7 +1283,10 @@
             $('#deliveryCity').val("")
             $('#deliveryState').val("")
             $('#deliveryZip').val("")
-            $('#deliveryPhone').val("")
+            $('#deliveryPhone1').val("")
+            $('#deliveryPhone2').val("")
+            $('#deliveryCell1').val("")
+            $('#deliveryCell2').val("")
         }
     });
 
@@ -1153,30 +1328,32 @@
         })
 
         $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
-            if (customer.Caterer && customer.Email != "" && customer.Email != null && $('#emailCheck').find('#emailConfirm').prop('checked')) {
+            if (customer.Email != "" && customer.Email != null && $('#emailCheck').find('#emailConfirm').prop('checked')) {
                 $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: ordersId }, function () {
                     $('#invoiceAlertMessage').html('An invoice was sent via email to the customer!');
                     $('#invoiceAlertModal').modal();
                     $('#orderDetailsModal').modal('toggle');
                     var s = $('#searchHistoryInput').val().toString();
-                    var x = $('#filterDate option:selected').val();
+                    var date = $('#filterDate').val();
                     var opt = $('#filterOpt option:selected').val();
+                    var all = $('input[name=allDates]').is(':checked');
                     $('.history').remove();
-                    $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+                    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
                         populateOrders(ordersHistory);
                     })
                 })
             }
-            else if (customer.Caterer && customer.Email == null) {
+            else if (customer.Email == null && $('#emailCheck').find('#emailConfirm').prop('checked')) {
                 $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
                     $('#invoiceAlertMessage').html("Invoice generated successfuly!\n\n<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>");
                     $('#invoiceAlertModal').modal();
                     $('#orderDetailsModal').modal('toggle');
                     var s = $('#searchHistoryInput').val().toString();
-                    var x = $('#filterDate option:selected').val();
+                    var date = $('#filterDate').val();
                     var opt = $('#filterOpt option:selected').val();
+                    var all = $('input[name=allDates]').is(':checked');
                     $('.history').remove();
-                    $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+                    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
                         populateOrders(ordersHistory);
                     })
                 })
@@ -1188,10 +1365,11 @@
                     $('#invoiceAlertModal').modal();
                     $('#orderDetailsModal').modal('toggle');
                     var s = $('#searchHistoryInput').val().toString();
-                    var x = $('#filterDate option:selected').val();
+                    var date = $('#filterDate').val();
                     var opt = $('#filterOpt option:selected').val();
+                    var all = $('input[name=allDates]').is(':checked');
                     $('.history').remove();
-                    $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
+                    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
                         populateOrders(ordersHistory);
                     })
                 })
@@ -1222,7 +1400,9 @@
 
     $("#datepicker").datepicker();
 
+    $('#requiredDate').datepicker();
 
+    $('#filterDate').datepicker();
 
     $('#filterBySelect').on('change', function () {
         var x = $(this).find("option:selected").val();
@@ -1265,8 +1445,8 @@
     })
 
     $('#newCustomerBtn').on('click', function () {
-        var phone = $('#searchInput').val();
-        $('#phone').val(phone);
+        var phone1 = $('#searchInput').val();
+        $('#phone1').val(phone1);
     })
 
     $('#customerSearchInput').on('input', function () {
@@ -1292,7 +1472,7 @@
                     account = "$" + accParsed;
                 }
                 var customerName = c[i].FirstName + " " + c[i].LastName;
-                $('#customersTable').append("<tr data-customerid=" + c[i].Id + " data-balance=" + balance + " data-customer=" + '"' + customerName + '"' + "><td>" + c[i].LastName + " " + c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone + "</td><td>" + c[i].Cell + "</td><td>" + c[i].Email + "</td><td class=" + '"' + "account" + '"' + ">" + account + "</td></tr>")
+                $('#customersTable').append("<tr data-customerid=" + c[i].Id + " data-balance=" + balance + " data-customer=" + '"' + customerName + '"' + "><td>" + c[i].LastName + " " + c[i].FirstName + "</td><td>" + c[i].Address + " " + c[i].City + " " + c[i].State + " " + c[i].Zip + "</td><td>" + c[i].Phone1 + " " + c[i].Phone2 + "</td><td>" + c[i].Cell1 + " " + c[i].Cell2 + "</td><td>" + c[i].Email + "</td><td class=" + '"' + "account" + '"' + ">" + account + "</td></tr>")
             }
         })
     })
@@ -1431,8 +1611,10 @@
             $('#city').val(c.City);
             $('#state').val(c.State);
             $('#zip').val(c.Zip);
-            $('#phone').val(c.Phone);
-            $('#cell').val(c.Cell);
+            $('#phone1').val(c.Phone1);
+            $('#cell1').val(c.Cell1);
+            $('#phone2').val(c.Phone2);
+            $('#cell2').val(c.Cell2);
             $('#email').val(c.Email);
             $('#EditCustomerModal').modal();
         })
@@ -1446,10 +1628,10 @@
         if ($('#caterer').is(':checked')) {
             caterer = true;
         }
-        $.post("/home/EditCustomer", { customerId: $(this).attr('customerid'), firstName: $('#firstName').val(), lastName: $('#lastName').val(), address: $('#address').val(), city: $('#city').val(), state: $('#state').val(), zip: $('#zip').val(), phone: $('#phone').val(), cell: $('#cell').val(), caterer: caterer, email: $('#email').val() }, function () {
+        $.post("/home/EditCustomer", { customerId: $(this).attr('customerid'), firstName: $('#firstName').val(), lastName: $('#lastName').val(), address: $('#address').val(), city: $('#city').val(), state: $('#state').val(), zip: $('#zip').val(), phone1: $('#phone1').val(), phone2: $('#phone2').val(), cell1: $('#cell1').val(), cell2: $('#cell2').val(), caterer: caterer, email: $('#email').val() }, function () {
             $('#accountAlert').html("Customer changes applied...");
             $('#accountAlertModal').modal();
-            $('#customersTable tr:eq(' + rowIndex + ')').html("<td>" + $('#lastName').val() + " " + $('#firstName').val() + "</td><td>" + $('#address').val() + " " + $('#city').val() + " " + $('#state').val() + " " + $('#zip').val() + "</td><td>" + $('#phone').val() + "</td><td>" + $('#cell').val() + "</td><td>" + $('#email').val() + "</td><td class=" + '"' + "account" + '"' + ">" + (parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + "</td>")
+            $('#customersTable tr:eq(' + rowIndex + ')').html("<td>" + $('#lastName').val() + " " + $('#firstName').val() + "</td><td>" + $('#address').val() + " " + $('#city').val() + " " + $('#state').val() + " " + $('#zip').val() + "</td><td>" + $('#phone1').val() + " " + $('#phone2').val() + "</td><td>" + $('#cell1').val() + " " + $('#cell2').val() + "</td><td>" + $('#email').val() + "</td><td class=" + '"' + "account" + '"' + ">" + (parseFloat(balance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + "</td>")
         })
     })
 
@@ -1477,7 +1659,8 @@
         var itemCount = 0;
         var caterer = $('#catererDiscount').val();
         $('#orderTable').find('tr').not(':first').each(function () {
-            var catererDiscount = 0;
+            var catererDiscount = $(this).data('catererdiscount');
+            var discount = 0;
             var category = $(this).data('categoryid');
             var quantity = $(this).find('input.q').val();
             itemCount += (parseInt(quantity));
@@ -1487,25 +1670,32 @@
             }
             if (caterer === "true") {
                 var t = (parseFloat(quantity) * parseFloat(price));
-                if (category === 1) {
-                    catererDiscount = 5;
-                    total += (t - catererDiscount * quantity);
-                }
-                else if (category === 2) {
-                    catererDiscount = t * 0.1;
-                    total += (t - catererDiscount);
-                }
-                else if (category === 5) {
-                    catererDiscount = 2.5;
-                    total += (t - catererDiscount * quantity);
+                if (catererDiscount < 1) {
+                    discount = t * catererDiscount;
+                    total += (t - discount);
                 }
                 else {
-                    total += t;
+                    total += (t - catererDiscount * quantity);
                 }
-                if (caterer === "true" && category === 2) {
-                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + (parseFloat(catererDiscount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + ")</span>");
+                //if (category === 1) {
+                //    catererDiscount = 5;
+                //    total += (t - catererDiscount * quantity);
+                //}
+                //else if (category === 2 || category === 3) {
+                //    catererDiscount = t * 0.1;
+                //    total += (t - catererDiscount);
+                //}
+                //else if (category === 4) {
+                //    catererDiscount = 2.5;
+                //    total += (t - catererDiscount * quantity);
+                //}
+                //else {
+                //    total += t;
+                //}
+                if ((caterer === "true" || caterer === "True") && (catererDiscount < 1)) {
+                    $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + (parseFloat(discount, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + ")</span>");
                 }
-                else {
+                else if ((caterer === "true" || caterer === "True") && (catererDiscount >= 1)) {
                     $(this).find('.price').html(t + "<span style=" + '"color: red"' + "> (-" + (parseFloat((catererDiscount * quantity), 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString()) + ")</span>");
                 }
             }
@@ -1551,153 +1741,3 @@
 
 
 
-
-
-
-//(function ($) {
-//    "use strict";
-
-//    // Options for Message
-//    //----------------------------------------------
-//    var options = {
-//        'btn-loading': '<i class="fa fa-spinner fa-pulse"></i>',
-//        'btn-success': '<i class="fa fa-check"></i>',
-//        'btn-error': '<i class="fa fa-remove"></i>',
-//        'msg-success': 'All Good! Redirecting...',
-//        'msg-error': 'Wrong login credentials!',
-//        'useAJAX': true,
-//    };
-
-//    // Login Form
-//    //----------------------------------------------
-//    // Validation
-//    $("#login-form").validate({
-//        rules: {
-//            lg_username: "required",
-//            lg_password: "required",
-//        },
-//        errorClass: "form-invalid"
-//    });
-
-//    // Form Submission
-//    $("#login-form").submit(function () {
-//        remove_loading($(this));
-
-//        if (options['useAJAX'] == true) {
-//            // Dummy AJAX request (Replace this with your AJAX code)
-//            // If you don't want to use AJAX, remove this
-//            dummy_submit_form($(this));
-
-//            // Cancel the normal submission.
-//            // If you don't want to use AJAX, remove this
-//            return false;
-//        }
-//    });
-
-//    // Register Form
-//    //----------------------------------------------
-//    // Validation
-//    $("#register-form").validate({
-//        rules: {
-//            reg_username: "required",
-//            reg_password: {
-//                required: true,
-//                minlength: 5
-//            },
-//            reg_password_confirm: {
-//                required: true,
-//                minlength: 5,
-//                equalTo: "#register-form [name=reg_password]"
-//            },
-//            reg_email: {
-//                required: true,
-//                email: true
-//            },
-//            reg_agree: "required",
-//        },
-//        errorClass: "form-invalid",
-//        errorPlacement: function (label, element) {
-//            if (element.attr("type") === "checkbox" || element.attr("type") === "radio") {
-//                element.parent().append(label); // this would append the label after all your checkboxes/labels (so the error-label will be the last element in <div class="controls"> )
-//            }
-//            else {
-//                label.insertAfter(element); // standard behaviour
-//            }
-//        }
-//    });
-
-//    // Form Submission
-//    $("#register-form").submit(function () {
-//        remove_loading($(this));
-
-//        if (options['useAJAX'] == true) {
-//            // Dummy AJAX request (Replace this with your AJAX code)
-//            // If you don't want to use AJAX, remove this
-//            dummy_submit_form($(this));
-
-//            // Cancel the normal submission.
-//            // If you don't want to use AJAX, remove this
-//            return false;
-//        }
-//    });
-
-//    // Forgot Password Form
-//    //----------------------------------------------
-//    // Validation
-//    $("#forgot-password-form").validate({
-//        rules: {
-//            fp_email: "required",
-//        },
-//        errorClass: "form-invalid"
-//    });
-
-//    // Form Submission
-//    $("#forgot-password-form").submit(function () {
-//        remove_loading($(this));
-
-//        if (options['useAJAX'] == true) {
-//            // Dummy AJAX request (Replace this with your AJAX code)
-//            // If you don't want to use AJAX, remove this
-//            dummy_submit_form($(this));
-
-//            // Cancel the normal submission.
-//            // If you don't want to use AJAX, remove this
-//            return false;
-//        }
-//    });
-
-//    // Loading
-//    //----------------------------------------------
-//    function remove_loading($form) {
-//        $form.find('[type=submit]').removeClass('error success');
-//        $form.find('.login-form-main-message').removeClass('show error success').html('');
-//    }
-
-//    function form_loading($form) {
-//        $form.find('[type=submit]').addClass('clicked').html(options['btn-loading']);
-//    }
-
-//    function form_success($form) {
-//        $form.find('[type=submit]').addClass('success').html(options['btn-success']);
-//        $form.find('.login-form-main-message').addClass('show success').html(options['msg-success']);
-//    }
-
-//    function form_failed($form) {
-//        $form.find('[type=submit]').addClass('error').html(options['btn-error']);
-//        $form.find('.login-form-main-message').addClass('show error').html(options['msg-error']);
-//    }
-
-//    // Dummy Submit Form (Remove this)
-//    //----------------------------------------------
-//    // This is just a dummy form submission. You should use your AJAX function or remove this function if you are not using AJAX.
-//    function dummy_submit_form($form) {
-//        if ($form.valid()) {
-//            form_loading($form);
-
-//            setTimeout(function () {
-//                form_success($form);
-//            }, 2000);
-//        }
-//    }
-
-//})(jQuery);

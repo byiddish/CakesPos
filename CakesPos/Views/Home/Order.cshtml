@@ -16,6 +16,7 @@
                     <h3 id="customerHeader"></h3>
                     <h4 id="customerAddress"></h4>
                     <h4 id="customerPhone"></h4>
+                    <h4 id="customerCell"></h4>
                     <h5 id="customerEmail"></h5>
                     <input type="hidden" id="catererDiscount" />
                     <h4 id="catererIndicator"></h4>
@@ -48,14 +49,16 @@
             {
                 <btn class="btn btn-lg btn-success categorybtn" data-category=@category.Id>@category.CategoryName</btn>
             }
-            <btn class="btn btn-lg btn-info customizeBtn">Customize Product</btn>
+            @*<btn class="btn btn-lg btn-info customizeBtn">Customize Product</btn>*@
+            @*<button class="btn btn-lg btn-default" id="addCharge">Add Charge</button>*@
         </div>
         <div id="cakesDiv">
             <div id="productsInnerDiv">
-                @foreach (CakesPos.Data.Product product in Model.products)
+                @foreach (CakesPos.Data.InventoryViewModel product in Model.productAvailability)
                 {
-                    string productName = product.ProductName.ToString();
-                    <button class="btn productbtn" data-id=@product.Id data-content="@productName" data-categoryid=@product.CategoryId data-price=@product.Price data-instock=@product.InStock><img src="~/Uploads/@product.Image.ToString()" /><br />@product.ProductName @product.Price.ToString("C")</button>
+                    int productAvailability = product.product.InStock - product.requestedAmount;
+                    string productName = product.product.ProductName.ToString();
+                    <button class="btn productbtn" data-id=@product.product.Id data-catererdiscount="@product.product.CatererDiscount" data-content="@productName" data-categoryid=@product.product.CategoryId data-price=@product.product.Price data-instock=@product.product.InStock>@productAvailability<br /><img src="~/Uploads/@product.product.Image.ToString()" /><br />@product.product.ProductName @product.product.Price.ToString("C")</button>
                 }
             </div>
         </div>
@@ -100,7 +103,7 @@
 </div>
 
 <div id="checkoutModal" class="modal fade" role="dialog">
-    <div class="modal-dialog med-modal">
+    <div class="modal-dialog xl-modal">
 
         <!-- Modal content-->
         @*<form action="/Home/AddOrder" method="POST">*@
@@ -112,28 +115,28 @@
             <div class="modal-body">
                 <input type="hidden" id="customerIdCheckout" name="customerId" />
                 <div class="well">
+                    <div class="col-12 col-lg-offset-5 form-group">
+                        <label>
+                            Pickup
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="radio" id="pickup" checked name="deliveryOpt" value="Pickup" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
 
-                    <label>
-                        Pickup
-                        <div class="form-group">
-                            <label class="switch">
-                                <input type="radio" id="pickup" checked name="deliveryOpt" value="Pickup" />
-                                <div class="slider round"></div>
-                            </label>
-                        </div>
-                    </label>
 
-
-                    <label>
-                        Delivery
-                        <div class="form-group">
-                            <label class="switch">
-                                <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" />
-                                <div class="slider round"></div>
-                            </label>
-                        </div>
-                    </label>
-
+                        <label>
+                            Delivery
+                            <div class="form-group">
+                                <label class="switch">
+                                    <input type="radio" id="delivery" name="deliveryOpt" value="Delivery" />
+                                    <div class="slider round"></div>
+                                </label>
+                            </div>
+                        </label>
+                    </div>
                     @*<label>Delivery options</label>
                         <div>
                             <label>Pickup <input type="radio" id="pickup" name="deliveryOpt" value="Pickup" /></label>
@@ -145,235 +148,343 @@
 
 
                     <div class="form-group" id="deliveryInfoDiv" style="display: none;">
+                        <div class="col-12 col-lg-offset-5 form-group">
+                            <label>
+                                Customer address
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="checkbox" name="addressOpt" id="customerAddressCheckbox" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
+                        </div>
+                        @*<label>
+                                Hall Address
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="checkbox" name="addressOpt" id="customerAddressCheckbox" />
+                                        <div class="slider round"></div>
+                                    </label>
+                                </div>
+                            </label>
 
-                        <label>
-                            Customer address
-                            <div class="form-group">
-                                <label class="switch">
-                                    <input type="checkbox" id="customerAddressCheckbox" />
-                                    <div class="slider round"></div>
-                                </label>
-                            </div>
-                        </label>
-
+                            <label>
+                                Halls
+                                <select class="form-control input" disabled name="categoryId" id="Categories">
+                                    @foreach (CakesPos.Data.Category c in Model)*@
+                        @*{*@
+                        @*<option value="">Ateres Chaya</option>*@
+                        @*}*@
+                        @*</select>*@
+                        @*</label>*@
 
                         @*<div class="checkbox">
                                 <label>
                                     <input type="checkbox" id="customerAddressCheckbox"> Customer address
                                 </label>
                             </div>*@
-                        <div class="col-xs-4 form-group">
+                        <div class="col-12 col-lg-offset-3 form-group">
                             <label>
                                 First Name
-                                <input type="text" class="form-control" name="firstName" id="deliveryFirstName" placeholder="First Name" />
+                                <input type="text" class="input input-lg form-control" name="firstName" id="deliveryFirstName" placeholder="First Name" />
                             </label>
-                        </div>
-                        <div class="col-xs-4 form-group">
+                            @*</div>
+                                <div class="col-4 form-group">*@
                             <label>
                                 Last Name
-                                <input type="text" class="form-control" name="lastName" id="deliveryLastName" placeholder="Last Name" />
+                                <input type="text" class="input input-lg form-control" name="lastName" id="deliveryLastName" placeholder="Last Name" />
                             </label>
                         </div>
-                        <div class="col-xs-4 form-group">
+                        <div class="col-12 col-lg-offset-3 form-group">
                             <label>
                                 Address
-                                <input type="text" class="form-control" name="address" id="deliveryAddress" placeholder="Address" />
+                                <input type="text" class="input input-lg form-control" name="address" id="deliveryAddress" placeholder="Address" />
                             </label>
-                        </div>
-                        <div class="col-xs-3 form-group">
+                            @*</div>*@
+                            @*<div class="col-12 form-group">*@
                             <label>
                                 City
-                                <input type="text" class="form-control" name="city" id="deliveryCity" placeholder="City" />
+                                <input type="text" class="input input-lg form-control" list="citynames" name="city" id="deliveryCity" placeholder="City" />
+                                <datalist id="citynames">
+                                    <option value="Brooklyn">
+                                    <option value="Lakewood">
+                                </datalist>
                             </label>
                         </div>
-                        <div class="col-xs-2 form-group">
+                        <div class="col-12 col-lg-offset-3 form-group">
                             <label>
                                 State
-                                <input type="text" class="form-control" name="state" id="deliveryState" placeholder="State" />
+                                <input type="text" class="input input-lg form-control" list="statenames" name="state" id="deliveryState" placeholder="State" />
+                                <datalist id="statenames">
+                                    <option value="New York">
+                                    <option value="New Jersey">
+                                </datalist>
                             </label>
-                        </div>
-                        <div class="col-xs-2 form-group">
+                            @*</div>
+                                <div class="col-2 form-group">*@
                             <label>
                                 Zip
-                                <input type="text" class="form-control" name="zip" id="deliveryZip" placeholder="Zip" />
+                                <input type="text" class="input input-lg form-control" list="zipnames" name="zip" id="deliveryZip" placeholder="Zip" />
+                                <datalist id="zipnames">
+                                    <option value="11219">
+                                    <option value="11218">
+                                    <option value="08701">
+                                </datalist>
                             </label>
                         </div>
-                        <div class="col-xs-4 form-group">
+                        <div class="col-12 col-lg-offset-3 form-group">
                             <label for="deliveryPhone">
-                                Phone
-                                <input type="text" class="form-control" name="phone" id="deliveryPhone" placeholder="Phone" />
+                                Phone 1
+                                <input type="text" class="input input-lg form-control" name="phone1" id="deliveryPhone1" placeholder="Phone 1" />
+                            </label>
+                            @*</div>
+                                <div class="col-xs-4 form-group">*@
+                            <label for="deliveryPhone">
+                                Phone 2
+                                <input type="text" class="input input-lg form-control" name="phone2" id="deliveryPhone2" placeholder="Phone 2" />
                             </label>
                         </div>
-                        <div class="form-group">
-                            <label>
-                                Delivery Note
-                                <textarea type="text" class="form-control" name="deliveryNote" id="orderDeliveryNote" placeholder="Delivery Note"></textarea>
+                        <div class="col-12 col-lg-offset-3 form-group">
+                            <label for="deliveryPhone">
+                                Cell 1
+                                <input type="text" class="input input-lg form-control" name="cell1" id="deliveryCell1" placeholder="Cell 1" />
                             </label>
+                            @*</div>
+                                <div class="col-xs-4 form-group">*@
+                            <label for="deliveryPhone">
+                                Cell 2
+                                <input type="text" class="input input-lg form-control" name="cell2" id="deliveryCell2" placeholder="Cell 2" />
+                            </label>
+                        </div>
+                        @*<div class="col-12 col-lg-offset-3 form-group">
+                                <label>
+                                    Delivery Charge
+                                    <input type="number" class="input input-lg form-control" id="deliveryCharge" name="deliveryCharge" placeholder="Delivery Charge" />
+                                </label>
+                            </div>*@
+                        <div class="col-12 col-lg-offset-5 form-group">
+                            <label>
+                                Delivery Charge
+                                <input type="number" class="input input-lg form-control" id="deliveryCharge" name="deliveryCharge" placeholder="Delivery Charge" />
+                            </label>
+                        </div>
+                        <div class="col-12 col-lg-offset-5 form-group">
+                            <textarea type="text" class="input input-lg" name="deliveryNote" id="orderDeliveryNote" rows="5" placeholder="Delivery Note"></textarea>
+                            @*<label>
+                                    Delivery Charge
+                                    <input type="number" class="input input-lg form-control" id="deliveryCharge" name="deliveryCharge" placeholder="Delivery Charge" />
+                                </label>*@
                         </div>
                     </div>
                 </div>
                 <div class="well">
-                    <label>Payment options</label>
-                    <div>
-                        <div class="form-group">
+                    <div class="col-12 col-lg-offset-4 form-group">
+                        <label>Payment options</label>
+                        <div>
+                            <div class="form-group">
+                                <label>
+                                    At Pickup
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="atPickup" name="paymentMethod" value="At Pickup" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
+                                <label>
+                                    COD
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="cod" checked name="paymentMethod" value="COD" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
 
-                            <label>
-                                COD
-                                <div class="form-group">
-                                    <label class="switch">
-                                        <input type="radio" id="cod" checked name="paymentMethod" value="COD" />
-                                        <div class="slider round"></div>
-                                    </label>
-                                </div>
-                            </label>
+                                <label>
+                                    Cash
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="cash" name="paymentMethod" value="Cash" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
 
-                            <label>
-                                Cash
-                                <div class="form-group">
-                                    <label class="switch">
-                                        <input type="radio" id="cash" name="paymentMethod" value="Cash" />
-                                        <div class="slider round"></div>
-                                    </label>
-                                </div>
-                            </label>
+                                <label>
+                                    Check
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="check" name="paymentMethod" value="Check" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
 
-                            <label>
-                                Check
-                                <div class="form-group">
-                                    <label class="switch">
-                                        <input type="radio" id="check" name="paymentMethod" value="Check" />
-                                        <div class="slider round"></div>
-                                    </label>
-                                </div>
-                            </label>
+                                <label>
+                                    Credit Card
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
 
-                            <label>
-                                Credit Card
-                                <div class="form-group">
-                                    <label class="switch">
-                                        <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" />
-                                        <div class="slider round"></div>
-                                    </label>
-                                </div>
-                            </label>
-
-
-                            @*<input type="radio" id="cod" name="paymentMethod" value="COD" /><label>COD</label>
-                                @*</div>*@
-                            @*<div class="form-group">*@
-                            @*<input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" /><label>Credit Card </label>*@
-                            @*</div>
-                                <div class="form-group">*@
-                            @*<input type="radio" id="cash" name="paymentMethod" value="Cash" /><label>Cash </label>*@
-                            @*</div>
-                                <div class="form-group">*@
-                            @*<input type="radio" id="check" name="paymentMethod" value="Check" /><label>Check </label>*@
-                            @*</div>*@
+                                <label>
+                                    On Account
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="onAccount" checked name="paymentMethod" value="On Account" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                        @*<div class="form-group" id="creditCardInfoDiv" style="display: none;">
-                                <div class="form-group">
-                                    <label>Credit Card</label>
-                                    <input type="text" class="form-control" name="creditCard" id="creditCardNumber" placeholder="Credit card">
-                                </div>
-                                <div class="col-xs-3 form-group">
-                                    <label>Expiration</label>
-                                    <input type="text" class="form-control" name="expiration" id="expiration" placeholder="mm/yy">
-                                </div>
-                                <div class="col-xs-2 form-group">
-                                    <label>Security Code</label>
-                                    <input type="text" class="form-control" name="securityCode" id="securityCode" placeholder="---">
-                                </div>
-                            </div>*@
-                    </div>
-                    <br />
-                    <div class="form-group">
-                        <label>Required Date</label>
-                        <input type="text" name="requiredDate" class="requiredDate" id="datepicker">
-                    </div>
-                    <div class="form-group">
-                        <label>Greetings</label>
-                        <textarea type="text" class="form-control" name="greetings" id="greetings" placeholder="Greetings"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Notes</label>
-                        <textarea type="text" class="form-control" name="notes" id="notes" placeholder="Notes"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-success" id="orderSubmitBtn" type="submit">Submit</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                <div class="col-12 col-lg-offset-4 form-group">
+                    <label>
+                        Required Date
+                        <input type="text" name="requiredDate" class="input input-lg requiredDate" id="datepicker">
+                    </label>
+                </div>
+                <div class="col-12 col-lg-offset-4 form-group">
+                    <label>
+                        Greetings
+                        <textarea type="text" class="input input-lg form-control" name="greetings" id="greetings" rows="8" placeholder="Greetings"></textarea>
+                    </label>
+                    @*</div>
+                        <div class="col-12 col-lg-offset-4 form-group">*@
+                    <label>
+                        Notes
+                        <textarea type="text" class="input input-lg form-control" name="notes" id="notes" rows="8" placeholder="Notes"></textarea>
+                    </label>
                 </div>
             </div>
-            @*</form>*@
+            <div class="modal-footer">
+                <button class="btn btn-success" id="orderSubmitBtn" type="submit">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
 
 
+
 <div id="newCustomerModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog xl-modal">
 
         <!-- Modal content-->
-        @*<form action="/home/AddCustomer" method="POST">*@
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">New Customer</h4>
-            </div>
-            <div class="modal-body">
-                <label>
-                    Caterer
-                    <div class="form-group">
-                        <label class="switch">
-                            <input type="checkbox" name="caterer" id="caterer" value="true">
-                            <div class="slider round"></div>
-                        </label>
-                        <input type="hidden" name="caterer" value="false" />
+        @*<form action="/home/AddCustomer" method="POST">*@<form action="/home/AddCustomer" method="POST">
+            <form action="/home/AddCustomer" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">New Customer</h4>
                     </div>
-                </label>
-                <div class="form-group">
-                    <label>First name</label>
-                    <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name" autofocus="autofocus">
+                    <div class="modal-body">
+                        <div class="col-12 col-lg-offset-5 form-group">
+                            <label>
+                                Caterer
+                                <div class="form-group">
+                                    <label class="switch">
+                                        <input type="checkbox" name="caterer" id="caterer" value="true">
+                                        <div class="slider round"></div>
+                                    </label>
+                                    <input type="hidden" name="caterer" value="false" />
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-6 col-lg-offset-3 form-group-lg">
+                            <label>
+                                First name
+                                <input type="text" class="input input-lg form-control" name="firstName" id="firstName" placeholder="First Name" autofocus="autofocus">
+                            </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <label>
+                                Last Name
+                                <input type="text" class="input input-lg form-control" name="lastName" id="lastName" placeholder="Last Name">
+                            </label>
+                        </div>
+                        <div class="col-12 col-lg-offset-3 form-group">
+                            <label>
+                                Address
+                                <input type="text" class="input input-lg form-control" name="address" id="address" placeholder="Address">
+                            </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <label>
+                                City
+                                <input type="text" class="input input-lg form-control" name="city" list="citynames" id="city" placeholder="City">
+                                <datalist id="citynames">
+                                    <option value="Brooklyn">
+                                    <option value="Lakewood">
+                                </datalist>
+                            </label>
+                        </div>
+                        <div class="col-12 col-lg-offset-3 form-group">
+                            <label>
+                                State
+                                <input type="text" class="input input-lg form-control" list="statenames" name="state" id="state" placeholder="State">
+                                <datalist id="statenames">
+                                    <option value="New York">
+                                    <option value="New Jersey">
+                                </datalist>
+                            </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <label>
+                                Zip
+                                <input type="text" class="input input-lg form-control" name="zip" list="zipnames" id="zip" placeholder="Zip">
+                                <datalist id="zipnames">
+                                    <option value="11219">
+                                    <option value="11218">
+                                    <option value="08701">
+                                </datalist>
+                            </label>
+                        </div>
+                        <div class="col-12 col-lg-offset-3 form-group">
+                            <label>
+                                Phone 1
+                                <input type="text" class="input input-lg form-control" name="phone1" id="phone1" placeholder="Phone 1">
+                            </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <label>
+                                Phone 2
+                                <input type="text" class="input input-lg form-control" name="phone2" id="phone2" placeholder="Phone 2">
+                            </label>
+                        </div>
+                        <div class="col-12 col-lg-offset-3 form-group">
+                            <label>
+                                Cell 1
+                                <input type="text" class="input input-lg form-control" name="cell1" id="cell1" placeholder="Cell 1">
+                            </label>
+                            @*</div>
+                                <div class="form-group">*@
+                            <label>
+                                Cell 2
+                                <input type="text" class="input input-lg form-control" name="cell2" id="cell2" placeholder="Cell 2">
+                            </label>
+                        </div>
+                        <div class="col-12 col-lg-offset-4 form-group">
+                            <label>Email</label>
+                            <input type="email" class="input input-lg" name="email" id="email" placeholder="Email">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button @*type="submit" *@ class="btn btn-primary" id="newCustomerSubmit">Submit</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Last Name</label>
-                    <input type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name">
-                </div>
-                <div class="form-group">
-                    <label>Address</label>
-                    <input type="text" class="form-control" name="address" id="address" placeholder="Address">
-                </div>
-                <div class="form-group">
-                    <label>City</label>
-                    <input type="text" class="form-control" name="city" id="city" placeholder="City">
-                </div>
-                <div class="form-group">
-                    <label>State</label>
-                    <input type="text" class="form-control" name="state" id="state" placeholder="State">
-                </div>
-                <div class="form-group">
-                    <label>Zip</label>
-                    <input type="text" class="form-control" name="zip" id="zip" placeholder="Zip">
-                </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone">
-                </div>
-                <div class="form-group">
-                    <label>Cell</label>
-                    <input type="text" class="form-control" name="cell" id="cell" placeholder="Cell">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" name="email" id="email" placeholder="Email">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button @*type="submit"*@ class="btn btn-primary" id="newCustomerSubmit">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-        @*</form>*@
+                @*</form>*@
+            </form>
+        </form>
     </div>
 </div>
 
@@ -458,6 +569,33 @@
     </div>
 </div>
 
+<div class="modal fade" id="addChargeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add Charge</h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" class="input input-lg form-control" name="description" id="description" value="Delivery" placeholder="Description">
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" class="input input-lg form-control" min="0.00" step="0.01" name="price" id="price" placeholder="Price">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-ok" id="applyChargesBtn" data-dismiss="modal">Apply Charge</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div id="customizeProductModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -479,6 +617,14 @@
                         <div class="form-group">
                             <label>Price</label>
                             <input type="text" class="form-control" name="price" id="price" placeholder="Price">
+                        </div>
+                        <div class="form-group">
+                            <label>Caterer Discount</label>
+                            <input type="text" class="form-control" name="catererDiscount" id="catererDiscount" placeholder="Caterer Discount">
+                        </div>
+                        <div class="form-group">
+                            <label>Restock Amount</label>
+                            <input type="number" class="form-control" name="restockAmount" id="restockAmount" placeholder="Restock Amount">
                         </div>
                         <div class="form-group">
                             <label>In Stock</label>

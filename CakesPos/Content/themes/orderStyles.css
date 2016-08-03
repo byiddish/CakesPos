@@ -43,6 +43,10 @@
     float: right;
 }
 
+/*#deliveryCharge{
+    float: right;
+}*/
+
 #tax {
     float: right;
 }
@@ -300,9 +304,9 @@ input:checked + .slider:before {
     width: 375px;
 }
 
-#pdfModalDialog{
-    width:800px !important;
-    height:850px !important;
+#pdfModalDialog {
+    width: 800px !important;
+    height: 850px !important;
 }
 
 #viewPdfIFrame {
@@ -311,42 +315,41 @@ input:checked + .slider:before {
     left: 270px;*/
 }
 
-#iFrameDiv{
-    width:700px;
-    height:750px;
+#iFrameDiv {
+    width: 700px;
+    height: 750px;
 }
 
-#containerDiv{
+#containerDiv {
     overflow: scroll;
     height: 650px;
 }
 
-#customersDiv{
-    margin-top:100px;
-     overflow: scroll;
+#customersDiv {
+    margin-top: 100px;
+    overflow: scroll;
     height: 850px;
 }
 
-#customersSearchDiv input{
-    margin-right:35px;
-    margin-bottom:15px;
-    float:right;
+#customersSearchDiv input {
+    margin-right: 35px;
+    margin-bottom: 15px;
+    float: right;
 }
 
-#accountHistoryDiv{
+#accountHistoryDiv {
     overflow: scroll;
     height: 300px;
 }
 
-/*#pdfModal{
-    width:650px !important;
-    height: 1050px !important;
-}*/
+.label-as-badge {
+    border-radius: 1em;
+}
 
-/*#iFrameDiv {
-    /*margin: 30px;*/
-    /*position: relative;
-    overflow: hidden;
-    height: 1000px;
-    width: 1000px;*/
-/*}*/
+.badgeDiv {
+    width: 77.05px;
+}
+
+.viewInvoiceBtn {
+    margin-left: 5px;
+}

@@ -12,16 +12,18 @@
             <div class="form-group">
                 <label>
                     From
-                    <input type="date" class="form-control invDate" name="min" />
+                    <input type="date" value=@DateTime.Today.Date.ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
                 </label>
                 <label>
                     To
-                    <input type="date" class="form-control invDate" name="max" />
+                    <input type="date" value=@DateTime.Today.Date.AddDays(7).ToString("yyyy-MM-dd") required class="form-control invDate" id="max" name="max" />
                 </label>
                 <button id="invRefresh" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-refresh"></span></button>
             </div>
         </form>
     </div>
+    <h2>Showing requests from @ViewBag.minDate.ToShortDateString() - @ViewBag.maxDate.ToShortDateString()</h2>
+    <h1 id="minMax"></h1>
     @foreach (CakesPos.Data.Category category in Model.categories)
     {
         <div class="panel panel-default info-panel">
@@ -45,6 +47,7 @@
                         var requested = i.requestedAmount;
                         var total = i.product.InStock - requested;
                         double p = 100 - ((double)i.requestedAmount / (double)i.product.InStock) * (100);
+                        //double p = 100 - ((double)i.requestedAmount / (double)i.product) * (100);
                         string per = "";
                         string cls = "";
                         if (p == 0)
@@ -53,7 +56,7 @@
                         }
                         else
                         {
-                            per = "style=" + "width:" + p.ToString() + "%"+";min-width:2em;";
+                            per = "style=" + "width:" + p.ToString() + "%" + ";min-width:2em;";
                         }
 
                         if (p >= 85)
@@ -73,18 +76,43 @@
                             <td>@i.product.ProductName</td>
                             <td class="inStock">@i.product.InStock</td>
                             <td>@i.requestedAmount</td>
-                                <td align="center">
-                                    <div class="progress" style="width:200px;height:35px;">
+                            <td align="center">
+                                @if (i.product.InStock - i.requestedAmount < i.product.RestockAmount / 2)
+                                {
+                                    <div class="badgeDiv" style="font-size: 36px">
+                                        <!-- pretend an enclosing class has big font size -->
+                                        <span class="label label-danger label-as-badge">@total</span>
+                                        @*<h2 style="color:red">Past restock level!</h2>*@
+                                    </div>
+                                }
+                                else if (i.product.InStock - i.requestedAmount < i.product.RestockAmount)
+                                {
+                                    <div class="badgeDiv" style="font-size: 36px">
+                                        <!-- pretend an enclosing class has big font size -->
+                                        <span class="label label-warning label-as-badge">@total</span>
+                                        @*<h1 style="color:red">Past restock level!</h1>*@
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="badgeDiv" style="font-size: 36px">
+                                        <!-- pretend an enclosing class has big font size -->
+                                        <span class="label label-success label-as-badge">@total</span>
+                                    </div>
+                                }
+                                @*<div class="progress" style="width:200px;height:35px;">
                                         <div class="@cls" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" @per>
                                             <div style="margin-top:10px;">
                                                 <span style="color:white;font-size:medium;">@total</span>
                                             </div>
                                             <span class="sr-only">100% Complete (success)</span>
                                         </div>
-                                    </div>
-                                </td>
+                                    </div>*@
+                            </td>
                             <td align="center">
                                 <input type="number" class="invQuantityInput" /> <button class="btn btn-default btn-group add" data-id="@i.product.Id">Add</button>
+                                @*<button class="btn btn-warning" id="editProduct" data-id="@i.product.Id">Edit</button>
+                                <button class="btn btn-danger" data-id="@i.product.Id">Discontinue</button>*@
                             </td>
                         </tr>
                     }
@@ -94,3 +122,55 @@
     }
 </div>
 
+<div id="editProductModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Custom Product</h4>
+            </div>
+            <div class="modal-body">
+                <div class="well">
+                    <h1>Edit Product</h1>
+                    <form action="/home/addNewProduct" method="POST" id="productForm" enctype="multipart/form-data">
+                        @*<div class="form-group">
+                                <label>Category</label>
+                                <input type="text" class="form-control" name="categoryId" id="categoryId" placeholder="Category">
+                            </div>*@
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" class="form-control" name="productName" id="productName" required placeholder="Product Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number" class="form-control" name="price" id="price" min="0.01" step="0.01" required placeholder="Price">
+                        </div>
+                        <div class="form-group">
+                            <label>Caterer Discount</label>
+                            <input type="number" class="form-control" name="catererDiscount" id="catererDiscount" min="0.01" step="0.01" required placeholder="Caterer Discount">
+                        </div>
+                        <div class="form-group">
+                            <label>Restock Amount</label>
+                            <input type="number" class="form-control" name="restockAmount" required id="restockAmount" placeholder="Restock Amount">
+                        </div>
+                        <div class="form-group">
+                            <label>Initial Stock</label>
+                            <input type="number" class="form-control" name="inStock" required id="inStock" placeholder="In Stock">
+                        </div>
+                        <div class="form-group">
+                            <label>Image</label>
+                            <input type="file" name="image" class="form-control">
+                        </div>
+                        <button type="submit" id="productSubmit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="customProductSubmit">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
