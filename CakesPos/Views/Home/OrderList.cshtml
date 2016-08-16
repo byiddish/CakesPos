@@ -1,0 +1,66 @@
+﻿@using CakesPos.Data
+@model IEnumerable<OrderDetailsViewModel>
+
+
+@section Styles{
+    <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+}
+
+<div class="container" id="deliveryDiv">
+    <label>
+        Filter Date
+        <select class="form-control" id="filterDeliveryDate">
+            <option value="0">Today</option>
+            <option value="1">Tommorow</option>
+            <option value="7">Next 7 Days</option>
+            <option value="30">Next 30 Days</option>
+            <option value="-1">Yesterday</option>
+            <option value="-7">Last 7 Days</option>
+            <option value="-30">Last 30 Days</option>
+            <option value="8">All</option>
+        </select>
+    </label>
+    <button class="btn btn-success" id="print">Print</button>
+    <div id="deliveryAlertDiv">
+        @if (Model.Count() == 0)
+        {
+            <h3 id="deliveryAlert">No deliveries for this time period...</h3>
+        }
+    </div>
+    @*<h1>Wednesday May 11 2016</h1>*@
+    <br />
+        <div id="deliveriesDiv">
+            @foreach (OrderDetailsViewModel o in Model)
+            {
+                decimal balance = o.total;
+                decimal? payment = 0;
+                if (o.payments != null)
+                {
+                    payment = o.payments.Sum(p => p.Payment1);
+                }
+                balance = balance - (decimal)payment;
+                <div class="panel panel-info deliveryInnerDiv">
+                    <div class="panel-heading">
+                        @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Phone1&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Phone2&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Cell1&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Cell2<span style="float:right">Total: @balance.ToString("C")</span>
+                    </div>
+                    <div class="panel-body body">
+                        <div class="deliveryLeftDiv">
+                            @foreach (CakesPos.Data.OrderDetailsProductModel od in o.orderedProducts)
+                            {
+
+                                <h5>@od.quantity - @od.productName</h5>
+                            }
+                        </div>
+                        <div class="deliveryMiddleDiv">
+                            <h5>@o.order.Notes</h5>
+                        </div>
+                        <div class="deliveryRightDiv">
+                            <div class="form-group">
+                                <h5>@o.order.Greetings</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+    </div>
+</div>

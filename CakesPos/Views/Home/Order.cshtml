@@ -112,7 +112,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Checkout</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="orderModal">
                 <input type="hidden" id="customerIdCheckout" name="customerId" />
                 <div class="well">
                     <div class="col-12 col-lg-offset-5 form-group">
@@ -149,6 +149,9 @@
 
                     <div class="form-group" id="deliveryInfoDiv" style="display: none;">
                         <div class="col-12 col-lg-offset-5 form-group">
+                            <button class="btn btn-lg btn-default" id="selectRecipiant">Select Recipiant</button>
+                        </div>
+                        <div class="col-12 col-lg-offset-5 form-group">
                             <label>
                                 Customer address
                                 <div class="form-group">
@@ -159,6 +162,7 @@
                                 </div>
                             </label>
                         </div>
+
                         @*<label>
                                 Hall Address
                                 <div class="form-group">
@@ -373,118 +377,148 @@
     </div>
 </div>
 
+<div id="searchRecipiantModal" class="modal fade" role="dialog">
+    <div class="modal-dialog xl-modal">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select Customer</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container form-group">
+                    <label>Search  <input class="input input-lg input-group-lg" type="text" id="searchInput2" placeholder="Search by phone #" autofocus="autofocus" /></label>
+                </div>
+                <br />
+                <div id="tableDiv2">
+                    <table class="table table-bordered table-striped table-hover" id="searchTable2">
+                        <tr>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Cell</th>
+                            <th>Select</th>
+                        </tr>
+                    </table>
+                    <div id="message2"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 
 
 <div id="newCustomerModal" class="modal fade" role="dialog">
     <div class="modal-dialog xl-modal">
 
         <!-- Modal content-->
-        @*<form action="/home/AddCustomer" method="POST">*@<form action="/home/AddCustomer" method="POST">
-            <form action="/home/AddCustomer" method="POST">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">New Customer</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="col-12 col-lg-offset-5 form-group">
-                            <label>
-                                Caterer
-                                <div class="form-group">
-                                    <label class="switch">
-                                        <input type="checkbox" name="caterer" id="caterer" value="true">
-                                        <div class="slider round"></div>
-                                    </label>
-                                    <input type="hidden" name="caterer" value="false" />
-                                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">New Customer</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-12 col-lg-offset-5 form-group">
+                    <label>
+                        Caterer
+                        <div class="form-group">
+                            <label class="switch">
+                                <input type="checkbox" name="caterer" id="caterer" value="true">
+                                <div class="slider round"></div>
                             </label>
+                            <input type="hidden" name="caterer" value="false" />
                         </div>
-                        <div class="col-6 col-lg-offset-3 form-group-lg">
-                            <label>
-                                First name
-                                <input type="text" class="input input-lg form-control" name="firstName" id="firstName" placeholder="First Name" autofocus="autofocus">
-                            </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <label>
-                                Last Name
-                                <input type="text" class="input input-lg form-control" name="lastName" id="lastName" placeholder="Last Name">
-                            </label>
-                        </div>
-                        <div class="col-12 col-lg-offset-3 form-group">
-                            <label>
-                                Address
-                                <input type="text" class="input input-lg form-control" name="address" id="address" placeholder="Address">
-                            </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <label>
-                                City
-                                <input type="text" class="input input-lg form-control" name="city" list="citynames" id="city" placeholder="City">
-                                <datalist id="citynames">
-                                    <option value="Brooklyn">
-                                    <option value="Lakewood">
-                                </datalist>
-                            </label>
-                        </div>
-                        <div class="col-12 col-lg-offset-3 form-group">
-                            <label>
-                                State
-                                <input type="text" class="input input-lg form-control" list="statenames" name="state" id="state" placeholder="State">
-                                <datalist id="statenames">
-                                    <option value="New York">
-                                    <option value="New Jersey">
-                                </datalist>
-                            </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <label>
-                                Zip
-                                <input type="text" class="input input-lg form-control" name="zip" list="zipnames" id="zip" placeholder="Zip">
-                                <datalist id="zipnames">
-                                    <option value="11219">
-                                    <option value="11218">
-                                    <option value="08701">
-                                </datalist>
-                            </label>
-                        </div>
-                        <div class="col-12 col-lg-offset-3 form-group">
-                            <label>
-                                Phone 1
-                                <input type="text" class="input input-lg form-control" name="phone1" id="phone1" placeholder="Phone 1">
-                            </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <label>
-                                Phone 2
-                                <input type="text" class="input input-lg form-control" name="phone2" id="phone2" placeholder="Phone 2">
-                            </label>
-                        </div>
-                        <div class="col-12 col-lg-offset-3 form-group">
-                            <label>
-                                Cell 1
-                                <input type="text" class="input input-lg form-control" name="cell1" id="cell1" placeholder="Cell 1">
-                            </label>
-                            @*</div>
-                                <div class="form-group">*@
-                            <label>
-                                Cell 2
-                                <input type="text" class="input input-lg form-control" name="cell2" id="cell2" placeholder="Cell 2">
-                            </label>
-                        </div>
-                        <div class="col-12 col-lg-offset-4 form-group">
-                            <label>Email</label>
-                            <input type="email" class="input input-lg" name="email" id="email" placeholder="Email">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button @*type="submit" *@ class="btn btn-primary" id="newCustomerSubmit">Submit</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
+                    </label>
                 </div>
-                @*</form>*@
-            </form>
-        </form>
+                <div class="col-6 col-lg-offset-3 form-group-lg">
+                    <label>
+                        First name
+                        <input type="text" class="input input-lg form-control" name="firstName" id="firstName" placeholder="First Name" autofocus="autofocus">
+                    </label>
+                    @*</div>
+                        <div class="form-group">*@
+                    <label>
+                        Last Name
+                        <input type="text" class="input input-lg form-control" name="lastName" id="lastName" placeholder="Last Name">
+                    </label>
+                </div>
+                <div class="col-12 col-lg-offset-3 form-group">
+                    <label>
+                        Address
+                        <input type="text" class="input input-lg form-control" name="address" id="address" placeholder="Address">
+                    </label>
+                    @*</div>
+                        <div class="form-group">*@
+                    <label>
+                        City
+                        <input type="text" class="input input-lg form-control" name="city" list="citynames" id="city" placeholder="City">
+                        <datalist id="citynames">
+                            <option value="Brooklyn">
+                            <option value="Lakewood">
+                        </datalist>
+                    </label>
+                </div>
+                <div class="col-12 col-lg-offset-3 form-group">
+                    <label>
+                        State
+                        <input type="text" class="input input-lg form-control" list="statenames" name="state" id="state" placeholder="State">
+                        <datalist id="statenames">
+                            <option value="New York">
+                            <option value="New Jersey">
+                        </datalist>
+                    </label>
+                    @*</div>
+                        <div class="form-group">*@
+                    <label>
+                        Zip
+                        <input type="text" class="input input-lg form-control" name="zip" list="zipnames" id="zip" placeholder="Zip">
+                        <datalist id="zipnames">
+                            <option value="11219">
+                            <option value="11218">
+                            <option value="08701">
+                        </datalist>
+                    </label>
+                </div>
+                <div class="col-12 col-lg-offset-3 form-group">
+                    <label>
+                        Phone 1
+                        <input type="text" class="input input-lg form-control" name="phone1" id="phone1" placeholder="Phone 1">
+                    </label>
+                    @*</div>
+                        <div class="form-group">*@
+                    <label>
+                        Phone 2
+                        <input type="text" class="input input-lg form-control" name="phone2" id="phone2" placeholder="Phone 2">
+                    </label>
+                </div>
+                <div class="col-12 col-lg-offset-3 form-group">
+                    <label>
+                        Cell 1
+                        <input type="text" class="input input-lg form-control" name="cell1" id="cell1" placeholder="Cell 1">
+                    </label>
+                    @*</div>
+                        <div class="form-group">*@
+                    <label>
+                        Cell 2
+                        <input type="text" class="input input-lg form-control" name="cell2" id="cell2" placeholder="Cell 2">
+                    </label>
+                </div>
+                <div class="col-12 col-lg-offset-4 form-group">
+                    <label>Email</label>
+                    <input type="email" class="input input-lg" name="email" id="email" placeholder="Email">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="newCustomerSubmit">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -543,7 +577,7 @@
             </div>
 
             <div class="modal-footer">
-                <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+                <a class="btn btn-danger btn-ok" id="alertNewCustomerOk" data-dismiss="modal">Ok</a>
             </div>
         </div>
     </div>
@@ -680,6 +714,20 @@
             </div>
         </div>
     </div>
+</div>
+
+
+<div class="cssload-preloader" style="visibility:hidden">
+    <span>P</span>
+    <span>r</span>
+    <span>o</span>
+    <span>c</span>
+    <span>e</span>
+    <span>s</span>
+    <span>s</span>
+    <span>i</span>
+    <span>n</span>
+    <span>g</span>
 </div>
 
 

@@ -3,6 +3,24 @@
     var paymentMethod = "";
     var paid = false;
 
+    var IsLoaderForInput = false;
+    var IsLoaderForSubmit = false;
+
+    $(document).ajaxStart(function () {
+        if (IsLoaderForInput) {
+            $(".cssload-preloader").show();
+        }
+    });
+
+    $(document).ajaxComplete(function () {
+        if (IsLoaderForInput) {
+            $(".cssload-preloader").hide();
+            // reset the values
+            IsLoaderForInput = false;
+            IsLoaderForSubmit = false;
+        }
+    });
+
     $(function () {
         $('a').on('click', function (e) {
             localStorage.setItem('lastTab', $(this).attr('href'));
@@ -91,6 +109,9 @@
 
     $('#historyTable').on('click', '.viewInvoiceBtn', function () {
         var invoiceId = $(this).data('orderid');
+        var customerId = $(this).data('customerid');
+        $('#emailInvoiceBtn').data('customerid', customerId);
+        $('#emailInvoiceBtn').data('orderid', invoiceId);
         $('#viewPdfIFrame').attr('src', "/home/GetInvoice?invoiceId=" + invoiceId);
         $('#pdfModal').modal();
     })
@@ -124,6 +145,7 @@
             if ($('input[name=deliveryOpt]:checked').val() === "Delivery") {
                 deliveryCharge = $('#deliveryCharge').val();
             }
+            IsLoaderForInput = true;
             $.post("/home/AddOrder", {
                 customerId: $('#customerIdCheckout').val(),
                 requiredDate: $('.requiredDate').val(),
@@ -182,7 +204,6 @@
                     //})
                 })
         }
-
     });
 
     $('#alertOrderAdded').on('hidden.bs.modal', function () {
@@ -499,6 +520,7 @@
     })
 
     $('#allDates').change(function () {
+        IsLoaderForInput = true;
         $('#filterDate').prop('disabled', function (i, v) { return !v; });
         var s = $('#searchHistoryInput').val().toString();
         var date = $('#filterDate').val();
@@ -668,6 +690,53 @@
         })
     });
 
+    $('#searchInput2').on('input', function () {
+        $('.customers2').remove();
+        $('#message2').remove();
+        var s = $('#searchInput2').val().toString();
+        $.post("/home/Search", { search: s }, function (customers) {
+            if (s === "" || $.isEmptyObject(customers)) {
+                //$('.customers').remove();
+                $('#searchTable2').append("<h1 class=" + '"' + "message" + '"' + ">No matches found...</h1>");
+
+            }
+            else {
+                customers.forEach(function (customer) {
+                    if (customer.Phone1 == null) {
+                        customer.Phone1 = "";
+                    }
+                    if (customer.Phone2 == null) {
+                        customer.Phone2 = "";
+                    }
+                    if (customer.Cell1 == null) {
+                        customer.Cell1 = "";
+                    }
+                    if (customer.Cell2 == null) {
+                        customer.Cell2 = "";
+                    }
+                    if (customer.Address == null) {
+                        customer.Address = "";
+                    }
+                    if (customer.City == null) {
+                        customer.City = "";
+                    }
+                    if (customer.State == null) {
+                        customer.State = "";
+                    }
+                    if (customer.Zip == null) {
+                        customer.Zip = "";
+                    }
+                    if (customer.Email == null) {
+                        customer.Email = "";
+                    }
+
+
+                    $('#searchTable2').append("<tr class=" + '"customers2"' + "><td>" + customer.LastName + " " + customer.FirstName + "</td><td>" + customer.Address + " " + customer.City + " " + customer.State + " " + customer.Zip + "</td><td>" + customer.Phone1 + " " + customer.Phone2 + "</td><td>" + customer.Cell1 + " " + customer.Cell2 + "</td><td><button class=" + '"' + "btn btn-info select2" + '"' + " data-first=" + '"' + customer.FirstName + '"' + "  data-last=" + '"' + customer.LastName + '"' + "  data-add=" + '"' + customer.Address + '"' + "  data-phone1=" + '"' + customer.Phone1 + '"' + "  data-phone2=" + '"' + customer.Phone2 + '"' + " data-id=" + '"' + customer.Id + '"' + " data-cell1=" + '"' + customer.Cell1 + '"' + " data-cell2=" + '"' + customer.Cell2 + '"' + " data-caterer=" + '"' + customer.Caterer + '"' + " data-email=" + '"' + customer.Email + '"' + " data-city=" + '"' + customer.City + '"' + " data-state=" + '"' + customer.State + '"' + " data-zip=" + '"' + customer.Zip + '"' + " data-dismiss=" + '"' + "modal" + '"' + " >" + "Select" + "</button></td></tr>");
+                })
+            }
+        })
+    });
+
     $('#searchCustomerModal').on('click', '.select', function () {
         var fistName = $(this).data('first');
         var lastName = $(this).data('last');
@@ -709,6 +778,20 @@
         RefreshOrder();
     });
 
+    $('#searchRecipiantModal').on('click', '.select2', function () {
+        $('#deliveryFirstName').val($(this).data('first'));
+        $('#deliveryLastName').val($(this).data('last'));
+        $('#deliveryAddress').val($(this).data('add'));
+        $('#deliveryCity').val($(this).data('city'));
+        $('#deliveryState').val($(this).data('state'));
+        $('#deliveryZip').val($(this).data('zip'));
+        $('#deliveryPhone1').val($(this).data('phone1'));
+        $('#deliveryPhone2').val($(this).data('phone2'));
+        $('#deliveryCell1').val($(this).data('cell1'));
+        $('#deliveryCell2').val($(this).data('cell2'));
+    });
+
+
     function getDiscount() {
         var discount = $("#totalDivInner").find('.discount').val();
         if (discount === "") {
@@ -719,36 +802,69 @@
         }
     }
 
-    $('#searchHistoryInput').on('input', function () {
+    //$('#searchHistoryInput').on('input', function () {
+    //    IsLoaderForInput = true;
+    //    var s = $('#searchHistoryInput').val().toString();
+    //    var date = $('#filterDate').val();
+    //    var opt = $('#filterOpt option:selected').val();
+    //    var all = $('input[name=allDates]').is(':checked')
+    //    $('.history').remove();
+    //    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //        populateOrders(ordersHistory);
+    //    })
+    //})
+
+    $('#searchHistory').on('click', function () {
+        IsLoaderForInput = true;
         var s = $('#searchHistoryInput').val().toString();
         var date = $('#filterDate').val();
         var opt = $('#filterOpt option:selected').val();
         var all = $('input[name=allDates]').is(':checked')
         $('.history').remove();
         $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
-            populateOrders(ordersHistory);
+            if (ordersHistory.length <= 0) {
+                $('#noMatches').html("No matches found!");
+            }
+            else {
+                $('#noMatches').html("");
+                populateOrders(ordersHistory);
+            }
         })
     })
 
     $('#filterOpt').on('change', function () {
+        IsLoaderForInput = true;
         var s = $('#searchHistoryInput').val().toString();
         var date = $('#filterDate').val();
         var opt = $('#filterOpt option:selected').val();
         var all = $('input[name=allDates]').is(':checked')
         $('.history').remove();
         $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
-            populateOrders(ordersHistory);
+            if (ordersHistory.length <= 0) {
+                $('#noMatches').html("No matches found!");
+            }
+            else {
+                $('#noMatches').html("");
+                populateOrders(ordersHistory);
+            }
         })
     })
 
     $('#filterDate').on('change', function () {
+        IsLoaderForInput = true;
         var s = $('#searchHistoryInput').val().toString();
         var date = $('#filterDate').val();
         var opt = $('#filterOpt option:selected').val();
         var all = $('input[name=allDates]').is(':checked');
         $('.history').remove();
         $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
-            populateOrders(ordersHistory);
+            if (ordersHistory.length <= 0) {
+                $('#noMatches').html("No matches found!");
+            }
+            else {
+                $('#noMatches').html("");
+                populateOrders(ordersHistory);
+            }
         })
     })
 
@@ -789,6 +905,7 @@
         $('#updateStatusBtn').attr('data-customerid', customersId);
         $('#updateStatusBtn').data('orderid', ordersId);
         $('#updateStatusBtn').data('customerid', customersId);
+        $('#emailInvoice').attr('data-orderid', ordersId);
         //$('#edit').attr('data-orderid', ordersId);
 
         $.post("/home/GetOrderStatus", { orderId: ordersId }, function (status) {
@@ -941,6 +1058,7 @@
     });
 
     $('#filterDeliveryDate').on('change', function () {
+        IsLoaderForInput = true;
         var x = $(this).find("option:selected").val();
         $('.deliveryInfoDiv').remove();
         $('#deliveryAlert').remove();
@@ -1071,10 +1189,10 @@
             }
             var viewInvoiceHtml = "";
             if (ordersHistory[i].invoice) {
-                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + " data-orderid=" + id + ">View Invoice</button>"
+                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + " data-orderid=" + id + " data-customerid=" + customerId + ">View Invoice</button>"
             }
             else {
-                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + "disabled data-orderid=" + id + ">View Invoice</button>"
+                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + "disabled data-orderid=" + id + " data-customerid=" + customerId + ">View Invoice</button>"
             }
 
             $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + paymentMethod + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-deliveryopt=" + '"' + deliveryOption + '"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button>" + viewInvoiceHtml + paymentBtnHtml + "</td></tr>");
@@ -1109,8 +1227,12 @@
         $(this).toggleClass(".minimized");
     });
 
+    $('#selectRecipiant').on('click', function () {
+        $('#searchRecipiantModal').modal();
+    })
+
     $('#newCustomerSubmit').on('click', function () {
-        if ($('#phone').val() == "" && $('#cell').val() == "") {
+        if ($('#phone1').val() == "" && $('#cell1').val() == "") {
             $('#alertInvalidSubmit').modal();
         }
         else {
@@ -1129,36 +1251,39 @@
             var cell1 = $('#cell1').val();
             var cell2 = $('#cell2').val();
             var email = $('#email').val();
-            $.post("/home/addcustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone1: phone1, phone2: phone2, cell1: cell1, cell2: cell2, caterer: caterer, email: email }, function (id) {
+            $.post("/home/AddNewCustomer", { firstName: firstName, lastName: lastName, address: address, city: city, state: state, zip: zip, phone1: phone1, phone2: phone2, cell1: cell1, cell2: cell2, caterer: caterer, email: email }, function (id) {
                 $('#customerId').val(id);
                 $('#customerIdCheckout').val(id);
+                $('#customerHeader').text("");
+                $('#customerAddress').text("");
+                $('#customerPhone').text("");
+                $('#customerCell').text("");
+                $('#discountInput').val("");
+                $('#catererIndicator').html("");
+                $('#customerEmail').text("");
+
+                $('#customerHeader').append(firstName + " " + lastName);
+                $('#customerAddress').append(address);
+                $('#customerPhone').append(phone1 + " " + phone2);
+                $('#customerCell').append(cell1 + " " + cell2);
+                $('.customers').remove();
+                $('#searchInput').val("");
+                $('#catererDiscount').val(caterer);
+                if (caterer == true) {
+                    $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
+                }
+                $('#customerEmail').append(email);
                 $('#alertNewCustomerAdded').modal();
             })
-
-            $('#customerHeader').text("");
-            $('#customerAddress').text("");
-            $('#customerPhone').text("");
-            $('#customerCell').text("");
-            $('#discountInput').val("");
-            $('#catererIndicator').html("");
-            $('#customerEmail').text("");
-
-            $('#customerHeader').append(firstName + " " + lastName);
-            $('#customerAddress').append(address);
-            $('#customerPhone').append(phone1 + " " + phone2);
-            $('#customerCell').append(cell1 + " " + cell2);
-            $('.customers').remove();
-            $('#searchInput').val("");
-            $('#catererDiscount').val(caterer);
-            if (caterer == true) {
-                $('#catererIndicator').html("<span style=" + '"color:blue"' + ">*Caterer*</span>");
-            }
-            $('#customerEmail').append(email);
-            $('#searchCustomerModal').modal('toggle');
-            $('#newCustomerModal').modal('toggle');
         }
     })
 
+
+
+    $('#alertNewCustomerOk').on('click', function () {
+        $('#searchCustomerModal').modal('toggle');
+        $('#newCustomerModal').modal('toggle');
+    })
 
     //$("#homeLink").on('click', function () {
     //    window.location.href = "/home/order";
@@ -1311,6 +1436,23 @@
     $('#cancelStatusModal').on('hidden.bs.modal', function () {
         window.location.href = ('/home/orderHistory');
     });
+
+    $('#emailInvoiceBtn').on('click', function () {
+        orderId = $(this).data('orderid');
+        customerId = $(this).data('customerid');
+        $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+            if (customer.Caterer && customer.Email != "" && customer.Email != null) {
+                $.post("/home/EmailInvoice", { customerId: customerId, orderId: orderId }, function () {
+                    $('#invoiceAlertMessage').html("An invoice was sent via email to " + customer.FirstName + " " + customer.LastName + " !");
+                    $('#invoiceAlertModal').modal();
+                })
+            }
+            else {
+                $('#invoiceAlertMessage').html("<span style=" + '"' + "color:red" + '"' + ">" + customer.FirstName + " " + customer.LastName + " does not have an email address on file...</span>");
+                $('#invoiceAlertModal').modal();
+            }
+        })
+    })
 
     $('#updateStatusBtn').on('click', function () {
         var t = $(this);

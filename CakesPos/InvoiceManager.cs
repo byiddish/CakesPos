@@ -64,7 +64,7 @@ namespace CakesPos
             Phrase BillTo = new Phrase();
             Chunk cn = new Chunk(order.customer.FirstName + " " + order.customer.LastName + " \n");
             Chunk ca = new Chunk(order.customer.Address + " \n");
-            Chunk ccsz = new Chunk(order.customer.City + " " + order.customer.State + order.customer.Zip + " \n");
+            Chunk ccsz = new Chunk(order.customer.City + " " + order.customer.State + " " + order.customer.Zip + " \n");
             //Chunk cp = new Chunk(order.customer.Phone1 + " \n");
             //Chunk cf = new Chunk(order.customer.Cell1 + " \n");
             BillTo.Add(cn);
@@ -194,7 +194,7 @@ namespace CakesPos
             doc5.Add(BillTo);
             doc5.Add(table);
             doc5.Add(subTotal);
-            if(order.order.DeliveryOption=="Delivery")
+            if (order.order.DeliveryOption == "Delivery")
             {
                 doc5.Add(deliveryCharge);
             }

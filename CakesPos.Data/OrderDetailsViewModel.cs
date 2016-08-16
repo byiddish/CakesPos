@@ -13,5 +13,6 @@ namespace CakesPos.Data
         public Order order { get; set; }
         public IEnumerable<Payment> payments { get; set; }
         public IEnumerable<OrderDetailsProductModel> orderedProducts { get; set; }
+        public decimal total { get; set; }
     }
 }

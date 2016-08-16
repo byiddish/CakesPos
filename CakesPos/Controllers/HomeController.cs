@@ -20,6 +20,18 @@ namespace CakesPos.Controllers
             return View();
         }
 
+        public ActionResult OrderList()
+        {
+            List<OrderDetailsViewModel> od = new List<OrderDetailsViewModel>();
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            IEnumerable<OrderHistoryViewModel> orders = cpr.GetOrders().Where(o => o.requiredDate == DateTime.Today && o.invoice == false);
+            foreach (OrderHistoryViewModel o in orders)
+            {
+                od.Add(cpr.GetOrderDetails(o.customerId, o.id));
+            }
+            return View(od);
+        }
+
         //[Authorize]
         public ActionResult Order()
         {
@@ -27,7 +39,7 @@ namespace CakesPos.Controllers
             OrdersViewModel ovm = new OrdersViewModel();
             ovm.categories = cpr.GetAllCategories();
             ovm.products = cpr.GetProductsByCategory(1);
-            ovm.productAvailability = cpr.GetProductAvailability(DateTime.Today.Date, DateTime.Today.Date.AddDays(7), 1);
+            ovm.productAvailability = cpr.GetProductAvailability(DateTime.Today.Date.AddMonths(-1), DateTime.Today.Date.AddDays(7), 1);
             return View(ovm);
         }
 
@@ -191,7 +203,7 @@ namespace CakesPos.Controllers
 
         public ActionResult Inventory()
         {
-            DateTime min = DateTime.Now.Date;
+            DateTime min = DateTime.Now.Date.AddMonths(-1);
             DateTime max = DateTime.Now.Date.AddDays(7);
             InventoryByCategoryModel ibcm = new InventoryByCategoryModel();
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
@@ -231,7 +243,6 @@ namespace CakesPos.Controllers
 
         }
 
-        [AllowAnonymous]
         [HttpPost]
         public ActionResult AddUser(string username, string name, string password)
         {
@@ -293,14 +304,14 @@ namespace CakesPos.Controllers
 
         public ActionResult GetProductAvailabilityByProductId(int productId)
         {
-            DateTime min = DateTime.Today.Date;
+            DateTime min = DateTime.Today.Date.AddMonths(-1);
             DateTime max = DateTime.Today.Date.AddDays(7);
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             return Json(cpr.GetProductAvailabilityByProductId(min, max, productId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult AddCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone1, string phone2, string cell1, string cell2, bool caterer, string email)
+        public ActionResult AddNewCustomer(string firstName, string lastName, string address, string city, string state, string zip, string phone1, string phone2, string cell1, string cell2, bool caterer, string email)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
             return Json(cpr.AddCustomer(firstName, lastName, address, city, state, zip, phone1, phone2, cell1, cell2, caterer, email), JsonRequestBehavior.AllowGet);
@@ -443,6 +454,16 @@ namespace CakesPos.Controllers
         public ActionResult Login()
         {
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult EmailInvoice(int customerId, int orderId)
+        {
+            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+            InvoiceManager i = new InvoiceManager();
+            Customer c = cpr.GetCustomerById(customerId);
+            i.EmailInvoice(@"C:\inetpub\sites\CakesPos\InvoicesPdf\" + orderId + ".pdf", c.Email);
+            return null;
         }
 
         [HttpPost]

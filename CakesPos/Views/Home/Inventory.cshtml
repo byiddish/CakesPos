@@ -12,7 +12,7 @@
             <div class="form-group">
                 <label>
                     From
-                    <input type="date" value=@DateTime.Today.Date.ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
+                    <input type="date" value=@DateTime.Today.Date.AddMonths(-1).ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
                 </label>
                 <label>
                     To

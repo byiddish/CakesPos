@@ -4,12 +4,22 @@
 @section Styles{
     <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
 }
-
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
-        <label><input class="form-control input input-lg" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
+        @*<label><input class="form-control input input-lg" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
+        <button class="btn btn-default btn-lg" id="searchHistory">Search</button>*@
         @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
             <label>To<input class="form-control" id="toInput" type="date" /></label>*@
+        <label>
+            All Dates
+            <div class="form-group">
+                <label class="switch">
+                    <input type="checkbox" name="allDates" id="allDates" value="true">
+                    <div class="slider round"></div>
+                </label>
+                <input type="hidden" name="allDates" value="false" />
+            </div>
+        </label>
         <input class="input input-lg" id="filterDate" type="text" placeholder="Date" value="@DateTime.Today.Date.ToShortDateString()" />
                @*<label>
             <select class="form-control input input-lg" id="filterDate">
@@ -31,7 +41,7 @@
                 <option value="all">All</option>
             </select>
         </label>
-        <label>
+        @*<label>
             All Dates
             <div class="form-group">
                 <label class="switch">
@@ -40,7 +50,9 @@
                 </label>
                 <input type="hidden" name="allDates" value="false" />
             </div>
-        </label>
+        </label>*@
+        <label><input class="form-control input input-lg" id="searchHistoryInput" placeholder="Customer Name" autofocus="autofocus" /></label>
+        <button class="btn btn-default btn-lg" id="searchHistory">Search</button>
         @*<button class="btn btn-success" id="applybtn">Apply</button>*@
     </div>
     <table class="table table-bordered table-hover table-responsive table-striped" id="historyTable">
@@ -111,11 +123,11 @@
                     <button class="btn btn-info viewDetailsBtn" data-deliveryopt=@o.deliveryOpt data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>View Details</button>
                     @if (o.invoice)
                     {
-                        <button class="btn btn-default viewInvoiceBtn" data-orderid=@o.id>View Invoice</button>
+                        <button class="btn btn-default viewInvoiceBtn" data-orderid=@o.id data-customerid=@o.customerId>View Invoice</button>
                     }
                     else
                     {
-                        <button class="btn btn-default viewInvoiceBtn" disabled data-orderid=@o.id>View Invoice</button>
+                        <button class="btn btn-default viewInvoiceBtn" disabled data-orderid=@o.id data-customerid=@o.customerId>View Invoice</button>
                     }
                      @if (o.paid || balance <= 0 || o.statement)
                     {
@@ -134,6 +146,7 @@
     {
         <h3 id="ordersAlert">No orders for this time period...</h3>
     }
+    <h2 id="noMatches"></h2>
 
 </div>
 
@@ -295,6 +308,30 @@
     </div>
 </div>
 
+<div id="pdfModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" id="pdfModalDialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Invoice</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <div id="iFrameDiv">
+                    <iframe id="viewPdfIFrame" style="width:650px; height:750px;" frameborder="0"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" id="emailInvoiceBtn">Email Invoice</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal"><!-- Place at bottom of page --></div>
+
+
 
 <div id="invoiceAlertModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -373,24 +410,12 @@
     </div>
 </div>
 
-<div id="pdfModal" class="modal fade" role="dialog">
-    <div class="modal-dialog" id="pdfModalDialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Invoice</h4>
-            </div>
-            <div class="modal-body" align="center">
-                <div id="iFrameDiv">
-                    <iframe id="viewPdfIFrame" style="width:650px; height:750px;" frameborder="0"></iframe>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
+<div class="cssload-preloader" style="visibility:hidden">
+    <span>L</span>
+    <span>o</span>
+    <span>a</span>
+    <span>d</span>
+    <span>i</span>
+    <span>n</span>
+    <span>g</span>
 </div>
-<div class="modal"><!-- Place at bottom of page --></div>

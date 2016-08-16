@@ -392,6 +392,7 @@ namespace CakesPos.Data
                     products.Add(pm);
                 }
             }
+            odvm.total = GetTotalByOrderId(orderId, customerId);
             odvm.orderedProducts = products;
             return odvm;
         }

@@ -15,7 +15,6 @@
     <link href="~/Content/themes/base/bootstrap-select.min.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="loader"></div>
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -31,6 +30,7 @@
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="/home/order">Order</a></li>
                     <li><a href="/home/OrderHistory">Order History </a></li>
+                    @*<li><a href="/home/OrderList">Order List </a></li>*@
                     <li><a href="/home/Statements">Statements </a></li>
                     <li><a href="/home/inventory">Inventory</a></li>
                     <li><a href="/home/delivery">Delivery</a></li>
@@ -48,6 +48,16 @@
     </nav>
 
     @RenderBody()
+    <div  class="cssload-preloader" hidden>
+        <span>L</span>
+        <span>o</span>
+        <span>a</span>
+        <span>d</span>
+        <span>i</span>
+        <span>n</span>
+        <span>g</span>
+
+    </div>
     <script src='https://code.jquery.com/jquery-2.2.0.min.js'></script>
     <script src='https://code.jquery.com/ui/1.11.4/jquery-ui.js'></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
