@@ -14,20 +14,8 @@
       <Column Name="ProductId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Column Name="UnitPrice" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
       <Column Name="Quantity" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Association Name="Product_OrderDetail" Member="Product" ThisKey="ProductId" OtherKey="Id" Type="Product" IsForeignKey="true" />
       <Association Name="Order_OrderDetail" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Payments" Member="Payments">
-    <Type Name="Payment">
-      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="OrderId" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="Payment" Member="Payment1" Type="System.Decimal" DbType="Money" CanBeNull="true" />
-      <Column Name="PaymentNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
-      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
-      <Association Name="Customer_Payment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
-      <Association Name="Order_Payment" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+      <Association Name="Product_OrderDetail" Member="Product" ThisKey="ProductId" OtherKey="Id" Type="Product" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Status" Member="Status">
@@ -81,20 +69,6 @@
       <Association Name="Customer_AccountTran" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
-  <Table Name="dbo.Products" Member="Products">
-    <Type Name="Product">
-      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="ProductName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
-      <Column Name="Price" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
-      <Column Name="InStock" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="Image" Type="System.String" DbType="VarChar(250) NOT NULL" CanBeNull="false" />
-      <Column Name="CategoryId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="RestockAmount" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="CatererDiscount" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
-      <Association Name="Product_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="ProductId" Type="OrderDetail" />
-      <Association Name="Category_Product" Member="Category" ThisKey="CategoryId" OtherKey="Id" Type="Category" IsForeignKey="true" />
-    </Type>
-  </Table>
   <Table Name="dbo.Customers" Member="Customers">
     <Type Name="Customer">
       <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -111,9 +85,9 @@
       <Column Name="Account" Type="System.Decimal" DbType="Money" CanBeNull="true" />
       <Column Name="Phone2" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
       <Column Name="Cell2" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
-      <Association Name="Customer_Payment" Member="Payments" ThisKey="Id" OtherKey="CustomerId" Type="Payment" />
       <Association Name="Customer_StatementPayment" Member="StatementPayments" ThisKey="Id" OtherKey="CustomerId" Type="StatementPayment" />
       <Association Name="Customer_AccountTran" Member="AccountTrans" ThisKey="Id" OtherKey="CustomerId" Type="AccountTran" />
+      <Association Name="Customer_Payment" Member="Payments" ThisKey="Id" OtherKey="CustomerId" Type="Payment" />
     </Type>
   </Table>
   <Table Name="dbo.Charges" Member="Charges">
@@ -155,10 +129,38 @@
       <Column Name="Cell2" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="DeliveryCharge" Type="System.Decimal" DbType="Money" CanBeNull="true" />
       <Association Name="Order_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="OrderId" Type="OrderDetail" />
-      <Association Name="Order_Payment" Member="Payments" ThisKey="Id" OtherKey="OrderId" Type="Payment" />
       <Association Name="Order_Status" Member="Status" ThisKey="Id" OtherKey="OrderId" Type="Status" />
       <Association Name="Order_OrdersStatement" Member="OrdersStatements" ThisKey="Id" OtherKey="OrderId" Type="OrdersStatement" />
       <Association Name="Order_Charge" Member="Charges" ThisKey="Id" OtherKey="OrderId" Type="Charge" />
+      <Association Name="Order_Payment" Member="Payments" ThisKey="Id" OtherKey="OrderId" Type="Payment" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Payments" Member="Payments">
+    <Type Name="Payment">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CustomerId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="OrderId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Payment" Member="Payment1" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="PaymentNote" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="Date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="PaymentMethod" Type="System.String" DbType="VarChar(25)" CanBeNull="true" />
+      <Association Name="Customer_Payment" Member="Customer" ThisKey="CustomerId" OtherKey="Id" Type="Customer" IsForeignKey="true" />
+      <Association Name="Order_Payment" Member="Order" ThisKey="OrderId" OtherKey="Id" Type="Order" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Products" Member="Products">
+    <Type Name="Product">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ProductName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Price" Type="System.Decimal" DbType="Money NOT NULL" CanBeNull="false" />
+      <Column Name="InStock" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Image" Type="System.String" DbType="VarChar(250) NOT NULL" CanBeNull="false" />
+      <Column Name="CategoryId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="RestockAmount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="CatererDiscount" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Column Name="Discontinued" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="Product_OrderDetail" Member="OrderDetails" ThisKey="Id" OtherKey="ProductId" Type="OrderDetail" />
+      <Association Name="Category_Product" Member="Category" ThisKey="CategoryId" OtherKey="Id" Type="Category" IsForeignKey="true" />
     </Type>
   </Table>
 </Database>

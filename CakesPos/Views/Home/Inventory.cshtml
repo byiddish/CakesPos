@@ -8,22 +8,98 @@
 
 <div class="container" id="inventoryContainer">
     <div>
-        <form action="/home/Inventory" method="POST">
-            <div class="form-group">
-                <label>
-                    From
-                    <input type="date" value=@DateTime.Today.Date.AddMonths(-1).ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
-                </label>
-                <label>
-                    To
-                    <input type="date" value=@DateTime.Today.Date.AddDays(7).ToString("yyyy-MM-dd") required class="form-control invDate" id="max" name="max" />
-                </label>
-                <button id="invRefresh" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-refresh"></span></button>
-            </div>
-        </form>
+        @*<form action="/home/Inventory" method="POST">
+                <div class="form-group">
+                    <label>
+                        From
+                        <input type="date" value=@DateTime.Today.Date.AddMonths(-1).ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
+                    </label>
+                    <label>
+                        To
+                        <input type="date" value=@DateTime.Today.Date.AddDays(3).ToString("yyyy-MM-dd") required class="form-control invDate" id="max" name="max" />
+                    </label>
+                    <button id="invRefresh" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-refresh"></span></button>
+                </div>
+            </form>*@
+        <h2 id="reqHeader">Showing requests from @ViewBag.minDate.ToShortDateString() - @ViewBag.maxDate.ToShortDateString()</h2>
+        <h1 id="minMax"></h1>
+        <div id="invInputs">
+            <form class="fromToForm" action="/home/Inventory" method="POST">
+                <input class="hidden" value=0 name="dayReq" />
+                <div class="form-group">
+                    <label>
+                        From
+                        <input type="date" value=@ViewBag.minDate.ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
+                    </label>
+                    <label>
+                        To
+                        <input type="date" value=@ViewBag.maxDate.ToString("yyyy-MM-dd") required class="form-control invDate" id="max" name="max" />
+                    </label>
+                    <button id="invRefresh" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-refresh"></span></button>
+                </div>
+            </form>
+            <form class="invForm" action="/home/Inventory" method="POST">
+                <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
+                <input class="hidden" value=1 name="dayReq" />
+                @if (ViewBag.dayReq == 1)
+                {
+                    <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date>Today</button>
+                }
+                else
+                {
+                    <button class="btn btn-group btn-default" type="submit" name="max" value=@DateTime.Today.Date>Today</button>
+                }
+            </form>
+            <form class="invForm" action="/home/Inventory" method="POST">
+                <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
+                <input class="hidden" value=2 name="dayReq" />
+                @if (ViewBag.dayReq == 2)
+                {
+                    <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(1)>@DateTime.Today.AddDays(1).DayOfWeek.ToString()</button>
+                }
+                else
+                {
+                    <button class="btn btn-group btn-default" type="submit" name="max" value=@DateTime.Today.Date.AddDays(1)>@DateTime.Today.AddDays(1).DayOfWeek.ToString()</button>
+                }
+            </form>
+            <form class="invForm" action="/home/Inventory" method="POST">
+                <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
+                <input class="hidden" value=3 name="dayReq" />
+                @if (ViewBag.dayReq == 3)
+                {
+                    <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(2)>@DateTime.Today.AddDays(2).DayOfWeek.ToString()</button>
+                }
+                else
+                {
+                    <button class="btn btn-group btn-default" type="submit" name="max" value=@DateTime.Today.Date.AddDays(2)>@DateTime.Today.AddDays(2).DayOfWeek.ToString()</button>
+                }
+            </form>
+            <form class="invForm" action="/home/Inventory" method="POST">
+                <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
+                <input class="hidden" value=4 name="dayReq" />
+                @if (ViewBag.dayReq == 4)
+                {
+                    <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(3)>@DateTime.Today.AddDays(3).DayOfWeek.ToString()</button>
+                }
+                else
+                {
+                    <button class="btn btn-group btn-default" type="submit" name="max" value=@DateTime.Today.Date.AddDays(3)>@DateTime.Today.AddDays(3).DayOfWeek.ToString()</button>
+                }
+            </form>
+            <form class="invForm" action="/home/Inventory" method="POST">
+                <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
+                <input class="hidden" value=7 name="dayReq" />
+                @if (ViewBag.dayReq == 7)
+                {
+                    <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(6)>Next 7 Days</button>
+                }
+                else
+                {
+                    <button class="btn btn-group btn-default" type="submit" name="max" value=@DateTime.Today.Date.AddDays(6)>Next 7 Days</button>
+                }
+            </form>
+        </div>
     </div>
-    <h2>Showing requests from @ViewBag.minDate.ToShortDateString() - @ViewBag.maxDate.ToShortDateString()</h2>
-    <h1 id="minMax"></h1>
     @foreach (CakesPos.Data.Category category in Model.categories)
     {
         <div class="panel panel-default info-panel">
@@ -111,8 +187,9 @@
                             </td>
                             <td align="center">
                                 <input type="number" class="invQuantityInput" /> <button class="btn btn-default btn-group add" data-id="@i.product.Id">Add</button>
+                                <button class="btn btn-warning productEditBtn" data-id=@i.product.Id>Edit</button>
                                 @*<button class="btn btn-warning" id="editProduct" data-id="@i.product.Id">Edit</button>
-                                <button class="btn btn-danger" data-id="@i.product.Id">Discontinue</button>*@
+                                    <button class="btn btn-danger" data-id="@i.product.Id">Discontinue</button>*@
                             </td>
                         </tr>
                     }
@@ -127,50 +204,58 @@
 
         <!-- Modal content-->
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Custom Product</h4>
-            </div>
-            <div class="modal-body">
-                <div class="well">
-                    <h1>Edit Product</h1>
-                    <form action="/home/addNewProduct" method="POST" id="productForm" enctype="multipart/form-data">
-                        @*<div class="form-group">
-                                <label>Category</label>
-                                <input type="text" class="form-control" name="categoryId" id="categoryId" placeholder="Category">
-                            </div>*@
+            <form action="/home/EditProduct" method="POST" id="productForm" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit Product</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="well">
+                        <h1><span id="productHeader"></span></h1>
+                        <div class="form-group">
+                            <label>
+                                Category
+                                <select class="form-control input" name="categoryId" id="categories">
+                                </select>
+                            </label>
+                        </div>
+                        <input id="productId" name="productId" style="display:none" />
                         <div class="form-group">
                             <label>Product Name</label>
                             <input type="text" class="form-control" name="productName" id="productName" required placeholder="Product Name">
                         </div>
                         <div class="form-group">
                             <label>Price</label>
-                            <input type="number" class="form-control" name="price" id="price" min="0.01" step="0.01" required placeholder="Price">
+                            <input type="number" class="form-control" name="price" id="price" min="0.0" step="0.01" required placeholder="Price">
                         </div>
                         <div class="form-group">
                             <label>Caterer Discount</label>
-                            <input type="number" class="form-control" name="catererDiscount" id="catererDiscount" min="0.01" step="0.01" required placeholder="Caterer Discount">
+                            <input type="number" class="form-control" name="catererDiscount" id="catererDiscount" min="0.0" step="0.01" required placeholder="Caterer Discount">
                         </div>
                         <div class="form-group">
                             <label>Restock Amount</label>
                             <input type="number" class="form-control" name="restockAmount" required id="restockAmount" placeholder="Restock Amount">
                         </div>
                         <div class="form-group">
-                            <label>Initial Stock</label>
-                            <input type="number" class="form-control" name="inStock" required id="inStock" placeholder="In Stock">
+                            <label>Image</label>
+                            <div id="imageDiv"></div>
+                            <input type="file" name="image" id="image" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label>Image</label>
-                            <input type="file" name="image" class="form-control">
+                            <label>Discontinued</label>
+                            <input name="discontinued" id="discontinued" value="true" type="checkbox">
+                            <input name="discontinued" id="discontinued" hidden value="false" type="checkbox">
                         </div>
-                        <button type="submit" id="productSubmit" class="btn btn-primary">Submit</button>
-                    </form>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="customProductSubmit">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
+                <div class="modal-footer">
+                    @*<button class="btn btn-primary" id="customProductSubmit">Submit</button>*@
+                    <button type="submit" id="submitProdChanges" class="btn btn-primary">Submit Changes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+

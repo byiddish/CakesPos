@@ -1,9 +1,178 @@
-﻿#parent {
+﻿@media (max-width: 1024px) {
+    img {
+        height: 105px !important;
+        width: 125px !important;
+    }
+
+    #productsInnerDiv {
+        height: 590px !important;
+    }
+
+    #orderTable td, #orderTable td .btn {
+        font-size: 12px !important;
+    }
+
+    #addBtn {
+        margin-bottom: 20px;
+        float: left !important;
+        margin: 10px !important;
+        opacity: .7 !important;
+        border-radius: 25px;
+    }
+
+    #imageDiv{
+        width:150px;
+        height:125px;
+    }
+
+    /*#discontinued{
+       
+    }*/
+
+    .productbtn {
+        width: 150px !important;
+        height: 150px !important;
+        margin: 2px !important;
+        font-size: 10px !important;
+    }
+
+    .categoryBtn {
+        margin: 2px !important;
+        width: 100px !important;
+        font-size: 11px !important;
+    }
+
+    #discountInput {
+        width: 90px !important;
+    }
+
+    h1 {
+        font-size: 24px !important;
+    }
+
+    h3 {
+        font-size: 18px !important;
+    }
+
+    h4 {
+        font-size: 16px !important;
+    }
+
+    #customerHeader {
+        position: absolute !important;
+        margin-top: 50px !important;
+    }
+
+    #orderTableDiv {
+        height: 350px;
+        width: 100%;
+        overflow-y: scroll;
+        margin-top: 30px;
+    }
+
+    #placeOrderBtn {
+        font-size: 12px !important;
+        height: 40px !important;
+    }
+
+    #leftdiv {
+        height: 668px !important;
+        width: 30% !important;
+    }
+
+    #rightdiv {
+        height: 668px !important;
+        width: 65% !important;
+    }
+
+    #ordersDiv {
+        height: 450px !important;
+        overflow: hidden !important;
+    }
+
+    .q {
+        width: 51px !important;
+    }
+
+    #tableDiv {
+        height: 500px !important;
+    }
+
+    #orderModal.modal-body {
+        height: 600px !important;
+    }
+
+    #paymentBody {
+        height: 600px !important;
+        overflow: scroll !important;
+    }
+
+    /*div.modal-body {
+        height: 600px !important;
+    }*/
+
+    #orderedProductsHistory {
+        width: 65% !important;
+        height: 500px !important;
+    }
+
+    #histDiv {
+        width: 900px !important;
+        height: 550px !important;
+        overflow: scroll !important;
+    }
+
+    #infoDiv {
+    }
+
+    #selectBtn {
+        text-align: center !important;
+        margin: 10px !important;
+        opacity: .7 !important;
+        border-radius: 25px;
+    }
+
+    #addBtn {
+        text-align: center !important;
+    }
+
+    #orderHistoryDiv.container.well {
+        margin-top: 100px !important;
+        height: 650px !important;
+        /*border: 1px solid black;*/
+        overflow: scroll !important;
+    }
+
+    #orderHistory {
+        height: 280px !important;
+        overflow: scroll;
+    }
+
+    #orderDiv.container.well {
+        height: 650px !important;
+        /*border: 1px solid black;*/
+    }
+
+    #viewPdfIFrame {
+        height: 550px !important;
+    }
+}
+
+#parent {
     width: 100%;
     float: left;
     margin-top: 100px;
     margin-right: 15px;
     margin-left: 15px;
+}
+
+.viewDetailsBtn, .paymentBtn, .updateStatusBtn, .viewInvoiceBtn {
+    width: 87px;
+    margin: 2px;
+}
+
+#histDiv {
+    overflow: scroll !important;
 }
 
 #leftdiv {
@@ -16,8 +185,12 @@
     margin-bottom: 10px;
 }
 
+#historyTable {
+    font-size: 17px;
+}
+
 #ordersDiv {
-    overflow: scroll;
+    overflow-y: scroll;
     height: 603px;
 }
 
@@ -26,13 +199,18 @@
     height: 192px;
 }
 
+#productsInnerDiv {
+    height: 765px;
+    overflow-y: scroll;
+}
+
 #rightdiv {
     float: left;
     border: 1px solid green;
     min-width: 300px;
     width: 60%;
     height: 846px;
-    overflow: scroll;
+    /*overflow: scroll;*/
 }
 
 .checkbox {
@@ -63,15 +241,17 @@ th {
 
 #selectBtn {
     float: right;
+    width: 128px !important;
 }
 
 #addBtn {
     float: right;
-    width: 163.063px;
+    width: 128px !important;
 }
 
 #customerInfoDivInner {
-    margin: 15px;
+    /*margin: 15px;*/
+    margin-left: 5px;
 }
 
 #totalDivInner {
@@ -82,13 +262,13 @@ th {
     margin: 15px;
 }
 
-#searchHistory{
-    margin-left:0px !important;
+#searchHistory {
+    margin-left: 0px !important;
 }
 
-#orderModal{
-    height:800px !important;
-    overflow-y:scroll !important;
+#orderModal {
+    height: 800px !important;
+    overflow-y: scroll !important;
 }
 
 img {
@@ -101,10 +281,6 @@ img {
     height: 800px;
     /*border: 1px solid black;*/
     overflow: scroll;
-}
-
-.paymentBtn {
-    margin-left: 4px;
 }
 
 .xl-modal {
@@ -143,12 +319,22 @@ img {
     width: 30%;
 }
 
+/*.watermark
+{
+ position:absolute;
+ bottom:50%;
+ right:50%;
+ opacity:0.5;
+ z-index:99;
+ color:green;
+}*/
+
 #orderedProductsHistory {
     /*overflow: scroll;
     height: 200px;*/
     float: left;
     width: 65%;
-    height: 748px;
+    height: 600px;
     /*border: 1px solid black;*/
 }
 
@@ -359,9 +545,27 @@ input:checked + .slider:before {
     width: 77.05px;
 }
 
-.viewInvoiceBtn {
+/*.viewInvoiceBtn {
     margin-left: 5px;
+}*/
+
+.invForm {
+    float: left;
+    margin: 2px;
 }
+
+.fromToForm {
+    float: right;
+}
+
+#reqHeader {
+    text-align: center;
+}
+
+#invInputs {
+    margin-bottom: 75px;
+}
+
 
 /*@media print {
   body * {
@@ -383,105 +587,106 @@ input:checked + .slider:before {
     position: absolute;
     top: 50%;
     left: 38%;
-	font-family: Arial, Tahoma;
-	z-index: 10;
-	display: box;
-		display: -o-box;
-		display: -ms-box;
-		display: -webkit-box;
-		display: -moz-box;
-	display: flex;
-		display: -o-flex;
-		display: -ms-flex;
-		display: -webkit-flex;
-		display: -moz-flex;
-	box-pack: center;
-		-o-box-pack: center;
-		-ms-box-pack: center;
-		-webkit-box-pack: center;
-		-moz-box-pack: center;
-	justify-content: center;
-		-o-justify-content: center;
-		-ms-justify-content: center;
-		-webkit-justify-content: center;
-		-moz-justify-content: center;
-	box-align: center;
-		-o-box-align: center;
-		-ms-box-align: center;
-		-webkit-box-align: center;
-		-moz-box-align: center;
-	align-items: center;
-		-o-align-items: center;
-		-ms-align-items: center;
-		-webkit-align-items: center;
-		-moz-align-items: center;
-	transform-style: preserve-3d;
-		-o-transform-style: preserve-3d;
-		-ms-transform-style: preserve-3d;
-		-webkit-transform-style: preserve-3d;
-		-moz-transform-style: preserve-3d;
-	perspective: 1188px;
-		-o-perspective: 1188px;
-		-ms-perspective: 1188px;
-		-webkit-perspective: 1188px;
-		-moz-perspective: 1188px;
-	overflow: hidden;
-	animation: wobble 5.75s ease-in-out infinite;
-		-o-animation: wobble 5.75s ease-in-out infinite;
-		-ms-animation: wobble 5.75s ease-in-out infinite;
-		-webkit-animation: wobble 5.75s ease-in-out infinite;
-		-moz-animation: wobble 5.75s ease-in-out infinite;
-	padding-bottom: 5em;
+    font-family: Arial, Tahoma;
+    z-index: 10;
+    display: box;
+    display: -o-box;
+    display: -ms-box;
+    display: -webkit-box;
+    display: -moz-box;
+    display: flex;
+    display: -o-flex;
+    display: -ms-flex;
+    display: -webkit-flex;
+    display: -moz-flex;
+    box-pack: center;
+    -o-box-pack: center;
+    -ms-box-pack: center;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    justify-content: center;
+    -o-justify-content: center;
+    -ms-justify-content: center;
+    -webkit-justify-content: center;
+    -moz-justify-content: center;
+    box-align: center;
+    -o-box-align: center;
+    -ms-box-align: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    align-items: center;
+    -o-align-items: center;
+    -ms-align-items: center;
+    -webkit-align-items: center;
+    -moz-align-items: center;
+    transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    perspective: 1188px;
+    -o-perspective: 1188px;
+    -ms-perspective: 1188px;
+    -webkit-perspective: 1188px;
+    -moz-perspective: 1188px;
+    overflow: hidden;
+    animation: wobble 5.75s ease-in-out infinite;
+    -o-animation: wobble 5.75s ease-in-out infinite;
+    -ms-animation: wobble 5.75s ease-in-out infinite;
+    -webkit-animation: wobble 5.75s ease-in-out infinite;
+    -moz-animation: wobble 5.75s ease-in-out infinite;
+    padding-bottom: 5em;
 }
 
 
-.cssload-preloader > span {
-	font-size: 119px;
-	animation: 5.75s ease-in-out infinite;
-		-o-animation: 5.75s ease-in-out infinite;
-		-ms-animation: 5.75s ease-in-out infinite;
-		-webkit-animation: 5.75s ease-in-out infinite;
-		-moz-animation: 5.75s ease-in-out infinite;
-	color: transparent;
-	text-shadow: 0 0 0px rgb(0,0,0);
-}
+    .cssload-preloader > span {
+        font-size: 119px;
+        animation: 5.75s ease-in-out infinite;
+        -o-animation: 5.75s ease-in-out infinite;
+        -ms-animation: 5.75s ease-in-out infinite;
+        -webkit-animation: 5.75s ease-in-out infinite;
+        -moz-animation: 5.75s ease-in-out infinite;
+        color: transparent;
+        text-shadow: 0 0 0px rgb(0,0,0);
+    }
+
 span:nth-child(-n+3) {
-	animation-delay: -2.88s;
-		-o-animation-delay: -2.88s;
-		-ms-animation-delay: -2.88s;
-		-webkit-animation-delay: -2.88s;
-		-moz-animation-delay: -2.88s;
+    animation-delay: -2.88s;
+    -o-animation-delay: -2.88s;
+    -ms-animation-delay: -2.88s;
+    -webkit-animation-delay: -2.88s;
+    -moz-animation-delay: -2.88s;
 }
 
 span:nth-child(1),
 span:nth-last-child(1) {
-	animation-name: blur-1;
-		-o-animation-name: blur-1;
-		-ms-animation-name: blur-1;
-		-webkit-animation-name: blur-1;
-		-moz-animation-name: blur-1;
+    animation-name: blur-1;
+    -o-animation-name: blur-1;
+    -ms-animation-name: blur-1;
+    -webkit-animation-name: blur-1;
+    -moz-animation-name: blur-1;
 }
 
 
 
 span:nth-child(2),
 span:nth-last-child(2) {
-	animation-name: blur-2;
-		-o-animation-name: blur-2;
-		-ms-animation-name: blur-2;
-		-webkit-animation-name: blur-2;
-		-moz-animation-name: blur-2;
+    animation-name: blur-2;
+    -o-animation-name: blur-2;
+    -ms-animation-name: blur-2;
+    -webkit-animation-name: blur-2;
+    -moz-animation-name: blur-2;
 }
 
 
 
 span:nth-child(3),
 span:nth-last-child(3) {
-	animation-name: blur-3;
-		-o-animation-name: blur-3;
-		-ms-animation-name: blur-3;
-		-webkit-animation-name: blur-3;
-		-moz-animation-name: blur-3;
+    animation-name: blur-3;
+    -o-animation-name: blur-3;
+    -ms-animation-name: blur-3;
+    -webkit-animation-name: blur-3;
+    -moz-animation-name: blur-3;
 }
 
 
@@ -490,137 +695,141 @@ span:nth-last-child(3) {
 
 
 @keyframes blur-1 {
-	50% {
-		text-shadow: 0 0 0.15em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.15em rgb(0,0,0);
+    }
 }
 
 @-o-keyframes blur-1 {
-	50% {
-		text-shadow: 0 0 0.15em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.15em rgb(0,0,0);
+    }
 }
 
 @-ms-keyframes blur-1 {
-	50% {
-		text-shadow: 0 0 0.15em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.15em rgb(0,0,0);
+    }
 }
 
 @-webkit-keyframes blur-1 {
-	50% {
-		text-shadow: 0 0 0.15em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.15em rgb(0,0,0);
+    }
 }
 
 @-moz-keyframes blur-1 {
-	50% {
-		text-shadow: 0 0 0.15em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.15em rgb(0,0,0);
+    }
 }
 
 @keyframes blur-2 {
-	50% {
-		text-shadow: 0 0 0.075em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.075em rgb(0,0,0);
+    }
 }
 
 @-o-keyframes blur-2 {
-	50% {
-		text-shadow: 0 0 0.075em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.075em rgb(0,0,0);
+    }
 }
 
 @-ms-keyframes blur-2 {
-	50% {
-		text-shadow: 0 0 0.075em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.075em rgb(0,0,0);
+    }
 }
 
 @-webkit-keyframes blur-2 {
-	50% {
-		text-shadow: 0 0 0.075em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.075em rgb(0,0,0);
+    }
 }
 
 @-moz-keyframes blur-2 {
-	50% {
-		text-shadow: 0 0 0.075em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.075em rgb(0,0,0);
+    }
 }
 
 @keyframes blur-3 {
-	50% {
-		text-shadow: 0 0 0.05em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.05em rgb(0,0,0);
+    }
 }
 
 @-o-keyframes blur-3 {
-	50% {
-		text-shadow: 0 0 0.05em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.05em rgb(0,0,0);
+    }
 }
 
 @-ms-keyframes blur-3 {
-	50% {
-		text-shadow: 0 0 0.05em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.05em rgb(0,0,0);
+    }
 }
 
 @-webkit-keyframes blur-3 {
-	50% {
-		text-shadow: 0 0 0.05em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.05em rgb(0,0,0);
+    }
 }
 
 @-moz-keyframes blur-3 {
-	50% {
-		text-shadow: 0 0 0.05em rgb(0,0,0);
-	}
+    50% {
+        text-shadow: 0 0 0.05em rgb(0,0,0);
+    }
 }
 
 @keyframes wobble {
-	from, to {
-		transform: rotateY(-45deg);
-	}
-	50% {
-		transform: rotateY(45deg);
-	}
+    from, to {
+        transform: rotateY(-45deg);
+    }
+
+    50% {
+        transform: rotateY(45deg);
+    }
 }
 
 @-o-keyframes wobble {
-	from, to {
-		-o-transform: rotateY(-45deg);
-	}
-	50% {
-		-o-transform: rotateY(45deg);
-	}
+    from, to {
+        -o-transform: rotateY(-45deg);
+    }
+
+    50% {
+        -o-transform: rotateY(45deg);
+    }
 }
 
 @-ms-keyframes wobble {
-	from, to {
-		-ms-transform: rotateY(-45deg);
-	}
-	50% {
-		-ms-transform: rotateY(45deg);
-	}
+    from, to {
+        -ms-transform: rotateY(-45deg);
+    }
+
+    50% {
+        -ms-transform: rotateY(45deg);
+    }
 }
 
 @-webkit-keyframes wobble {
-	from, to {
-		-webkit-transform: rotateY(-45deg);
-	}
-	50% {
-		-webkit-transform: rotateY(45deg);
-	}
+    from, to {
+        -webkit-transform: rotateY(-45deg);
+    }
+
+    50% {
+        -webkit-transform: rotateY(45deg);
+    }
 }
 
 @-moz-keyframes wobble {
-	from, to {
-		-moz-transform: rotateY(-45deg);
-	}
-	50% {
-		-moz-transform: rotateY(45deg);
-	}
-}
+    from, to {
+        -moz-transform: rotateY(-45deg);
+    }
 
+    50% {
+        -moz-transform: rotateY(45deg);
+    }
+}

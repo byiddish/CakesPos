@@ -8,6 +8,7 @@
 }
 
 <div class="container" id="deliveryDiv">
+    <h2 id="deliveryHeader" style="text-align:center;color:orange">Delivery's</h2>
     <label>
         Filter Date
         <select class="form-control" id="filterDeliveryDate">
@@ -19,6 +20,10 @@
             <option value="-7">Last 7 Days</option>
             <option value="-30">Last 30 Days</option>
             <option value="8">All</option>
+        </select>
+        <select class="form-control" id="deliveryOpt">
+            <option value="Delivery">Delivery</option>
+            <option value="Pickup">Pickup</option>
         </select>
     </label>
     <button class="btn btn-success" id="print">Print</button>
@@ -33,10 +38,16 @@
     <div id="deliveriesDiv">
         @foreach (CakesPos.Data.OrderDetailsViewModel o in Model)
         {
+            var total = o.total;
+            var payments = o.payments;
+            foreach (CakesPos.Data.Payment payment in payments)
+            {
+                total -= (decimal)payment.Payment1;
+            }
             <div class="deliveryInfoDiv">
                 <div class="panel panel-info deliveryInnerDiv">
                     <div class="panel-heading">
-                        @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Phone1&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Phone2&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Cell1&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Cell2
+                        @o.order.RequiredDate.Value.ToShortDateString() @o.customer.FirstName @o.customer.LastName&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Phone1&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Phone2&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Cell1&nbsp;&nbsp;&nbsp;&nbsp;@o.customer.Cell2<span style="float:right">@total.ToString("C")</span>
                     </div>
                     <div class="panel-body body">
                         <div class="deliveryLeftDiv">
@@ -60,13 +71,15 @@
                         <div class="deliveryRightDiv">
                             <div class="form-group">
                                 <label for="greetings">Greetings:</label>
-                                <textarea class="form-control" rows="3" id="greetings">@o.order.Greetings</textarea>
+                                <p id="greetings">@o.order.Greetings</p>
                             </div>
-                        </div>
-                        <div class="deliveryRightDiv">
+                            <div class="form-group">
+                                <label for="deliverynote">Note:</label>
+                                <p id="deliveryNote">@o.order.Notes</p>
+                            </div>
                             <div class="form-group">
                                 <label for="deliverynote">Delivery Note:</label>
-                                <textarea class="form-control" rows="3" id="deliveryNote">@o.order.DeliveryNote</textarea>
+                                <p id="deliveryNote">@o.order.DeliveryNote</p>
                             </div>
                         </div>
                     </div>

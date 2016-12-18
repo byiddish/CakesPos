@@ -2,6 +2,11 @@
     var deliveryMethod = "";
     var paymentMethod = "";
     var paid = false;
+    var elem = "";
+    var cId = "";
+    var oId = "";
+    var t = "";
+    var cust = "";
 
     var IsLoaderForInput = false;
     var IsLoaderForSubmit = false;
@@ -50,6 +55,9 @@
 
     $('#delivery').on('click', function () {
         deliveryMethod = "Delivery";
+        if ($('#catererDiscount').val() != "true") {
+            $('#cod').attr('checked', true);
+        }
     })
 
     $('#cash').on('click', function () {
@@ -59,11 +67,11 @@
 
     $('#creditCard').on('click', function () {
         paymentMethod = "Credit Card";
-        paid = true;
+        paid = false;
     })
 
-    $('#check').on('click', function () {
-        paymentMethod = "Check";
+    $('#paid').on('click', function () {
+        paymentMethod = "Paid";
         paid = true;
     })
 
@@ -133,13 +141,12 @@
             var discount = parseFloat($('.discount').val());
             var customerId = $('#customerIdCheckout').val();
             var ordersId;
-            if ($('input[name=paymentMethod]:checked').val() === "COD" || $('input[name=paymentMethod]:checked').val() === "On Account" || $('input[name=paymentMethod]:checked').val() === "At Pickup") {
-                paid = false;
-            }
-            else {
+            if ($('input[name=paymentMethod]:checked').val() === "On Account") {
                 paid = true;
             }
-
+            else {
+                paid = false;
+            }
             discount = discount || 0;
             var deliveryCharge = 0;
             if ($('input[name=deliveryOpt]:checked').val() === "Delivery") {
@@ -172,12 +179,12 @@
                 deliveryCharge: deliveryCharge
             },
                 function (orderId) {
-                    if (paid) {
-                        amount = parseFloat($('#total').data('total'));
-                        amount += parseFloat(deliveryCharge);
-                        $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount, note: paymentMethod }, function () {
-                        })
-                    }
+                    //if (paid) {
+                    //    amount = parseFloat($('#total').data('total'));
+                    //    amount += parseFloat(deliveryCharge);
+                    //    $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount, note: paymentMethod }, function () {
+                    //    })
+                    //}
                     ordersId = orderId;
                     $('#orderTable').find('tr').not(':first').each(function () {
                         var product = $(this);
@@ -202,9 +209,22 @@
                     //        })
                     //    }
                     //})
+                    if ($('input[name=paymentMethod]:checked').val() === "On Account") {
+                        var total = parseFloat($('#total').data('total'));
+                        total += parseFloat(deliveryCharge);
+                        $.post("/home/DeductFromAccount", { customerId: customerId, orderId: orderId, amount: total }, function () {
+                        })
+                    }
                 })
         }
     });
+
+    $('#checkoutModal').on('show.bs.modal', function () {
+        if ($('#catererDiscount').val() == "true") {
+            $('#billMonthly').attr('checked', true);
+        }
+    })
+
 
     $('#alertOrderAdded').on('hidden.bs.modal', function () {
         location.href = location.href;
@@ -234,11 +254,11 @@
             if ($('input[name=deliveryOpt]:checked').val() === "Pickup") {
                 deliveryCharge = 0;
             }
-            if ($('input[name=paymentMethod]:checked').val() === "COD" || $('input[name=paymentMethod]:checked').val() === "On Account" || $('input[name=paymentMethod]:checked').val() === "At Pickup") {
-                paid = false;
+            if ($('input[name=paymentMethod]:checked').val() === "On Account") {
+                paid = true;
             }
             else {
-                paid = true;
+                paid = false;
             }
 
             discount = discount || 0;
@@ -269,16 +289,16 @@
                 deliveryCharge: deliveryCharge
             },
                 function () {
-                    if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() == "COD" || $('input[name=paymentMethod]:checked').val() == "On Account" || $('input[name=paymentMethod]:checked').val() == "At Pickup") {
-                        $.post("/home/DeletePayments", { orderId: orderId }, function () {
+                    var amount = parseFloat($('#total').data('total'));
+                    amount += parseFloat(deliveryCharge);
+                    if ($('#paymentMethodIndicator').val() == "On Account" && $('input[name=paymentMethod]:checked').val() != "On Account") {
+                        $.post("/home/MakeAccountTrans", { customerId: $('#customerIdCheckout').val(), amount: amount, note: "Order #" + orderId + " Refund" }, function () {
                         })
                     }
-                    else if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() != "COD" || $('input[name=paymentMethod]:checked').val() != "On Account" || $('input[name=paymentMethod]:checked').val() != "At Pickup") {
-                        var amount = parseFloat($('#total').data('total'));
-                        amount += parseFloat(deliveryCharge);
-                        $.post("/home/DeletePayments", { orderId: orderId }, function () {
-                        })
-                        $.post("/home/MakePayment", { customerId: $('#customerIdCheckout').val(), orderId: orderId, amount: amount, note: paymentMethod }, function () {
+                    else if ($('#paymentMethodIndicator').val() != $('input[name=paymentMethod]:checked').val() && $('input[name=paymentMethod]:checked').val() == "On Account") {
+                        //$.post("/home/DeletePayments", { orderId: orderId }, function () {
+                        //})
+                        $.post("/home/MakeAccountTrans", { customerId: $('#customerIdCheckout').val(), amount: -amount, note: "Order #" + orderId + " Withdrawal" }, function () {
                         })
                     }
                     $('#orderTable').find('tr').not(':first').each(function () {
@@ -579,7 +599,7 @@
         var productId = $(this).data('id');
     })
 
-    $(".categorybtn").on('click', function () {
+    $(".categoryBtn").on('click', function () {
         var c = $(this).data("category");
         $.post("/home/GetProductsByCategory", { categoryId: c }, function (products) {
             $(".productbtn").remove();
@@ -587,7 +607,7 @@
                 $.post("/home/GetProductAvailabilityByProductId", { productId: product.Id }, function (requestedAmount) {
                     var productName = product.ProductName.toString();
                     var availabeAmount = product.InStock - requestedAmount;
-                    $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + " data-id=" + product.Id + " data-catererDiscount=" + product.CatererDiscount + " data-categoryId=" + product.CategoryId + " data-content=" + '"' + productName + '"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + ">" + availabeAmount + "<br/ ><img src=" + "/Uploads/" + product.Image + "><br/>" + product.ProductName + " $" + product.Price + "</button>")
+                    $("#productsInnerDiv").append("<button class=" + '"btn productbtn"' + " data-id=" + product.Id + " data-catererDiscount=" + product.CatererDiscount + " data-categoryId=" + product.CategoryId + " data-content=" + '"' + productName + '"' + " data-price=" + product.Price + " data-inStock=" + product.InStock + ">" + availabeAmount + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$" + product.Price + "<br/ ><img src=" + "/Uploads/" + product.Image + "><br/>" + product.ProductName + "</button>")
                 });
             })
         })
@@ -600,7 +620,7 @@
         var p = $(this);
         var id = p.data("id");
         var productName = p.data("content");
-        var inStock = p.data("inStock");
+        var inStock = p.data("instock");
         var price = p.data("price");
         var catererDiscount = p.data("catererdiscount");
         var categoryId = p.data("categoryid");
@@ -911,9 +931,17 @@
         $.post("/home/GetOrderStatus", { orderId: ordersId }, function (status) {
             stat = status.Status1;
             if (stat === "Delivered" || stat === "Picked up") {
+                //$('#uncomplete').show();
                 $('#edit').prop("disabled", true);
                 $('#cancel').prop("disabled", true);
-                $('#statusBtn').prop("disabled", true);
+                //$('#statusBtn').prop("disabled", true);
+                $('#statusBtn').html("Open Order");
+                $('#statusBtn').attr("id", "openOrder");
+            }
+            else {
+                //$('#uncomplete').hide();
+                $('#statusBtn').html("Update Status");
+                $('#statusBtn').attr("id", "updateStatus");
             }
         })
         $.post("/home/GetOrderHistory", { customerId: ordersId, orderId: customersId }, function (ordersHistory) {
@@ -933,7 +961,8 @@
                     if (p.PaymentNote == "") {
                         note = "";
                     }
-                    $('#paymentDiv').append("<h5>Payment of: $" + p.Payment1 + " on " + date + " " + note + "</h5>");
+                    $('#paymentsBody').append("<h5 class=" + '"' + "payments" + '"' + " >Payment of: $" + p.Payment1 + " on " + date + " paid with " + p.PaymentMethod + " " + note + "</h5>");
+                    //$('#paymentDiv').append("<h5>Payment of: $" + p.Payment1 + " on " + date + " paid with " + p.PaymentMethod + " " + note + "</h5>");
                 })
             }
             var totalExludingDis = 0;
@@ -1027,6 +1056,7 @@
         $('#edit').prop("disabled", false);
         $('#cancel').prop("disabled", false);
         $('#statusBtn').prop("disabled", false);
+        $('.payments').remove();
     })
     $('#inventoryBtn').on('click', function () {
         var productId = $(this).data('productid')
@@ -1037,37 +1067,92 @@
 
     $('.add').on('click', function () {
         var element = $(this)
-        var id = $(this).data('id')
+        var id = $(this).data('id');
         var amount = $(this).closest('tr').find('.invQuantityInput').val();
         $.post("/Home/UpdateInventory", { id: id, amount: amount }, function () {
             location.reload();
-            //var prevStock = parseInt(element.closest('tr').find('.inStock').html())
-            //var curStock = prevStock += amount;
-            //element.closest('tr').find('.inStock').html(curStock);
         })
     })
 
-    $('#filterDate').on('change', function () {
-        var s = $('#searchHistoryInput').val().toString();
-        var x = $('#filterDate option:selected').val();
-        var opt = $('#filterOpt option:selected').val();
-        $('.history').remove();
-        $.post("/home/HistorySearch", { search: s, x: x, opt: opt }, function (ordersHistory) {
-            populateOrders(ordersHistory);
-        })
-    });
+    $('.productEditBtn').on('click', function () {
+        var productId = $(this).data("id");
+        $('#productId').val(productId);
 
-    $('#filterDeliveryDate').on('change', function () {
+        $("#categories option").remove();
+
+        $.post("/Home/GetCatagories", function (categories) {
+            for (i = 0; i < categories.length; i++) {
+                $('#categories').append(" <option value=" + '"' + categories[i].Id + '"' + ">" + categories[i].CategoryName + "</option>")
+            }
+        })
+        $.post("/Home/GetProduct", { productId: productId }, function (product) {
+            $('#submitProdChanges').attr('data-id', productId);
+            $('#productHeader').html(product.ProductName);
+            //var category = $('#categories').find('option').val();
+            $('#productName').val(product.ProductName);
+            $('#categories').val(product.CategoryId);
+            $('#price').val(product.Price);
+            $('#catererDiscount').val(product.CatererDiscount);
+            $('#restockAmount').val(product.RestockAmount);
+            $('#inStock').val(product.InStock);
+            $('#imageDiv').html("<img src=" + '"' + "/Uploads/" + product.Image + '"' + " />");
+            //$('#image').val(product.Image);
+            $('#discontinued').prop('checked', product.Discontinued);
+            $('#editProductModal').modal();
+        })
+    })
+
+
+    // ----------------------------------------------------------Product Edit---------------------------
+    //$('#submitProdChanges').on('click', function () {
+    //    var productId = parseInt($(this).attr('data-id'));
+    //    var categoryId = parseInt($('#categories option:selected').val());
+    //    var productName = $('#productName').val();
+    //    var price = parseFloat($('#price').val());
+    //    var catererDiscount = parseFloat($('#catererDiscount').val());
+    //    var restockAmount = parseInt($('#restockAmount').val());
+    //    var inStock = parseInt($('#inStock').val());
+    //    var image = $('#image').val();
+    //    var discontinued = $('#discontinued').val();
+    //    $.post("/Home/EditProduct", { productId: productId, categoryId: categoryId, productName: productName, price: price, catererDiscount: catererDiscount, restockAmount: restockAmount, inStock: inStock, image: image, discontinued: discontinued }, function () {
+    //        alert("Changes where applied!");
+    //    })
+    //})
+
+    //$('#submitProdChanges').on("hidden.bs.modal", function () {
+    //    $('#categories').remove('option');
+    //    $('#productName').val("");
+    //    $('#price').val("");
+    //    $('#catererDiscount').val("");
+    //    $('#restockAmount').val("");
+    //    $('#inStock').val("");
+    //    $('#image').val("");
+    //    $('#discontinued').val("");
+    //})
+
+    //-------------------------------------------------------------------------------------------------------------
+
+    $('#filterDeliveryDate, #deliveryOpt').on('change', function () {
         IsLoaderForInput = true;
-        var x = $(this).find("option:selected").val();
+        var x = $('#filterDeliveryDate option:selected').val();
+        var deliveryOpt = $('#deliveryOpt option:selected').val();
+        var pickup = false;
         $('.deliveryInfoDiv').remove();
         $('#deliveryAlert').remove();
-        $.post("/Home/DeliveryFilter", { x: x }, function (deliveries) {
-            populateDeliveries(deliveries);
+        $.post("/Home/DeliveryFilter", { x: x, deliveryOpt: deliveryOpt }, function (deliveries) {
+            if (deliveryOpt == "Delivery") {
+                $('#deliveryHeader').css("color", "orange");
+            }
+            else {
+                pickup = true;
+                $('#deliveryHeader').css("color", "blue");
+            }
+            $('#deliveryHeader').html(deliveryOpt + "'s");
+            populateDeliveries(deliveries, pickup);
         })
     });
 
-    function populateDeliveries(deliveries) {
+    function populateDeliveries(deliveries, pickup) {
         if ($.isEmptyObject(deliveries)) {
             $('#deliveryAlertDiv').append("<h3 id=" + '"' + "deliveryAlert" + '"' + ">No deliveries for this time period...</h3>");
         }
@@ -1090,7 +1175,14 @@
             var deliveryCell1 = deliveries[i].order.Cell1;
             var deliveryCell2 = deliveries[i].order.Cell2;
             var deliveryNote = deliveries[i].order.DeliveryNote;
+            var total = deliveries[i].total;
+            var payments = deliveries[i].payments;
+            var greetings = deliveries[i].order.Greetings;
+            var note = deliveries[i].order.Notes;
 
+            for (var j = 0, k = payments.length; j < k; j++) {
+                total -= payments[j].Payment1;
+            }
 
 
             var productsHtml = "";
@@ -1101,20 +1193,24 @@
                 productsHtml = "No products for this order..."
             }
             else {
-                for (var j = 0, d = deliveries[i].orderedProducts.length; j < d; j++) {
+                for (var x = 0, d = deliveries[i].orderedProducts.length; x < d; x++) {
                     quantity = "";
                     if (deliveries[i].orderedProducts != null) {
-                        quantity = deliveries[i].orderedProducts[j].quantity;
+                        quantity = deliveries[i].orderedProducts[x].quantity;
                     }
                     productName = "";
                     if (deliveries[i].orderedProducts != null) {
-                        productName = deliveries[i].orderedProducts[j].productName;
+                        productName = deliveries[i].orderedProducts[x].productName;
                     }
                     productsHtml += "<h5>" + quantity + " - " + productName + "</h5>";
                 }
             }
-
-            $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "&nbsp&nbsp&nbsp&nbsp" + phone1 + "&nbsp&nbsp&nbsp&nbsp" + phone2 + "&nbsp&nbsp&nbsp&nbsp" + cell1 + "&nbsp&nbsp&nbsp&nbsp" + cell2 + " " + "</div><div class=" + '"' + "panel-body body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br /><br />" + deliveryPhone1 + " " + deliveryPhone2 + "<br />" + deliveryCell1 + " " + deliveryCell2 + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + ">" + productsHtml + "</div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><textarea class=" + '"' + "form-control" + '"' + " rows=" + '"' + "3" + '"' + " id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</textarea></div></div></div></div></div>");
+            if (pickup) {
+                $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "&nbsp&nbsp&nbsp&nbsp" + phone1 + "&nbsp&nbsp&nbsp&nbsp" + phone2 + "&nbsp&nbsp&nbsp&nbsp" + cell1 + "&nbsp&nbsp&nbsp&nbsp" + cell2 + " <span style=" + '"' + "float:right" + '"' + " >$" + total + "</span></div><div class=" + '"' + "panel-body body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + ">" + productsHtml + "</div><div class=" + '"' + "deliveryMiddleDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "greetings" + '"' + ">Greetings:</label><p id=" + '"' + "greetings" + '"' + ">" + greetings + "</p><label for=" + '"' + "note" + '"' + ">Note:</label><p id=" + '"' + "note" + '"' + ">" + note + "</p></div></div><div class=" + '"' + "deliveryRightDiv" + '"' + "><h4>" + paymentMethod + "</h4></div></div></div></div></div>");
+            }
+            else {
+                $('#deliveriesDiv').append("<div class=" + '"' + "deliveryInfoDiv" + '"' + "><div class=" + '"' + "panel panel-info deliveryInnerDiv" + '"' + "><div class=" + '"' + "panel-heading" + '"' + ">" + requiredDate + " " + firstName + " " + lastName + "&nbsp&nbsp&nbsp&nbsp" + phone1 + "&nbsp&nbsp&nbsp&nbsp" + phone2 + "&nbsp&nbsp&nbsp&nbsp" + cell1 + "&nbsp&nbsp&nbsp&nbsp" + cell2 + " <span style=" + '"' + "float:right" + '"' + " >$" + total + "</span></div><div class=" + '"' + "panel-body body" + '"' + "><div class=" + '"' + "deliveryLeftDiv" + '"' + "><h4>" + deliveryFirstName + " " + deliveryLastName + "<br />" + deliveryAddress + "<br />" + deliveryCity + " " + deliveryState + " " + deliveryZip + "<br /><br />" + deliveryPhone1 + " " + deliveryPhone2 + "<br />" + deliveryCell1 + " " + deliveryCell2 + "</h4></div><div class=" + '"' + "deliveryMiddleDiv" + '"' + ">" + productsHtml + "</div><div class=" + '"' + "deliveryRightDiv" + '"' + "><div class=" + '"' + "form-group" + '"' + "><label for=" + '"' + "deliverynote" + '"' + ">Delivery Note:</label><p id=" + '"' + "deliveryNote" + '"' + ">" + deliveryNote + "</p><label for=" + '"' + "greetings" + '"' + ">Greetings:</label><p id=" + '"' + "greetings" + '"' + ">" + greetings + "</p><label for=" + '"' + "note" + '"' + ">Note:</label><p id=" + '"' + "note" + '"' + ">" + note + "</p></div></div></div></div></div>");
+            }
         }
     }
 
@@ -1159,13 +1255,20 @@
             payments.forEach(function (payment) {
                 p += payment.Payment1;
             })
-            var balance = parseFloat(total - p, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+            var balance = parseFloat(orderTotal - p, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString();
+            var b = orderTotal - p;
             //var total = 0;
-            if (ordersHistory[i].paid || balance <= 0) {
-                paidHtml = "<td><span style=" + '"color:green"' + ">Paid </span><span style=" + '"color:green"' + " class=" + '"glyphicon glyphicon-ok"' + "></span></td>";
+            if (ordersHistory[i].paymentMethod == "On Account") {
+                paidHtml = "<td class=" + '"balance"' + "><span style=" + '"color:green"' + ">On Account </span></td>";
+            }
+            else if (ordersHistory[i].statement) {
+                paidHtml = "<td class=" + '"balance"' + "><span style=" + '"color:blue"' + ">Billed </span></td>";
+            }
+            else if (ordersHistory[i].paid || balance <= 0) {
+                paidHtml = "<td class=" + '"balance"' + "><span style=" + '"color:green"' + ">Paid </span><span style=" + '"color:green"' + " class=" + '"glyphicon glyphicon-ok"' + "></span></td>";
             }
             else {
-                paidHtml = "<td><span style=" + '"color: red"' + ">" + balance + "</span></td>";
+                paidHtml = "<td class=" + '"balance"' + "><span style=" + '"color: red"' + ">" + balance + "</span></td>";
             }
             //var orderTotal = getTotal(id);
 
@@ -1181,21 +1284,27 @@
                 deliveryHtml = " <span style=" + '"color:orange"' + " class=" + '"glyphicon glyphicon-road"' + "></span>";
             }
             var paymentBtnHtml = "";
-            if (ordersHistory[i].paid || ordersHistory[i].statement) {
-                paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + " disabled >Payment</button>";
+            if (ordersHistory[i].paid || ordersHistory[i].statement || ordersHistory[i].paymentMethod == "On Account") {
+                paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + b + " disabled >Payment</button>";
             }
             else {
-                paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + balance + ">Payment</button>";
+                paymentBtnHtml = "<button class=" + '"btn btn-success paymentBtn"' + "data-orderid=" + id + " data-customerid=" + customerId + " data-balance=" + b + ">Payment</button>";
             }
             var viewInvoiceHtml = "";
             if (ordersHistory[i].invoice) {
-                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + " data-orderid=" + id + " data-customerid=" + customerId + ">View Invoice</button>"
+                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + " data-orderid=" + id + " data-customerid=" + customerId + ">Invoice</button>"
             }
             else {
-                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + "disabled data-orderid=" + id + " data-customerid=" + customerId + ">View Invoice</button>"
+                viewInvoiceHtml = "<button class=" + '"btn btn-default viewInvoiceBtn"' + "disabled data-orderid=" + id + " data-customerid=" + customerId + ">Invoice</button>"
             }
-
-            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + paymentMethod + "</td><td>" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-deliveryopt=" + '"' + deliveryOption + '"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">View Details</button>" + viewInvoiceHtml + paymentBtnHtml + "</td></tr>");
+            var closeOrderHtml = "";
+            if (!ordersHistory[i].invoice) {
+                closeOrderHtml = "<button class=" + '"' + "btn btn-primary updateStatusBtn" + '"' + " data-orderid=" + '"' + id + '"' + " data-customerid=" + '"' + customerId + '"' + ">Complete</button>";
+            }
+            else {
+                closeOrderHtml = "<button class=" + '"' + "btn btn-primary updateStatusBtn" + '"' + " data-orderid=" + '"' + id + '"' + " data-customerid=" + '"' + customerId + '"' + " disabled>Completed</button>";
+            }
+            $('#historyTable').append("<tr class=" + '"history"' + "><td>" + lastName + " " + firstName + "</td><td>" + requiredDate + "</td><td>" + deliveryOption + deliveryHtml + "</td><td>" + total + "</td><td>" + paymentMethod + "</td><td class=" + '"' + "status" + '"' + ">" + status + "</td>" + paidHtml + " <td><button class=" + '"btn btn-info viewDetailsBtn"' + "data-deliveryopt=" + '"' + deliveryOption + '"' + "data-orderid=" + '"' + id + '"' + "data-customerid=" + '"' + customerId + '"' + "data-caterer=" + '"' + caterer + '"' + ">Details</button>" + paymentBtnHtml + "<br/>" + viewInvoiceHtml + closeOrderHtml + "</td></tr>");
         }
     }
 
@@ -1337,6 +1446,7 @@
 
 
     $('#historyTable').on('click', '.paymentBtn', function () {
+        elem = $(this);
         var customerId = $(this).data('customerid');
         var orderId = $(this).data('orderid');
         var balance = $(this).data('balance');
@@ -1369,21 +1479,45 @@
 
     $('#processPaymentBtn').on('click', function () {
         var customerId = $(this).data('customerid');
+        var balance = $(this).data('balance');
         var orderId = $(this).data('orderid');
         var amount = $('#amountPay').val();
         var note = $('#paymentNote').val();
+        var paymentMethod = $('input[name=paymentMethod]:checked').val();
 
-        $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount, note: note }, function () {
-            $('#paymentAlertModal').modal();
+        $.post("/home/MakePayment", { customerId: customerId, orderId: orderId, amount: amount, note: note, paymentMethod: paymentMethod }, function () {
+            //$('#paymentAlertModal').modal();
+            //var s = $('#searchHistoryInput').val().toString();
+            //var date = $('#filterDate').val();
+            //var opt = $('#filterOpt option:selected').val();
+            //var all = $('input[name=allDates]').is(':checked');
+            //$('.history').remove();
+            //IsLoaderForInput = true;
+            //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+            //    populateOrders(ordersHistory);
+            //})
+            var prevBalance = parseFloat(balance);
+            var curBalance = prevBalance -= amount;
+            //$(this).attr('data-balance', curBalance);
+            $(this).data('balance', curBalance);
+            if (curBalance <= 0) {
+                elem.closest('tr').find('.balance').html("<span style=" + '"color: green"' + ">Paid</span><span style=" + '"color:green"' + " class=" + '"glyphicon glyphicon-ok"' + "></span></td>");
+                elem.closest('.paymentBtn').prop('disabled', true);
+            }
+            else {
+                elem.closest('tr').find('.balance').html("<span style=" + '"color: red"' + ">" + parseFloat(curBalance, 10).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,").toString() + "</span></td>");
+            }
+            elem.closest('.paymentBtn').data('balance', curBalance);
+            elem = "";
         })
 
         $('#amountPay').val("");
         $('#paymentNote').val("");
     })
 
-    $('#paymentAlertModal').on('hidden.bs.modal', function () {
-        location.reload();
-    })
+    //$('#paymentAlertModal').on('hidden.bs.modal', function () {
+    //    location.reload();
+    //})
 
     $('#customerAddressCheckbox').change(function () {
         if (this.checked) {
@@ -1454,72 +1588,456 @@
         })
     })
 
-    $('#updateStatusBtn').on('click', function () {
-        var t = $(this);
-        var ordersId = $('#updateStatusBtn').data('orderid');
-        var customerId = $('#updateStatusBtn').data('customerid');
-        var status = $('.status:checked').val();
-        if (status == undefined) {
-            status = "";
-        }
-        //$(t).data('orderid', "");
-        //$(t).data('customerid', "");
-
-        $.post("/home/UpdateStatus", { orderId: ordersId, status: status }, function () {
-            //location.reload();
-        })
-
-        $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
-            if (customer.Email != "" && customer.Email != null && $('#emailCheck').find('#emailConfirm').prop('checked')) {
-                $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: ordersId }, function () {
-                    $('#invoiceAlertMessage').html('An invoice was sent via email to the customer!');
-                    $('#invoiceAlertModal').modal();
-                    $('#orderDetailsModal').modal('toggle');
-                    var s = $('#searchHistoryInput').val().toString();
-                    var date = $('#filterDate').val();
-                    var opt = $('#filterOpt option:selected').val();
-                    var all = $('input[name=allDates]').is(':checked');
-                    $('.history').remove();
-                    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
-                        populateOrders(ordersHistory);
-                    })
-                })
+    $('#historyTable').on('click', '.updateStatusBtn', function () {
+        t = $(this);
+        oId = t.data('orderid');
+        $('#completeYesBtn').attr('data-orderid', oId);
+        $('#completeNoBtn').attr('data-orderid', oId);
+        //var customer = getCustomer(t.data('customerid'));
+        $.post("/home/GetCustomerById", { id: t.data('customerid') }, function (customer) {
+            cust = customer;
+            cId = customer.Id;
+            if (customer.Email != "" && customer.Email != null) {
+                $('#updateConfirmAlert').html("Do you want to send " + customer.FirstName + " " + customer.LastName + " a reciept to " + customer.Email + "?");
+                $('#completeYesBtn').html("Yes");
+                $('#completeNoBtn').show();
             }
-            else if (customer.Email == null && $('#emailCheck').find('#emailConfirm').prop('checked')) {
-                $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
-                    $('#invoiceAlertMessage').html("Invoice generated successfuly!\n\n<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>");
-                    $('#invoiceAlertModal').modal();
-                    $('#orderDetailsModal').modal('toggle');
-                    var s = $('#searchHistoryInput').val().toString();
-                    var date = $('#filterDate').val();
-                    var opt = $('#filterOpt option:selected').val();
-                    var all = $('input[name=allDates]').is(':checked');
-                    $('.history').remove();
-                    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
-                        populateOrders(ordersHistory);
-                    })
-                })
-            }
-
             else {
-                $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
-                    $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+                $('#updateConfirmAlert').html(customer.FirstName + " " + customer.LastName + " does not have an email address on file!");
+                $('#completeYesBtn').html("Continue");
+                $('#completeNoBtn').hide();
+            }
+            $('#updateConfirmation').modal();
+        })
+    })
+
+    $('#completeNobtn').on('click', function () {
+        t.attr('disabled', true);
+        t.html("Completed");
+        var status = "";
+        $.post("/home/GetOrderById", { orderId: $('#completeYesBtn').attr('data-orderid') }, function (order) {
+            if (order.Status == "Delivery") {
+                status = "Delivered";
+            }
+            else {
+                status = "Picked up";
+            }
+            t.closest('tr').find('.status').html(status);
+            $.post("/home/UpdateStatus", { orderId: $('#completeYesBtn').attr('data-orderid'), status: status }, function () {
+                //location.reload();
+            })
+        })
+        $.post("/home/CreateInvoice", { customerId: cId, orderId: oId }, function () {
+            $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+            $('#invoiceAlertModal').modal();
+            //$('#orderDetailsModal').modal('toggle');
+            var s = $('#searchHistoryInput').val().toString();
+            var date = $('#filterDate').val();
+            var opt = $('#filterOpt option:selected').val();
+            var all = $('input[name=allDates]').is(':checked');
+            //$('.history').remove();
+            //IsLoaderForInput = true;
+            //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+            //    populateOrders(ordersHistory);
+            //    $('#invoiceAlertModal').modal();
+            //})
+            t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+            return false;
+        })
+    })
+
+    $('#completeYesBtn').on('click', function () {
+        t.attr('disabled', true);
+        t.html("Completed");
+        var status = "";
+        $.post("/home/GetOrderById", { orderId: $('#completeYesBtn').attr('data-orderid') }, function (order) {
+            if (order.Status == "Delivery") {
+                status = "Delivered";
+            }
+            else {
+                status = "Picked up";
+            }
+            t.closest('tr').find('.status').html(status);
+            $.post("/home/UpdateStatus", { orderId: $('#completeYesBtn').attr('data-orderid'), status: status }, function () {
+                //location.reload();
+            })
+        })
+        if ($('#emailInput').val() != "") {
+            var email = $('#emailInput').val();
+            $('#emailInput').val("");
+            if ($('#saveEmail').is(':checked')) {
+                $('#saveEmail').prop('checked', false);
+                $.post("/home/SaveEmail", { customerId: cId, email: email }, function () {
+                })
+            }
+            $.post("/home/CreateInvoiceOtherEmail", { customerId: cId, orderId: $('#completeYesBtn').attr('data-orderid'), email: email }, function () {
+                $('#invoiceAlertMessage').html('An invoice was sent to the email address you provided!');
+                //$('#orderDetailsModal').modal('toggle');
+                $('#invoiceAlertModal').modal();
+                var s = $('#searchHistoryInput').val().toString();
+                var date = $('#filterDate').val();
+                var opt = $('#filterOpt option:selected').val();
+                var all = $('input[name=allDates]').is(':checked');
+                //$('.history').remove();
+                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+                //    IsLoaderForInput = true;
+                //    populateOrders(ordersHistory);
+                //    $('#invoiceAlertModal').modal();
+                //})
+                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+            })
+        }
+        else {
+            if (cust.Email != "" && cust.Email != null) {
+                $.post("/home/CreateInvoiceEmail", { customerId: cId, orderId: $('#completeYesBtn').attr('data-orderid') }, function () {
+                    $('#invoiceAlertMessage').html("An invoice was sent via email to " + cust.FirstName + " " + cust.LastName + "!");
+                    //$('#orderDetailsModal').modal('toggle');
                     $('#invoiceAlertModal').modal();
-                    $('#orderDetailsModal').modal('toggle');
                     var s = $('#searchHistoryInput').val().toString();
                     var date = $('#filterDate').val();
                     var opt = $('#filterOpt option:selected').val();
                     var all = $('input[name=allDates]').is(':checked');
-                    $('.history').remove();
-                    $.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
-                        populateOrders(ordersHistory);
-                    })
+                    //$('.history').remove();
+                    //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+                    //    IsLoaderForInput = true;
+                    //    populateOrders(ordersHistory);
+                    //    $('#invoiceAlertModal').modal();
+                    //})
+                    t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
                 })
             }
-        })
-        $('.status').prop('checked', false);
-        //$('#emailConfirm').prop('checked', true);
+            //else if (customer.Email == null && customer.Caterer == true) {
+            //    $.post("/home/CreateInvoice", { customerId: cId, orderId: $('#completeYesBtn').attr('data-orderId') }, function () {
+            //        $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+            //        $('#invoiceAlertModal').modal();
+            //        //$('#orderDetailsModal').modal('toggle');
+            //        var s = $('#searchHistoryInput').val().toString();
+            //        var date = $('#filterDate').val();
+            //        var opt = $('#filterOpt option:selected').val();
+            //        var all = $('input[name=allDates]').is(':checked');
+            //        //$('.history').remove();
+            //        //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+            //        //    populateOrders(ordersHistory);
+            //        //})
+            //        t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+            //    })
+            //}
+        }
     })
+
+    function getCustomer(customerId) {
+        $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+            return customer;
+        })
+    }
+
+    //$('#historyTable').on('click', '.updateStatusBtn', function () {
+    //    var t = $(this);
+    //    var orderId = t.data('orderid');
+    //    var customerId = t.data('customerid');
+    //    var status = "";
+    //    var email = $('#emailInput').val();
+    //    $('#completeYesBtn').attr('data-orderId', orderId);
+    //    $('#completeNoBtn').attr('data-orderId', orderId);
+    //    $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+    //        var customer = customer;
+    //        if (customer.Email != "" && customer.Email != null) {
+    //            $('#updateConfirmAlert').html("Do you want to send " + customer.FirstName + " " + customer.LastName + " a reciept to " + customer.Email + "?");
+    //            $('#completeYesBtn').html("Yes");
+    //            $('#completeNoBtn').show();
+    //        }
+    //        else {
+    //            $('#updateConfirmAlert').html(customer.FirstName + " " + customer.LastName + " does not have an email address on file!");
+    //            $('#completeYesBtn').html("Continue");
+    //            $('#completeNoBtn').hide();
+    //        }
+    //        if (status == undefined) {
+    //            status = "";
+    //        }
+    //        $('#updateConfirmation').modal();
+    //        $('#completeNoBtn').on('click', function () {
+    //            $.post("/home/CreateInvoice", { customerId: customerId, orderId: $('#completeNoBtn').attr('data-orderId') }, function () {
+    //                        $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+    //                        $('#invoiceAlertModal').modal();
+    //                        //$('#orderDetailsModal').modal('toggle');
+    //                        var s = $('#searchHistoryInput').val().toString();
+    //                        var date = $('#filterDate').val();
+    //                        var opt = $('#filterOpt option:selected').val();
+    //                        var all = $('input[name=allDates]').is(':checked');
+    //                        //$('.history').remove();
+    //                        //IsLoaderForInput = true;
+    //                        //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                        //    populateOrders(ordersHistory);
+    //                        //    $('#invoiceAlertModal').modal();
+    //                        //})
+    //                        t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //                        return false;
+    //                    })
+    //        })
+    //        $('#completeCancelBtn').on('click', function () {
+    //            return false;
+    //        })
+    //        $('#completeYesBtn').on('click', function () {
+    //            t.attr('disabled', true);
+    //            t.html("Completed");
+    //            $.post("/home/GetOrderById", { orderId: $('#completeYesBtn').attr('data-orderId') }, function (order) {
+    //                if (order.Status == "Delivery") {
+    //                    status = "Delivered";
+    //                }
+    //                else {
+    //                    status = "Picked up";
+    //                }
+    //                t.closest('tr').find('.status').html(status);
+    //                $.post("/home/UpdateStatus", { orderId: $('#completeYesBtn').attr('data-orderId'), status: status }, function () {
+    //                    //location.reload();
+    //                })
+    //            })
+    //            if ($('#emailInput').val() != "") {
+    //                var email = $('#emailInput').val();
+    //                $('#emailInput').val("");
+    //                if ($('#saveEmail').is(':checked')) {
+    //                    $('#saveEmail').prop('checked', false);
+    //                    $.post("/home/SaveEmail", { customerId: customerId, email: email }, function () {
+    //                    })
+    //                }
+    //                $.post("/home/CreateInvoiceOtherEmail", { customerId: customerId, orderId: $('#completeYesBtn').attr('data-orderId'), email: email }, function () {
+    //                    $('#invoiceAlertMessage').html('An invoice was sent to the email address you provided!');
+    //                    //$('#orderDetailsModal').modal('toggle');
+    //                    $('#invoiceAlertModal').modal();
+    //                    var s = $('#searchHistoryInput').val().toString();
+    //                    var date = $('#filterDate').val();
+    //                    var opt = $('#filterOpt option:selected').val();
+    //                    var all = $('input[name=allDates]').is(':checked');
+    //                    //$('.history').remove();
+    //                    //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                    //    IsLoaderForInput = true;
+    //                    //    populateOrders(ordersHistory);
+    //                    //    $('#invoiceAlertModal').modal();
+    //                    //})
+    //                    t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //                })
+    //            }
+    //            else {
+    //                if (customer.Email != "" && customer.Email != null) {
+    //                    $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: $('#completeYesBtn').attr('data-orderId') }, function () {
+    //                        $('#invoiceAlertMessage').html("An invoice was sent via email to "+customer.FirstName+" "+customer.LastName+"!");
+    //                        //$('#orderDetailsModal').modal('toggle');
+    //                        $('#invoiceAlertModal').modal();
+    //                        var s = $('#searchHistoryInput').val().toString();
+    //                        var date = $('#filterDate').val();
+    //                        var opt = $('#filterOpt option:selected').val();
+    //                        var all = $('input[name=allDates]').is(':checked');
+    //                        //$('.history').remove();
+    //                        //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                        //    IsLoaderForInput = true;
+    //                        //    populateOrders(ordersHistory);
+    //                        //    $('#invoiceAlertModal').modal();
+    //                        //})
+    //                        t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //                    })
+    //                }
+    //                else if (customer.Email == null && customer.Caterer == true) {
+    //                    $.post("/home/CreateInvoice", { customerId: customerId, orderId: $('#completeYesBtn').attr('data-orderId') }, function () {
+    //                        $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+    //                        $('#invoiceAlertModal').modal();
+    //                        //$('#orderDetailsModal').modal('toggle');
+    //                        var s = $('#searchHistoryInput').val().toString();
+    //                        var date = $('#filterDate').val();
+    //                        var opt = $('#filterOpt option:selected').val();
+    //                        var all = $('input[name=allDates]').is(':checked');
+    //                        //$('.history').remove();
+    //                        //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                        //    populateOrders(ordersHistory);
+    //                        //})
+    //                        t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //                    })
+    //                }
+    //                //else {
+    //                //    $.post("/home/CreateInvoice", { customerId: customerId, orderId: orderId }, function () {
+    //                //        $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+    //                //        $('#invoiceAlertModal').modal();
+    //                //        //$('#orderDetailsModal').modal('toggle');
+    //                //        var s = $('#searchHistoryInput').val().toString();
+    //                //        var date = $('#filterDate').val();
+    //                //        var opt = $('#filterOpt option:selected').val();
+    //                //        var all = $('input[name=allDates]').is(':checked');
+    //                //        //$('.history').remove();
+    //                //        //IsLoaderForInput = true;
+    //                //        //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //        //    populateOrders(ordersHistory);
+    //                //        //    $('#invoiceAlertModal').modal();
+    //                //        //})
+    //                //        t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //                //    })
+    //                //}
+    //            }
+    //        })
+    //    })
+    //})
+
+    //$.post("/home/GetOrderById", { orderId: ordersId }, function (order) {
+    //    if (order.Status == "Delivery") {
+    //        status = "Delivered";
+    //    }
+    //    else {
+    //        status = "Picked up";
+    //    }
+    //    t.closest('tr').find('.status').html(status);
+    //    $.post("/home/UpdateStatus", { orderId: ordersId, status: status }, function () {
+    //        //location.reload();
+    //    })
+    //})
+
+    //$.post("/home/UpdateStatus", { orderId: ordersId, status: status }, function () {
+    //    //location.reload();
+    //})
+
+    //    $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+    //        if (customer.Email != "" && customer.Email != null) {
+    //            $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: ordersId }, function () {
+    //                $('#invoiceAlertMessage').html('An invoice was sent via email to the customer!');
+    //                //$('#orderDetailsModal').modal('toggle');
+    //                $('#invoiceAlertModal').modal();
+    //                var s = $('#searchHistoryInput').val().toString();
+    //                var date = $('#filterDate').val();
+    //                var opt = $('#filterOpt option:selected').val();
+    //                var all = $('input[name=allDates]').is(':checked');
+    //                //$('.history').remove();
+    //                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //    IsLoaderForInput = true;
+    //                //    populateOrders(ordersHistory);
+    //                //    $('#invoiceAlertModal').modal();
+    //                //})
+    //                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //            })
+    //        }
+    //        else if (customer.Email == null && customer.Caterer == true) {
+    //            $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+    //                $('#invoiceAlertMessage').html("Invoice generated successfuly!\n\n<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>");
+    //                $('#invoiceAlertModal').modal();
+    //                //$('#orderDetailsModal').modal('toggle');
+    //                var s = $('#searchHistoryInput').val().toString();
+    //                var date = $('#filterDate').val();
+    //                var opt = $('#filterOpt option:selected').val();
+    //                var all = $('input[name=allDates]').is(':checked');
+    //                //$('.history').remove();
+    //                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //    populateOrders(ordersHistory);
+    //                //})
+    //                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //            })
+    //        }
+
+    //        else {
+    //            $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+    //                $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+    //                $('#invoiceAlertModal').modal();
+    //                //$('#orderDetailsModal').modal('toggle');
+    //                var s = $('#searchHistoryInput').val().toString();
+    //                var date = $('#filterDate').val();
+    //                var opt = $('#filterOpt option:selected').val();
+    //                var all = $('input[name=allDates]').is(':checked');
+    //                //$('.history').remove();
+    //                //IsLoaderForInput = true;
+    //                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //    populateOrders(ordersHistory);
+    //                //    $('#invoiceAlertModal').modal();
+    //                //})
+    //                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //            })
+    //        }
+    //    })
+    //    //$('.status').prop('checked', false);
+    //    //$('#emailConfirm').prop('checked', true);
+    //})
+
+    //$('#historyTable').on('click', '.updateStatusBtn', function () {
+    //    var t = $(this);
+    //    t.attr('disabled', true);
+    //    var ordersId = t.data('orderid');
+    //    var customerId = t.data('customerid');
+    //    var status = "";
+    //    if (status == undefined) {
+    //        status = "";
+    //    }
+    //    //$(t).data('orderid', "");
+    //    //$(t).data('customerid', "");
+
+    //    $.post("/home/GetOrderById", { orderId: ordersId }, function (order) {
+    //        if (order.Status == "Delivery") {
+    //            status = "Delivered";
+    //        }
+    //        else {
+    //            status = "Picked up";
+    //        }
+    //        t.closest('tr').find('.status').html(status);
+    //        $.post("/home/UpdateStatus", { orderId: ordersId, status: status }, function () {
+    //            //location.reload();
+    //        })
+    //    })
+
+    //    //$.post("/home/UpdateStatus", { orderId: ordersId, status: status }, function () {
+    //    //    //location.reload();
+    //    //})
+
+    //    $.post("/home/GetCustomerById", { id: customerId }, function (customer) {
+    //        if (customer.Email != "" && customer.Email != null) {
+    //            $.post("/home/CreateInvoiceEmail", { customerId: customerId, orderId: ordersId }, function () {
+    //                $('#invoiceAlertMessage').html('An invoice was sent via email to the customer!');
+    //                //$('#orderDetailsModal').modal('toggle');
+    //                $('#invoiceAlertModal').modal();
+    //                var s = $('#searchHistoryInput').val().toString();
+    //                var date = $('#filterDate').val();
+    //                var opt = $('#filterOpt option:selected').val();
+    //                var all = $('input[name=allDates]').is(':checked');
+    //                //$('.history').remove();
+    //                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //    IsLoaderForInput = true;
+    //                //    populateOrders(ordersHistory);
+    //                //    $('#invoiceAlertModal').modal();
+    //                //})
+    //                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //            })
+    //        }
+    //        else if (customer.Email == null && customer.Caterer == true) {
+    //            $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+    //                $('#invoiceAlertMessage').html("Invoice generated successfuly!\n\n<span style=" + '"' + "color:red" + '"' + ">This customer does not have an email address on file...</span>");
+    //                $('#invoiceAlertModal').modal();
+    //                //$('#orderDetailsModal').modal('toggle');
+    //                var s = $('#searchHistoryInput').val().toString();
+    //                var date = $('#filterDate').val();
+    //                var opt = $('#filterOpt option:selected').val();
+    //                var all = $('input[name=allDates]').is(':checked');
+    //                //$('.history').remove();
+    //                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //    populateOrders(ordersHistory);
+    //                //})
+    //                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //            })
+    //        }
+
+    //        else {
+    //            $.post("/home/CreateInvoice", { customerId: customerId, orderId: ordersId }, function () {
+    //                $('#invoiceAlertMessage').html("Invoice generated successfuly!");
+    //                $('#invoiceAlertModal').modal();
+    //                //$('#orderDetailsModal').modal('toggle');
+    //                var s = $('#searchHistoryInput').val().toString();
+    //                var date = $('#filterDate').val();
+    //                var opt = $('#filterOpt option:selected').val();
+    //                var all = $('input[name=allDates]').is(':checked');
+    //                //$('.history').remove();
+    //                //IsLoaderForInput = true;
+    //                //$.post("/home/HistorySearch", { search: s, opt: opt, date: date, all: all }, function (ordersHistory) {
+    //                //    populateOrders(ordersHistory);
+    //                //    $('#invoiceAlertModal').modal();
+    //                //})
+    //                t.closest('tr').find('.viewInvoiceBtn').attr("disabled", false);
+    //            })
+    //        }
+    //    })
+    //    //$('.status').prop('checked', false);
+    //    //$('#emailConfirm').prop('checked', true);
+    //})
 
     $('#fullAmountCheckbox').change(function () {
         if (this.checked) {

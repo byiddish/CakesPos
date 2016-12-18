@@ -14,5 +14,6 @@ namespace CakesPos.Data
         //public IEnumerable<OrderDetail> orderDetails { get; set; }
         //public Customer customer { get; set; }
         public OrderDetailsViewModel orderDetails { get; set; }
+        public IEnumerable<InventoryViewModel> productAvailability { get; set; }
     }
 }

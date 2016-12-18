@@ -7,7 +7,7 @@
 <div class="container well" id="orderHistoryDiv">
     <div class="form-group">
         @*<label><input class="form-control input input-lg" id="searchHistoryInput" placeholder="Search" autofocus="autofocus" /></label>
-        <button class="btn btn-default btn-lg" id="searchHistory">Search</button>*@
+            <button class="btn btn-default btn-lg" id="searchHistory">Search</button>*@
         @*<label>From<input class="form-control" id="fromInput" type="date" /></label>
             <label>To<input class="form-control" id="toInput" type="date" /></label>*@
         <label>
@@ -21,18 +21,18 @@
             </div>
         </label>
         <input class="input input-lg" id="filterDate" type="text" placeholder="Date" value="@DateTime.Today.Date.ToShortDateString()" />
-               @*<label>
-            <select class="form-control input input-lg" id="filterDate">
-                <option value="0">Today</option>
-                <option value="1">Tommorow</option>
-                <option value="7">Next 7 Days</option>
-                <option value="30">Next 30 Days</option>
-                <option value="-1">Yesterday</option>
-                <option value="-7">Last 7 Days</option>
-                <option value="-30">Last 30 Days</option>
-                <option value="8">All</option>
-            </select>
-        </label>*@<label>
+        @*<label>
+                <select class="form-control input input-lg" id="filterDate">
+                    <option value="0">Today</option>
+                    <option value="1">Tommorow</option>
+                    <option value="7">Next 7 Days</option>
+                    <option value="30">Next 30 Days</option>
+                    <option value="-1">Yesterday</option>
+                    <option value="-7">Last 7 Days</option>
+                    <option value="-30">Last 30 Days</option>
+                    <option value="8">All</option>
+                </select>
+            </label>*@<label>
             <select class="form-control input input-lg" id="filterOpt">
                 <option value="open">Open</option>
                 <option value="delivered">Delivered</option>
@@ -42,15 +42,15 @@
             </select>
         </label>
         @*<label>
-            All Dates
-            <div class="form-group">
-                <label class="switch">
-                    <input type="checkbox" name="allDates" id="allDates" value="true">
-                    <div class="slider round"></div>
-                </label>
-                <input type="hidden" name="allDates" value="false" />
-            </div>
-        </label>*@
+                All Dates
+                <div class="form-group">
+                    <label class="switch">
+                        <input type="checkbox" name="allDates" id="allDates" value="true">
+                        <div class="slider round"></div>
+                    </label>
+                    <input type="hidden" name="allDates" value="false" />
+                </div>
+            </label>*@
         <label><input class="form-control input input-lg" id="searchHistoryInput" placeholder="Customer Name" autofocus="autofocus" /></label>
         <button class="btn btn-default btn-lg" id="searchHistory">Search</button>
         @*<button class="btn btn-success" id="applybtn">Apply</button>*@
@@ -62,7 +62,7 @@
             <th>Requested Date</th>
             <th>Delivery Option</th>
             <th>Total</th>
-            <th>Payment Method</th>
+            <th>Payment Plan</th>
             <th>Status</th>
             <th>Balance</th>
             <th>Action</th>
@@ -103,7 +103,7 @@
                 <td>@total.ToString("C")</td>
 
                 <td>@o.paymentMethod</td>
-                <td>@status</td>
+                <td class="status">@status</td>
                 @{decimal balance = 0;}
                 @{decimal? payment = 0;}
                 @if (o.payments != null)
@@ -111,25 +111,25 @@
                     payment = o.payments.Sum(p => p.Payment1);
                 }
                 @{balance = total - (decimal)payment;}
-                @if (o.paid || balance <= 0)
+                @if (o.paymentMethod == "On Account")
                 {
-                    <td class="balance"><span style="color:green">Paid </span><span style="color:green" class="glyphicon glyphicon-ok"></span></td>
+                    <td class="balance"><span style="color:green">On Account </span></td>
+                }
+                else if (o.statement)
+                {
+                    <td class="balance"><span style="color:blue">Billed </span></td>
+                }
+                else if (o.paid || balance <= 0)
+                {
+                        <td class="balance"><span style="color:green">Paid </span><span style="color:green" class="glyphicon glyphicon-ok"></span></td>
                 }
                 else
                 {
-                    <td class="balance"><span style="color:red">@balance.ToString("C")</span></td>
+                        <td class="balance"><span style="color:red">@balance.ToString("C")</span></td>
                 }
                 <td>
-                    <button class="btn btn-info viewDetailsBtn" data-deliveryopt=@o.deliveryOpt data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>View Details</button>
-                    @if (o.invoice)
-                    {
-                        <button class="btn btn-default viewInvoiceBtn" data-orderid=@o.id data-customerid=@o.customerId>View Invoice</button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-default viewInvoiceBtn" disabled data-orderid=@o.id data-customerid=@o.customerId>View Invoice</button>
-                    }
-                     @if (o.paid || balance <= 0 || o.statement)
+                    <button class="btn btn-info viewDetailsBtn" data-deliveryopt=@o.deliveryOpt data-caterer=@o.caterer data-orderid=@o.id data-customerid=@o.customerId>Details</button>
+                    @if (o.paid || balance <= 0 || o.statement)
                     {
                         <button class="btn btn-success paymentBtn" data-balance=@balance data-orderid=@o.id data-customerid=@o.customerId disabled @*data-toggle="modal" data-target="#paymentModal"*@>Payment</button>
                     }
@@ -137,7 +137,23 @@
                     {
                         <button class="btn btn-success paymentBtn" data-balance=@balance data-orderid=@o.id data-customerid=@o.customerId @*data-toggle="modal" data-target="#paymentModal"*@>Payment</button>
                     }
-                   
+                    <br />
+                    @if (o.invoice)
+                    {
+                        <button class="btn btn-default viewInvoiceBtn" data-orderid=@o.id data-customerid=@o.customerId>Invoice</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-default viewInvoiceBtn" disabled data-orderid=@o.id data-customerid=@o.customerId>Invoice</button>
+                    }
+                    @if (!o.invoice)
+                    {
+                        <button class="btn btn-primary updateStatusBtn" data-orderid=@o.id data-customerid=@o.customerId>Complete</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary updateStatusBtn" disabled data-orderid=@o.id data-customerid=@o.customerId>Completed</button>
+                    }
                 </td>
             </tr>
         }
@@ -160,7 +176,7 @@
                 <h4 class="modal-title">Order Details</h4>
             </div>
             <div class="modal-body">
-                <div class="container">
+                <div class="container" id="histDiv">
                     <div id="orderedProductsHistory" class="panel panel-primary">
                         <div class="panel-heading">
                             Order History
@@ -187,12 +203,22 @@
                                 <h1 id="odTotal">Total: $0.00</h1>
                                 <br />
                                 <br />
-                                <button class="btn btn-success" id="statusBtn" data-toggle="modal" data-target="#statusModal">Update Status</button>
+                                @*<button class="btn btn-success" id="statusBtn" data-toggle="modal" data-target="#statusModal">Update Status</button>*@
+                                @*<button class="btn btn-info" style="display:none" id="uncomplete">Uncomplete</button>
                                 <button class="btn btn-warning" id="edit">Edit</button>
-                                <button class="btn btn-danger" id="cancel">Cancel</button>
+                                <button class="btn btn-danger" id="cancel">Cancel</button>*@
+                            </div>
+                        </div>
+                        <div class="panel panel-success info-panel" id="paymentsPanel">
+                            <div class="panel-heading">
+                                Payments
+                            </div>
+                            <div class="panel-body" id="paymentsBody">
+
                             </div>
                         </div>
                     </div>
+                   
 
                     <div id="infoDiv">
                         <div class="panel panel-info info-panel" id="customerPanel">
@@ -228,6 +254,9 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-info" style="display:none" id="uncomplete">Uncomplete</button>
+                <button class="btn btn-warning" id="edit">Edit</button>
+                <button class="btn btn-danger" id="cancel">Cancel</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -236,7 +265,7 @@
 </div>
 
 <div id="paymentModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog xl-modal">
 
         <!-- Modal content-->
         <div class="modal-content">
@@ -244,7 +273,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Payment</h4>
             </div>
-            <div class="modal-body" align="center">
+            <div class="modal-body" id="paymentBody" align="center">
                 <h3 id="customerNamePay"></h3>
                 <div class="form-group">
                     <h2>Full Amount</h2>
@@ -256,18 +285,56 @@
                 <div class="form-group">
                     <h2>Amount  <input type="number" id="amountPay" placeholder="$0.00" /></h2>
                 </div>
-                <div class="form-group">
-                    <textarea id="paymentNote" placeholder="Notes"></textarea>
+                <div class="well">
+                    <div style="text-align:center">
+                        <label>Payment options</label>
+                        <div>
+                            <div class="form-group">
+                                <label>
+                                    Credit Card
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="creditCard" name="paymentMethod" value="Credit Card" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
+                                <label>
+                                    Check
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="check" name="paymentMethod" value="Check" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
+                                <label>
+                                    Cash
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="paid" checked name="paymentMethod" value="Cash" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <textarea style="font-size:22px" rows="4" id="paymentNote" placeholder="Notes"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group" align="center">
+                @*<div class="form-group" align="center">
                     <button class="btn btn-danger btn-lg" id="deductFromAcountBtn" data-dismiss="modal">Deduct From Account</button>
                 </div>
                 <div class="form-group" align="center">
                     <button class="btn btn-success btn-lg" id="processPaymentBtn" data-dismiss="modal">Process Payment</button>
-                </div>
+                </div>*@
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button class="btn btn-success btn-lg" id="processPaymentBtn" data-dismiss="modal">Process Payment</button>
+                <button class="btn btn-danger btn-lg" id="deductFromAcountBtn" data-dismiss="modal">Deduct From Account</button>
+                <button type="button" class="btn btn-lg btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -366,6 +433,29 @@
             </div>
             <div class="modal-footer">
                 <a class="btn btn-danger btn-ok" data-dismiss="modal">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="updateConfirmation" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Complete Confirmation</h4>
+            </div>
+            <div class="modal-body" align="center">
+                <h1 id="updateConfirmAlert">Do you want to email the customer a reciept?</h1>
+                <h3>Email Address <input class="input input-lg" id="emailInput" type="email" /></h3>
+                <h4>save email<input id="saveEmail" type="checkbox" /></h4>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-success" id="completeYesBtn" data-dismiss="modal">Yes</a>
+                <a class="btn btn-danger" id="completeNobtn" data-dismiss="modal">No Reciept</a>
+                <a class="btn btn-default" id="completeCancelbtn" data-dismiss="modal">Cancel</a>
             </div>
         </div>
     </div>

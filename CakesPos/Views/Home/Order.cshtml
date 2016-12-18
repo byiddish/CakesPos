@@ -10,29 +10,31 @@
         <div id="ordersDiv">
             <div id="customerInfoDiv">
                 <div id="customerInfoDivInner">
-                    <button class="btn btn-lg btn-success" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
-                    <button class="btn btn-lg btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
+                    <button class="btn btn-md btn-info" id="selectBtn" data-toggle="modal" data-target="#searchCustomerModal">Select customer</button>
+                    <button class="btn btn-md btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
                     <input type="hidden" id="customerId" name="customerId" />
-                    <h3 id="customerHeader"></h3>
-                    <h4 id="customerAddress"></h4>
-                    <h4 id="customerPhone"></h4>
-                    <h4 id="customerCell"></h4>
-                    <h5 id="customerEmail"></h5>
-                    <input type="hidden" id="catererDiscount" />
-                    <h4 id="catererIndicator"></h4>
+                    <h4 id="customerHeader"></h4>
+                    @*<h6 id="customerAddress"></h6>
+                        <h6 id="customerPhone"></h6>
+                        <h6 id="customerCell"></h6>
+                        <h6 id="customerEmail"></h6>
+                        <input type="hidden" id="catererDiscount" />*@
+                    <h6 id="catererIndicator"></h6>
                 </div>
             </div>
             <br />
             <br />
             <br />
-            <table class="table table-bordered table-hover table-striped" id="orderTable">
-                <tr>
-                    <th>X</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                </tr>
-            </table>
+            <div id="orderTableDiv">
+                <table class="table table-bordered table-hover table-striped" id="orderTable">
+                    <tr>
+                        <th>X</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </table>
+            </div>
         </div>
         <div id="totalDiv">
             <div id="totalDivInner">
@@ -47,7 +49,7 @@
         <div id="rightdivInner">
             @foreach (CakesPos.Data.Category category in Model.categories)
             {
-                <btn class="btn btn-lg btn-success categorybtn" data-category=@category.Id>@category.CategoryName</btn>
+                <btn class="btn btn-lg btn-default categoryBtn" data-category=@category.Id>@category.CategoryName</btn>
             }
             @*<btn class="btn btn-lg btn-info customizeBtn">Customize Product</btn>*@
             @*<button class="btn btn-lg btn-default" id="addCharge">Add Charge</button>*@
@@ -58,7 +60,7 @@
                 {
                     int productAvailability = product.product.InStock - product.requestedAmount;
                     string productName = product.product.ProductName.ToString();
-                    <button class="btn productbtn" data-id=@product.product.Id data-catererdiscount="@product.product.CatererDiscount" data-content="@productName" data-categoryid=@product.product.CategoryId data-price=@product.product.Price data-instock=@product.product.InStock>@productAvailability<br /><img src="~/Uploads/@product.product.Image.ToString()" /><br />@product.product.ProductName @product.product.Price.ToString("C")</button>
+                    <button class="btn productbtn" data-id=@product.product.Id data-catererdiscount="@product.product.CatererDiscount" data-content="@productName" data-categoryid=@product.product.CategoryId data-price=@product.product.Price data-instock=@product.product.InStock>(@productAvailability)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @product.product.Price.ToString("C")<br /><img src="~/Uploads/@product.product.Image.ToString()" /><br />@product.product.ProductName</button>
                 }
             </div>
         </div>
@@ -273,7 +275,7 @@
                                 <input type="number" class="input input-lg form-control" id="deliveryCharge" name="deliveryCharge" placeholder="Delivery Charge" />
                             </label>
                         </div>
-                        <div class="col-12 col-lg-offset-5 form-group">
+                        <div class="col-12 col-lg-offset-5 form-group" style="text-align:center">
                             <textarea type="text" class="input input-lg" name="deliveryNote" id="orderDeliveryNote" rows="5" placeholder="Delivery Note"></textarea>
                             @*<label>
                                     Delivery Charge
@@ -284,48 +286,18 @@
                 </div>
                 <div class="well">
                     <div class="col-12 col-lg-offset-4 form-group">
-                        <label>Payment options</label>
+                        <label>Payment Plan</label>
                         <div>
                             <div class="form-group">
-                                <label>
-                                    At Pickup
-                                    <div class="form-group">
-                                        <label class="switch">
-                                            <input type="radio" id="atPickup" name="paymentMethod" value="At Pickup" />
-                                            <div class="slider round"></div>
-                                        </label>
-                                    </div>
-                                </label>
                                 <label>
                                     COD
                                     <div class="form-group">
                                         <label class="switch">
-                                            <input type="radio" id="cod" checked name="paymentMethod" value="COD" />
+                                            <input type="radio" id="cod" name="paymentMethod" value="COD" />
                                             <div class="slider round"></div>
                                         </label>
                                     </div>
                                 </label>
-
-                                <label>
-                                    Cash
-                                    <div class="form-group">
-                                        <label class="switch">
-                                            <input type="radio" id="cash" name="paymentMethod" value="Cash" />
-                                            <div class="slider round"></div>
-                                        </label>
-                                    </div>
-                                </label>
-
-                                <label>
-                                    Check
-                                    <div class="form-group">
-                                        <label class="switch">
-                                            <input type="radio" id="check" name="paymentMethod" value="Check" />
-                                            <div class="slider round"></div>
-                                        </label>
-                                    </div>
-                                </label>
-
                                 <label>
                                     Credit Card
                                     <div class="form-group">
@@ -335,12 +307,29 @@
                                         </label>
                                     </div>
                                 </label>
-
+                                <label>
+                                    Unspecified
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="unspecified" checked name="paymentMethod" value="Unspecified" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
                                 <label>
                                     On Account
                                     <div class="form-group">
                                         <label class="switch">
-                                            <input type="radio" id="onAccount" checked name="paymentMethod" value="On Account" />
+                                            <input type="radio" id="onAccount" name="paymentMethod" value="On Account" />
+                                            <div class="slider round"></div>
+                                        </label>
+                                    </div>
+                                </label>
+                                <label>
+                                    Bill Monthly
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="radio" id="billMonthly" name="paymentMethod" value="Bill Monthly" />
                                             <div class="slider round"></div>
                                         </label>
                                     </div>
