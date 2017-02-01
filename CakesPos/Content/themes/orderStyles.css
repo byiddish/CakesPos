@@ -20,9 +20,9 @@
         border-radius: 25px;
     }
 
-    #imageDiv{
-        width:150px;
-        height:125px;
+    #imageDiv {
+        width: 150px;
+        height: 125px;
     }
 
     /*#discontinued{
@@ -567,20 +567,21 @@ input:checked + .slider:before {
 }
 
 
-/*@media print {
-  body * {
-    visibility: hidden;
-  }
-  #section-to-print, #section-to-print * {
-    visibility: visible;
-  }
-  #section-to-print {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-}*/
+.deliveryMiddleDiv p, .deliveryRightDiv p {
+    font-size: 25px;
+}
 
+#greetings{
+    font-style:italic;
+}
+
+#note{
+    color: red;
+}
+
+#deliveryNote{
+    color: orange;
+}
 
 
 .cssload-preloader {

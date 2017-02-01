@@ -284,13 +284,13 @@ namespace CakesPos.Controllers
             return View(ibcm);
         }
 
-        [HttpPost]
-        public ActionResult AddCustomProduct(string productName, int restockAmount, decimal price, decimal catererDiscount, int inStock)
-        {
-            CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-            cpr.AddProduct(productName, price, catererDiscount, restockAmount, inStock, "default.jpg", 5);
-            return null;
-        }
+        //[HttpPost]
+        //public ActionResult AddCustomProduct(string productName, int restockAmount, decimal price, decimal catererDiscount, int inStock, int sortIndex)
+        //{
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    cpr.AddProduct(productName, price, catererDiscount, restockAmount, inStock, "default.jpg", 5);
+        //    return null;
+        //}
 
         [HttpPost]
         public ActionResult GetOrderById(int orderId)
@@ -351,12 +351,12 @@ namespace CakesPos.Controllers
             return RedirectToAction("Login");
         }
 
-        public ActionResult AddNewProduct(string productName, decimal price, decimal catererDiscount, int restockAmount, int inStock, HttpPostedFileBase image, int categoryId)
+        public ActionResult AddNewProduct(string productName, decimal price, decimal catererDiscount, int restockAmount, int inStock, HttpPostedFileBase image, int categoryId, int sortIndex)
         {
             if (image == null)
             {
                 CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-                cpr.AddProduct(productName, price, catererDiscount, restockAmount, inStock, "default.jpg", categoryId);
+                cpr.AddProduct(productName, price, catererDiscount, restockAmount, inStock, "default.jpg", categoryId, sortIndex);
                 return RedirectToAction("Admin");
             }
             else
@@ -366,7 +366,7 @@ namespace CakesPos.Controllers
                 image.SaveAs(Server.MapPath("~/Uploads/" + g + ".jpg"));
 
                 CakesPosRepository cpr = new CakesPosRepository(_connectionString);
-                cpr.AddProduct(productName, price, catererDiscount, restockAmount, inStock, g + ".jpg", categoryId);
+                cpr.AddProduct(productName, price, catererDiscount, restockAmount, inStock, g + ".jpg", categoryId, sortIndex);
                 return RedirectToAction("Admin");
             }
         }

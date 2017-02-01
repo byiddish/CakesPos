@@ -8,19 +8,12 @@
 
 <div class="container" id="inventoryContainer">
     <div>
-        @*<form action="/home/Inventory" method="POST">
-                <div class="form-group">
-                    <label>
-                        From
-                        <input type="date" value=@DateTime.Today.Date.AddMonths(-1).ToString("yyyy-MM-dd") required class="form-control invDate" id="min" name="min" />
-                    </label>
-                    <label>
-                        To
-                        <input type="date" value=@DateTime.Today.Date.AddDays(3).ToString("yyyy-MM-dd") required class="form-control invDate" id="max" name="max" />
-                    </label>
-                    <button id="invRefresh" class="btn btn-default" type="submit"><span class="glyphicon glyphicon-refresh"></span></button>
-                </div>
-            </form>*@
+        <select>
+            @foreach (CakesPos.Data.Category c in Model.categories)
+            {
+                <option class="categoryOpt" value=@c.Id>@c.CategoryName</option>
+            }
+        </select>
         <h2 id="reqHeader">Showing requests from @ViewBag.minDate.ToShortDateString() - @ViewBag.maxDate.ToShortDateString()</h2>
         <h1 id="minMax"></h1>
         <div id="invInputs">
@@ -100,11 +93,11 @@
             </form>
         </div>
     </div>
-    @foreach (CakesPos.Data.Category category in Model.categories)
-    {
+    @*@foreach (CakesPos.Data.Category category in Model.categories)
+    {*@
         <div class="panel panel-default info-panel">
             <div class="panel-heading">
-                @category.CategoryName
+                @Model.categories.First().CategoryName
             </div>
             <div class="panel-body">
                 <table class="table table-condensed table-bordered table-responsive table-hover table-striped" id="inventoryTable">
@@ -117,8 +110,8 @@
                         <th class="thInv">Total Available</th>
                         <th class="thInv">Action</th>
                     </tr>
-                    @{var inventory = Model.inventory.Where(i => i.product.CategoryId == category.Id);}
-                    @foreach (CakesPos.Data.InventoryViewModel i in inventory)
+                    @*@{var inventory = Model.inventory.Where(i => i.product.CategoryId == category.Id);}*@
+                    @foreach (CakesPos.Data.InventoryViewModel i in Model.inventory)
                     {
                         var requested = i.requestedAmount;
                         var total = i.product.InStock - requested;
@@ -196,7 +189,7 @@
                 </table>
             </div>
         </div>
-    }
+    @*}*@
 </div>
 
 <div id="editProductModal" class="modal fade" role="dialog">
@@ -240,6 +233,10 @@
                             <label>Image</label>
                             <div id="imageDiv"></div>
                             <input type="file" name="image" id="image" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Sorting Index</label>
+                            <input type="number" class="form-control" name="sortIndex" required id="sortIndex" placeholder="Sorting Index">
                         </div>
                         <div class="form-group">
                             <label>Discontinued</label>

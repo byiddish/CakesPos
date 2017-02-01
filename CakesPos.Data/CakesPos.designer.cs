@@ -3364,6 +3364,8 @@ namespace CakesPos.Data
 		
 		private System.Nullable<bool> _Discontinued;
 		
+		private System.Nullable<int> _SortIndex;
+		
 		private EntitySet<OrderDetail> _OrderDetails;
 		
 		private EntityRef<Category> _Category;
@@ -3390,6 +3392,8 @@ namespace CakesPos.Data
     partial void OnCatererDiscountChanged();
     partial void OnDiscontinuedChanging(System.Nullable<bool> value);
     partial void OnDiscontinuedChanged();
+    partial void OnSortIndexChanging(System.Nullable<int> value);
+    partial void OnSortIndexChanged();
     #endregion
 		
 		public Product()
@@ -3579,6 +3583,26 @@ namespace CakesPos.Data
 					this._Discontinued = value;
 					this.SendPropertyChanged("Discontinued");
 					this.OnDiscontinuedChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SortIndex", DbType="Int")]
+		public System.Nullable<int> SortIndex
+		{
+			get
+			{
+				return this._SortIndex;
+			}
+			set
+			{
+				if ((this._SortIndex != value))
+				{
+					this.OnSortIndexChanging(value);
+					this.SendPropertyChanging();
+					this._SortIndex = value;
+					this.SendPropertyChanged("SortIndex");
+					this.OnSortIndexChanged();
 				}
 			}
 		}

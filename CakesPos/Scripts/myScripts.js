@@ -1096,7 +1096,7 @@
             $('#restockAmount').val(product.RestockAmount);
             $('#inStock').val(product.InStock);
             $('#imageDiv').html("<img src=" + '"' + "/Uploads/" + product.Image + '"' + " />");
-            //$('#image').val(product.Image);
+            $('#sortIndex').val(product.SortIndex);
             $('#discontinued').prop('checked', product.Discontinued);
             $('#editProductModal').modal();
         })

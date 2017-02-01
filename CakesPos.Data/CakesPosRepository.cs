@@ -18,7 +18,7 @@ namespace CakesPos.Data
             _connectionString = connectionString;
         }
 
-        public void AddProduct(string productName, decimal price, decimal catererDiscount, int restockAmount, int inStock, string image, int categoryId)
+        public void AddProduct(string productName, decimal price, decimal catererDiscount, int restockAmount, int inStock, string image, int categoryId, int sortIndex)
         {
             Product p = new Product();
             p.CategoryId = categoryId;
@@ -28,6 +28,7 @@ namespace CakesPos.Data
             p.RestockAmount = restockAmount;
             p.InStock = inStock;
             p.Image = image;
+            p.SortIndex = sortIndex;
 
             using (var context = new CakesPosDataContext(_connectionString))
             {
@@ -217,7 +218,7 @@ namespace CakesPos.Data
             using (var context = new CakesPosDataContext(_connectionString))
             {
                 context.DeferredLoadingEnabled = false;
-                return context.Products.Where(p => p.CategoryId == categoryId).Where(product => product.Discontinued == false || product.Discontinued ==null).OrderBy(p => p.ProductName).ToList();
+                return context.Products.Where(p => p.CategoryId == categoryId).Where(product => product.Discontinued == false || product.Discontinued == null).OrderBy(p => p.ProductName).ToList();
             }
         }
 
@@ -445,6 +446,7 @@ namespace CakesPos.Data
                 p.Price = edited.Price;
                 p.ProductName = edited.ProductName;
                 p.RestockAmount = edited.RestockAmount;
+                p.SortIndex = edited.SortIndex;
                 p.Discontinued = edited.Discontinued;
                 context.SubmitChanges();
             }
@@ -555,7 +557,7 @@ namespace CakesPos.Data
             List<Product> products = new List<Product>();
             using (var context = new CakesPosDataContext(_connectionString))
             {
-                products = context.Products.Where(p => p.CategoryId == category).Where(product => product.Discontinued == false || product.Discontinued == null).OrderBy(p => p.ProductName).ToList();
+                products = context.Products.Where(p => p.CategoryId == category).Where(product => product.Discontinued == false || product.Discontinued == null).OrderBy(p => p.SortIndex).ToList();
                 orders = context.Orders.Where(o => o.RequiredDate >= min && o.RequiredDate <= max && o.Invoice == false).ToList();
 
                 foreach (Order o in orders)
