@@ -81,7 +81,13 @@ namespace CakesPos
             Paragraph title = new Paragraph("Invoice: #" + order.order.Id, invoiceFont);
             title.Alignment = 2;
 
-            Paragraph date = new Paragraph("Date: " + DateTime.Today.ToShortDateString(), invoiceFont);
+            var shortString = "";
+
+            if (order.order.RequiredDate.HasValue)
+            {
+                shortString = order.order.RequiredDate.Value.ToShortDateString();
+            }
+            Paragraph date = new Paragraph("Date: " + shortString, invoiceFont);
             date.Alignment = 2;
 
             //Paragraph total = new Paragraph("_________________\nTotal Due: " + "$450.00");

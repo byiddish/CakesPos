@@ -2250,6 +2250,10 @@
         $('#amountPay').val("");
     })
 
+    $('.categoryOpt').on('change', function () {
+
+    })
+
     $('#customerEdit').on('click', function () {
         var customer = $(this).attr('customer');
         var rowIndex = $(this).attr('row');

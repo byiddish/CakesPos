@@ -118,7 +118,11 @@ namespace CakesPos
             decimal discount = 0;
             foreach (OrderDetailsViewModel o in s.Orders)
             {
-                var orderDate = o.order.OrderDate.ToShortDateString();
+                var orderDate = "";
+                if (o.order.RequiredDate.HasValue)
+                {
+                    orderDate = o.order.RequiredDate.Value.ToShortDateString();
+                }
                 var invoice = o.order.Id;
                 var descripton = o.orderedProducts.Sum(pr => pr.quantity) + " Items ordered";
                 //var payment = "";

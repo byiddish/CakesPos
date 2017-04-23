@@ -312,6 +312,20 @@ namespace CakesPos.Controllers
             return View(ibcm);
         }
 
+        //[HttpPost]
+        //public ActionResult Inventory(DateTime min, DateTime max, int dayReq, int categoryId)
+        //{
+        //    InventoryByCategoryModel ibcm = new InventoryByCategoryModel();
+        //    CakesPosRepository cpr = new CakesPosRepository(_connectionString);
+        //    ibcm.inventory = cpr.GetInventory(min, max);
+        //    ibcm.categories = cpr.GetAllCategories();
+        //    ViewBag.category = categoryId;
+        //    ViewBag.minDate = min;
+        //    ViewBag.maxDate = max;
+        //    ViewBag.dayReq = dayReq;
+        //    return View(ibcm);
+        //}
+
         public ActionResult AddCategory(string categoryName)
         {
             CakesPosRepository cpr = new CakesPosRepository(_connectionString);
