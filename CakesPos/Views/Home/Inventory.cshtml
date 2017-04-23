@@ -8,17 +8,30 @@
 
 <div class="container" id="inventoryContainer">
     <div>
-        <select>
-            @foreach (CakesPos.Data.Category c in Model.categories)
-            {
-                <option class="categoryOpt" value=@c.Id>@c.CategoryName</option>
-            }
-        </select>
+        <form class="invCatForm" action="/home/Inventory" method="POST">
+            <select id="categorySelect" class="form-control" style="width:auto" name="categoryid" onchange="this.form.submit()">
+                @foreach (CakesPos.Data.Category c in Model.categories)
+                {
+                    if (c.Id == ViewBag.category)
+                    {
+                        <option class="categoryOpt" value=@c.Id selected>@c.CategoryName</option>
+                    }
+                    else
+                    {
+                        <option class="categoryOpt" value=@c.Id>@c.CategoryName</option>
+                    }
+                }
+            </select>
+            <input class="hidden" value=@ViewBag.minDate.ToShortDateString() name="min" />
+            <input class="hidden" value=@ViewBag.maxDate.ToShortDateString() name="max" />
+            <input class="hidden" value=@ViewBag.dayReq name="dayReq" />
+        </form>
         <h2 id="reqHeader">Showing requests from @ViewBag.minDate.ToShortDateString() - @ViewBag.maxDate.ToShortDateString()</h2>
         <h1 id="minMax"></h1>
         <div id="invInputs">
             <form class="fromToForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=0 name="dayReq" />
+                <input class="hidden" value=@ViewBag.category name="categoryId" />
                 <div class="form-group">
                     <label>
                         From
@@ -34,6 +47,7 @@
             <form class="invForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
                 <input class="hidden" value=1 name="dayReq" />
+                <input class="hidden" value=@ViewBag.category name="categoryId" />
                 @if (ViewBag.dayReq == 1)
                 {
                     <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date>Today</button>
@@ -46,6 +60,7 @@
             <form class="invForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
                 <input class="hidden" value=2 name="dayReq" />
+                <input class="hidden" value=@ViewBag.category name="categoryId" />
                 @if (ViewBag.dayReq == 2)
                 {
                     <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(1)>@DateTime.Today.AddDays(1).DayOfWeek.ToString()</button>
@@ -58,6 +73,7 @@
             <form class="invForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
                 <input class="hidden" value=3 name="dayReq" />
+                <input class="hidden" value=@ViewBag.category name="categoryId" />
                 @if (ViewBag.dayReq == 3)
                 {
                     <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(2)>@DateTime.Today.AddDays(2).DayOfWeek.ToString()</button>
@@ -70,6 +86,7 @@
             <form class="invForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
                 <input class="hidden" value=4 name="dayReq" />
+                <input class="hidden" value=@ViewBag.category name="categoryId" />
                 @if (ViewBag.dayReq == 4)
                 {
                     <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(3)>@DateTime.Today.AddDays(3).DayOfWeek.ToString()</button>
@@ -82,6 +99,7 @@
             <form class="invForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=@DateTime.Today.Date.AddMonths(-1) name="min" />
                 <input class="hidden" value=7 name="dayReq" />
+                <input class="hidden" value=@ViewBag.category name="categoryId" />
                 @if (ViewBag.dayReq == 7)
                 {
                     <button class="btn btn-group btn-info" type="submit" name="max" value=@DateTime.Today.Date.AddDays(6)>Next 7 Days</button>
@@ -94,101 +112,101 @@
         </div>
     </div>
     @*@foreach (CakesPos.Data.Category category in Model.categories)
-    {*@
-        <div class="panel panel-default info-panel">
-            <div class="panel-heading">
-                @Model.categories.First().CategoryName
-            </div>
-            <div class="panel-body">
-                <table class="table table-condensed table-bordered table-responsive table-hover table-striped" id="inventoryTable">
-                    <tr>
-                        <th class="thInv" id="invProductCell">Product</th>
-                        <th class="thInv">Stock</th>
-                        <th class="thInv">
-                            Requested
-                        </th>
-                        <th class="thInv">Total Available</th>
-                        <th class="thInv">Action</th>
-                    </tr>
-                    @*@{var inventory = Model.inventory.Where(i => i.product.CategoryId == category.Id);}*@
-                    @foreach (CakesPos.Data.InventoryViewModel i in Model.inventory)
-                    {
-                        var requested = i.requestedAmount;
-                        var total = i.product.InStock - requested;
-                        double p = 100 - ((double)i.requestedAmount / (double)i.product.InStock) * (100);
-                        //double p = 100 - ((double)i.requestedAmount / (double)i.product) * (100);
-                        string per = "";
-                        string cls = "";
-                        if (p == 0)
-                        {
-                            per = "style=" + "width:2em";
-                        }
-                        else
-                        {
-                            per = "style=" + "width:" + p.ToString() + "%" + ";min-width:2em;";
-                        }
-
-                        if (p >= 85)
-                        {
-                            cls = "progress-bar progress-bar-success progress-bar-striped";
-                        }
-                        else if (p < 85 && p > 35)
-                        {
-                            cls = "progress-bar progress-bar-warning progress-bar-striped";
-                        }
-                        else
-                        {
-                            cls = "progress-bar progress-bar-danger progress-bar-striped";
-                        }
-
-                        <tr>
-                            <td>@i.product.ProductName</td>
-                            <td class="inStock">@i.product.InStock</td>
-                            <td>@i.requestedAmount</td>
-                            <td align="center">
-                                @if (i.product.InStock - i.requestedAmount < i.product.RestockAmount / 2)
-                                {
-                                    <div class="badgeDiv" style="font-size: 36px">
-                                        <!-- pretend an enclosing class has big font size -->
-                                        <span class="label label-danger label-as-badge">@total</span>
-                                        @*<h2 style="color:red">Past restock level!</h2>*@
-                                    </div>
-                                }
-                                else if (i.product.InStock - i.requestedAmount < i.product.RestockAmount)
-                                {
-                                    <div class="badgeDiv" style="font-size: 36px">
-                                        <!-- pretend an enclosing class has big font size -->
-                                        <span class="label label-warning label-as-badge">@total</span>
-                                        @*<h1 style="color:red">Past restock level!</h1>*@
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="badgeDiv" style="font-size: 36px">
-                                        <!-- pretend an enclosing class has big font size -->
-                                        <span class="label label-success label-as-badge">@total</span>
-                                    </div>
-                                }
-                                @*<div class="progress" style="width:200px;height:35px;">
-                                        <div class="@cls" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" @per>
-                                            <div style="margin-top:10px;">
-                                                <span style="color:white;font-size:medium;">@total</span>
-                                            </div>
-                                            <span class="sr-only">100% Complete (success)</span>
-                                        </div>
-                                    </div>*@
-                            </td>
-                            <td align="center">
-                                <input type="number" class="invQuantityInput" /> <button class="btn btn-default btn-group add" data-id="@i.product.Id">Add</button>
-                                <button class="btn btn-warning productEditBtn" data-id=@i.product.Id>Edit</button>
-                                @*<button class="btn btn-warning" id="editProduct" data-id="@i.product.Id">Edit</button>
-                                    <button class="btn btn-danger" data-id="@i.product.Id">Discontinue</button>*@
-                            </td>
-                        </tr>
-                    }
-                </table>
-            </div>
+        {*@
+    <div class="panel panel-default info-panel">
+        <div class="panel-heading">
+            @Model.categories.Where(c => c.Id == ViewBag.category).FirstOrDefault().CategoryName
         </div>
+        <div class="panel-body">
+            <table class="table table-condensed table-bordered table-responsive table-hover table-striped" id="inventoryTable">
+                <tr>
+                    <th class="thInv" id="invProductCell">Product</th>
+                    <th class="thInv">Stock</th>
+                    <th class="thInv">
+                        Requested
+                    </th>
+                    <th class="thInv">Total Available</th>
+                    <th class="thInv">Action</th>
+                </tr>
+                @{var inventory = Model.inventory.Where(i => i.product.CategoryId == ViewBag.category);}
+                @foreach (CakesPos.Data.InventoryViewModel i in inventory)
+                {
+                    var requested = i.requestedAmount;
+                    var total = i.product.InStock - requested;
+                    double p = 100 - ((double)i.requestedAmount / (double)i.product.InStock) * (100);
+                    //double p = 100 - ((double)i.requestedAmount / (double)i.product) * (100);
+                    string per = "";
+                    string cls = "";
+                    if (p == 0)
+                    {
+                        per = "style=" + "width:2em";
+                    }
+                    else
+                    {
+                        per = "style=" + "width:" + p.ToString() + "%" + ";min-width:2em;";
+                    }
+
+                    if (p >= 85)
+                    {
+                        cls = "progress-bar progress-bar-success progress-bar-striped";
+                    }
+                    else if (p < 85 && p > 35)
+                    {
+                        cls = "progress-bar progress-bar-warning progress-bar-striped";
+                    }
+                    else
+                    {
+                        cls = "progress-bar progress-bar-danger progress-bar-striped";
+                    }
+
+                    <tr>
+                        <td>@i.product.ProductName <img src="~/Uploads/@i.product.Image.ToString()" /></td>
+                        <td class="inStock">@i.product.InStock</td>
+                        <td>@i.requestedAmount</td>
+                        <td align="center">
+                            @if (i.product.InStock - i.requestedAmount < i.product.RestockAmount / 2)
+                            {
+                                <div class="badgeDiv" style="font-size: 36px">
+                                    <!-- pretend an enclosing class has big font size -->
+                                    <span class="label label-danger label-as-badge">@total</span>
+                                    @*<h2 style="color:red">Past restock level!</h2>*@
+                                </div>
+                            }
+                            else if (i.product.InStock - i.requestedAmount < i.product.RestockAmount)
+                            {
+                                <div class="badgeDiv" style="font-size: 36px">
+                                    <!-- pretend an enclosing class has big font size -->
+                                    <span class="label label-warning label-as-badge">@total</span>
+                                    @*<h1 style="color:red">Past restock level!</h1>*@
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="badgeDiv" style="font-size: 36px">
+                                    <!-- pretend an enclosing class has big font size -->
+                                    <span class="label label-success label-as-badge">@total</span>
+                                </div>
+                            }
+                            @*<div class="progress" style="width:200px;height:35px;">
+                                    <div class="@cls" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" @per>
+                                        <div style="margin-top:10px;">
+                                            <span style="color:white;font-size:medium;">@total</span>
+                                        </div>
+                                        <span class="sr-only">100% Complete (success)</span>
+                                    </div>
+                                </div>*@
+                        </td>
+                        <td align="center">
+                            <input type="number" class="invQuantityInput" /> <button class="btn btn-default btn-group add" data-id="@i.product.Id">Add</button>
+                            <button class="btn btn-warning productEditBtn" data-id=@i.product.Id>Edit</button>
+                            @*<button class="btn btn-warning" id="editProduct" data-id="@i.product.Id">Edit</button>
+                                <button class="btn btn-danger" data-id="@i.product.Id">Discontinue</button>*@
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
     @*}*@
 </div>
 
@@ -208,8 +226,7 @@
                         <div class="form-group">
                             <label>
                                 Category
-                                <select class="form-control input" name="categoryId" id="categories">
-                                </select>
+                                <select class="form-control input" name="categoryId" id="categories"></select>
                             </label>
                         </div>
                         <input id="productId" name="productId" style="display:none" />
