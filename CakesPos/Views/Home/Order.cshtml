@@ -1,9 +1,11 @@
 ﻿@model CakesPos.OrdersViewModel
-
-
+@section Scripts{
+    <script src="~/Scripts/Order/Order.ui.js"></script>
+}
 @section Styles{
     <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
 }
+<audio id="audio" src="~/Content/Audio/beep-07.wav" autostart="false"></audio>
 
 <div id="parent">
     <div id="leftdiv">
@@ -14,11 +16,6 @@
                     <button class="btn btn-md btn-primary" id="addBtn" data-toggle="modal" data-target="#newCustomerModal">New customer</button>
                     <input type="hidden" id="customerId" name="customerId" />
                     <h4 id="customerHeader"></h4>
-                    @*<h6 id="customerAddress"></h6>
-                        <h6 id="customerPhone"></h6>
-                        <h6 id="customerCell"></h6>
-                        <h6 id="customerEmail"></h6>
-                        <input type="hidden" id="catererDiscount" />*@
                     <h6 id="catererIndicator"></h6>
                 </div>
             </div>

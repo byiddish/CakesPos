@@ -1,0 +1,79 @@
+﻿/******************* Inventory *********************/
+
+.productImg {
+    height: 120px;
+    width: 145px;
+    display: block;
+}
+
+.categoryNav {
+    background-color: #d1d1d1;
+    z-index: 2000;
+}
+
+.invCatForm {
+    width: 100%;
+}
+
+.category {
+    float: left;
+    background-color: #d1d1d1;
+    text-align: center;
+    height: 100%;
+    box-sizing: border-box;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all .2s ease-out;
+}
+
+    .category:hover {
+        background-color: #c4c4c4;
+    }
+
+    .category span {
+    }
+
+.selected {
+    background-color: #bdbdbd;
+}
+
+.navbar-fixed-bottom, .navbar-fixed-top {
+    position: relative !important;
+    margin-bottom: 0 !important;
+}
+
+@media print {
+    .productImg, .actions, .categoryNav, #invInputs {
+        display: none;
+    }
+}
+
+@media all and (max-width: 1030px) {
+    .categoryNav .container {
+        width: 100%;
+        font-size: .8em;
+        padding: 0;
+    }
+
+    .category span {
+        font-size: .8em;
+    }
+
+    #invInputs .btn {
+        padding: 3px 6px !important;
+        font-size: 10px !important;
+    }
+
+    label {
+        font-size: .7em !important;
+    }
+
+    .form-control {
+        padding: 3px 6px !important;
+        font-size: 10px !important;
+        height: 22px !important;
+    }
+}

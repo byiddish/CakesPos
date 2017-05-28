@@ -1,34 +1,46 @@
 ﻿@model CakesPos.Data.InventoryByCategoryModel
 
-
+@section Scripts{
+<script src="//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js"></script>
+<script src="~/Scripts/Inventory/Inventory.ui.js"></script>
+}
 @section Styles{
     <link href="~/Content/themes/orderStyles.css" rel="stylesheet" />
+    <link href="~/Content/themes/Inventory.css" rel="stylesheet" />
 }
+<div class="categoryNav">
+    <div class="container">
+        @{var width = "width:" + (100 / Model.categories.Count()) + "%";}
+        @foreach (CakesPos.Data.Category c in Model.categories)
+        {
+            if (c.Id == ViewBag.category)
+            {
 
-
+                <form class="invCatForm" action="/home/Inventory" method="POST">
+                    <button class="category selected" value=@c.Id name="categoryid" style=@width type="submit"><span>@c.CategoryName</span></button>
+                    <input class="hidden" value=@ViewBag.minDate.ToShortDateString() name="min" />
+                    <input class="hidden" value=@ViewBag.maxDate.ToShortDateString() name="max" />
+                    <input class="hidden" value=@ViewBag.dayReq name="dayReq" />
+                </form>
+            }
+            else
+            {
+                <form class="invCatForm" action="/home/Inventory" method="POST">
+                    <button class="category" value=@c.Id name="categoryid" style=@width type="submit"><span>@c.CategoryName</span></button>
+                    <input class="hidden" value=@ViewBag.minDate.ToShortDateString() name="min" />
+                    <input class="hidden" value=@ViewBag.maxDate.ToShortDateString() name="max" />
+                    <input class="hidden" value=@ViewBag.dayReq name="dayReq" />
+                </form>
+            }
+        }
+    </div>
+</div>
 <div class="container" id="inventoryContainer">
     <div>
-        <form class="invCatForm" action="/home/Inventory" method="POST">
-            <select id="categorySelect" class="form-control" style="width:auto" name="categoryid" onchange="this.form.submit()">
-                @foreach (CakesPos.Data.Category c in Model.categories)
-                {
-                    if (c.Id == ViewBag.category)
-                    {
-                        <option class="categoryOpt" value=@c.Id selected>@c.CategoryName</option>
-                    }
-                    else
-                    {
-                        <option class="categoryOpt" value=@c.Id>@c.CategoryName</option>
-                    }
-                }
-            </select>
-            <input class="hidden" value=@ViewBag.minDate.ToShortDateString() name="min" />
-            <input class="hidden" value=@ViewBag.maxDate.ToShortDateString() name="max" />
-            <input class="hidden" value=@ViewBag.dayReq name="dayReq" />
-        </form>
         <h2 id="reqHeader">Showing requests from @ViewBag.minDate.ToShortDateString() - @ViewBag.maxDate.ToShortDateString()</h2>
         <h1 id="minMax"></h1>
         <div id="invInputs">
+            <button class="btn btn-success" id="print">Print</button>
             <form class="fromToForm" action="/home/Inventory" method="POST">
                 <input class="hidden" value=0 name="dayReq" />
                 <input class="hidden" value=@ViewBag.category name="categoryId" />
@@ -126,7 +138,7 @@
                         Requested
                     </th>
                     <th class="thInv">Total Available</th>
-                    <th class="thInv">Action</th>
+                    <th class="thInv actions">Action</th>
                 </tr>
                 @{var inventory = Model.inventory.Where(i => i.product.CategoryId == ViewBag.category);}
                 @foreach (CakesPos.Data.InventoryViewModel i in inventory)
@@ -160,9 +172,9 @@
                     }
 
                     <tr>
-                        <td>@i.product.ProductName <img src="~/Uploads/@i.product.Image.ToString()" /></td>
+                        <td>@i.product.ProductName <img class="productImg" src="~/Uploads/@i.product.Image.ToString()" /></td>
                         <td class="inStock">@i.product.InStock</td>
-                        <td>@i.requestedAmount</td>
+                        <td class="requested">@i.requestedAmount</td>
                         <td align="center">
                             @if (i.product.InStock - i.requestedAmount < i.product.RestockAmount / 2)
                             {
@@ -196,7 +208,7 @@
                                     </div>
                                 </div>*@
                         </td>
-                        <td align="center">
+                        <td align="center" class="actions">
                             <input type="number" class="invQuantityInput" /> <button class="btn btn-default btn-group add" data-id="@i.product.Id">Add</button>
                             <button class="btn btn-warning productEditBtn" data-id=@i.product.Id>Edit</button>
                             @*<button class="btn btn-warning" id="editProduct" data-id="@i.product.Id">Edit</button>

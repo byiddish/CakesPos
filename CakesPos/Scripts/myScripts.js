@@ -1068,9 +1068,13 @@
     $('.add').on('click', function () {
         var element = $(this)
         var id = $(this).data('id');
-        var amount = $(this).closest('tr').find('.invQuantityInput').val();
+        var amount = parseInt($(this).closest('tr').find('.invQuantityInput').val());
+        var inStock = parseInt(element.closest('tr').find('.inStock').html());
+        var avail = parseInt(element.closest('tr').find('.badgeDiv span').html());
         $.post("/Home/UpdateInventory", { id: id, amount: amount }, function () {
-            location.reload();
+            element.closest('tr').find('.inStock').html(inStock += amount);
+            element.closest('tr').find('.badgeDiv span').html(avail += amount);
+            element.closest('tr').find('.invQuantityInput').val("");
         })
     })
 

@@ -191,7 +191,9 @@
 
 #ordersDiv {
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     height: 603px;
+    max-height: 603px;
 }
 
 #totalDiv {
@@ -347,7 +349,7 @@ img {
 }
 
 #inventoryContainer {
-    margin-top: 100px;
+    margin-top: 25px;
 }
 
 #invProductCell {
@@ -504,12 +506,6 @@ input:checked + .slider:before {
     height: 850px !important;
 }
 
-#viewPdfIFrame {
-    /*position: absolute;*/
-    /*top: 164px;
-    left: 270px;*/
-}
-
 #iFrameDiv {
     width: 700px;
     height: 750px;
@@ -522,8 +518,6 @@ input:checked + .slider:before {
 
 #customersDiv {
     margin-top: 100px;
-    overflow: scroll;
-    height: 850px;
 }
 
 #customersSearchDiv input {
@@ -571,15 +565,15 @@ input:checked + .slider:before {
     font-size: 25px;
 }
 
-#greetings{
-    font-style:italic;
+#greetings {
+    font-style: italic;
 }
 
-#note{
+#note {
     color: red;
 }
 
-#deliveryNote{
+#deliveryNote {
     color: orange;
 }
 
@@ -834,3 +828,4 @@ span:nth-last-child(3) {
         -moz-transform: rotateY(45deg);
     }
 }
+
