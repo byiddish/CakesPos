@@ -9,6 +9,8 @@
 .categoryNav {
     background-color: #d1d1d1;
     z-index: 2000;
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
 }
 
 .invCatForm {
