@@ -11,6 +11,7 @@
     <h2 id="deliveryHeader" style="text-align:center;color:orange">Delivery's</h2>
     <label>
         Filter Date
+        </label>
         <select class="form-control" id="filterDeliveryDate">
             <option value="0">Today</option>
             <option value="1">Tommorow</option>
@@ -25,7 +26,6 @@
             <option value="Delivery">Delivery</option>
             <option value="Pickup">Pickup</option>
         </select>
-    </label>
     <button class="btn btn-success" id="print">Print</button>
     <div id="deliveryAlertDiv">
         @if (Model.Count() == 0)
