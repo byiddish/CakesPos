@@ -7,6 +7,7 @@
     var oId = "";
     var t = "";
     var cust = "";
+    var orderListFilter = "All";
 
     var IsLoaderForInput = false;
     var IsLoaderForSubmit = false;
@@ -1136,9 +1137,34 @@
 
     //-------------------------------------------------------------------------------------------------------------
 
-    $('#filterDeliveryDate, #deliveryOpt').on('change', function () {
+    $('#filterDeliveryDate, #deliveryOpt, #filterByCity').on('change', function () {
         IsLoaderForInput = true;
         var x = $('#filterDeliveryDate option:selected').val();
+        var filterByCity = $('#filterByCity option:selected').val();
+        var deliveryOpt = $('#deliveryOpt option:selected').val();
+        var pickup = false;
+        $('.deliveryInfoDiv').remove();
+        $('#deliveryAlert').remove();
+        $.post("/Home/DeliveryFilter", { x: x, deliveryOpt: deliveryOpt }, function (deliveries) {
+            if (deliveryOpt == "Delivery") {
+                $('#deliveryHeader').css("color", "orange");
+            }
+            else {
+                pickup = true;
+                $('#deliveryHeader').css("color", "blue");
+            }
+            $('#deliveryHeader').html(deliveryOpt + "'s");
+            if (filterByCity !== "All") {
+                deliveries = deliveries.filter(d => d.order.DeliveryCity.toLowerCase() === filterByCity.toLowerCase());
+            }
+            console.log("filter");
+            populateDeliveries(deliveries, pickup);
+        })
+    });
+
+    $('#filterByCity').on('change', function () {
+        IsLoaderForInput = true;
+        var x = $('#filterByCity option:selected').val();
         var deliveryOpt = $('#deliveryOpt option:selected').val();
         var pickup = false;
         $('.deliveryInfoDiv').remove();
