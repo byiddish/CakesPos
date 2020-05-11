@@ -1153,38 +1153,17 @@
                 pickup = true;
                 $('#deliveryHeader').css("color", "blue");
             }
-            $('#deliveryHeader').html(deliveryOpt + "'s");
+            $('#deliveryHeader').html(deliveryOpt === "Delivery" ? "Deliveries" : "Pickups");
             if (filterByCity !== "All") {
                 deliveries = deliveries.filter(d => d.order.DeliveryCity.toLowerCase() === filterByCity.toLowerCase());
             }
-            console.log("filter");
-            populateDeliveries(deliveries, pickup);
-        })
-    });
-
-    $('#filterByCity').on('change', function () {
-        IsLoaderForInput = true;
-        var x = $('#filterByCity option:selected').val();
-        var deliveryOpt = $('#deliveryOpt option:selected').val();
-        var pickup = false;
-        $('.deliveryInfoDiv').remove();
-        $('#deliveryAlert').remove();
-        $.post("/Home/DeliveryFilter", { x: x, deliveryOpt: deliveryOpt }, function (deliveries) {
-            if (deliveryOpt == "Delivery") {
-                $('#deliveryHeader').css("color", "orange");
-            }
-            else {
-                pickup = true;
-                $('#deliveryHeader').css("color", "blue");
-            }
-            $('#deliveryHeader').html(deliveryOpt + "'s");
             populateDeliveries(deliveries, pickup);
         })
     });
 
     function populateDeliveries(deliveries, pickup) {
         if ($.isEmptyObject(deliveries)) {
-            $('#deliveryAlertDiv').append("<h3 id=" + '"' + "deliveryAlert" + '"' + ">No deliveries for this time period...</h3>");
+            $('#deliveryAlertDiv').append("<h3 id=" + '"' + "deliveryAlert" + '"' + ">No orders for this time period...</h3>");
         }
         for (var i = 0, l = deliveries.length; i < l; i++) {
             var requiredDate = ConvertJsonDate(deliveries[i].order.RequiredDate);
